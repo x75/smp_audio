@@ -1,7 +1,7 @@
-smp\_audio aka slurp
+smp\_audio aka smp_audio
 ====================
 
-Slurp comes from *slurping* in music data and creating an incremental model based representation of the audio. This can be then be used for support or automation of different audio editing and production tasks such as segmentation, editing, score reconstruction, etc.
+Slurp comes from *smp_audioing* in music data and creating an incremental model based representation of the audio. This can be then be used for support or automation of different audio editing and production tasks such as segmentation, editing, score reconstruction, etc.
 
 The library wraps several different existing MIR libraries, currently essentia, librosa, madmom, aubio, pyAudioAnalysis.
 
@@ -58,7 +58,7 @@ The scripts folder contains prototypes for different music related workflows, e.
 |                  | librosa-onset-onset\_strength\_multi-1.py  |                                                                                       |
 |                  |                                            |                                                                                       |
 |                  | moved all files to start with music\_      |                                                                                       |
-|                  | copied all files to aim-slurp/scripts      |                                                                                       |
+|                  | copied all files to smp_audio/scripts      |                                                                                       |
 
 Process prototype
 -----------------

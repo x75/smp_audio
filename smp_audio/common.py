@@ -1,4 +1,4 @@
-"""slurp.common
+"""smp_audio.common
 
 common data, embedding, transform functions for offline music and
 multivariate timeseries processing

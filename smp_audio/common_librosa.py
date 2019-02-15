@@ -8,7 +8,7 @@ import librosa
 # import madmom
 import numpy as np
 
-from slurp.common import myprint
+from smp_audio.common import myprint
 
 ################################################################################
 # data loading

@@ -165,7 +165,7 @@ def track_assemble_from_segments_sequential(**kwargs):
     return {'filename_export': filename_export, 'final_duration': song.duration_seconds, 'seg_s': seg_s}
 
 if __name__ == '__main__':
-    print('smp_music.slurp.assemble_pydub')
+    print('smp_music.smp_audio.assemble_pydub')
 
     # track_assemble_from_segments()
 

@@ -1,11 +1,11 @@
 #+OPTIONS: ^:nil
 
-* smp_audio aka slurp
+* smp_audio aka smp_audio
   :PROPERTIES:
-  :CUSTOM_ID: slurp
+  :CUSTOM_ID: smp_audio
   :END:
 
-Slurp comes from /slurping/ in music data and creating an incremental
+Slurp comes from /smp_audioing/ in music data and creating an incremental
 model based representation of the audio. This can be then be used for
 support or automation of different audio editing and production tasks
 such as segmentation, editing, score reconstruction, etc.
@@ -70,7 +70,7 @@ session that is shorter or longer than output duration).
 |                  |                                            |                                                                                       |
 |------------------+--------------------------------------------+---------------------------------------------------------------------------------------|
 |                  | moved all files to start with music_\*     |                                                                                       |
-|                  | copied all files to aim-slurp/scripts      |                                                                                       |
+|                  | copied all files to smp_audio/scripts      |                                                                                       |
 
 ** Process prototype
  - read file

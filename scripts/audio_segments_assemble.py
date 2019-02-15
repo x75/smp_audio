@@ -1,7 +1,7 @@
 import argparse
 
-from slurp.util import args_to_dict
-from slurp.assemble_pydub import track_assemble_from_segments
+from smp_audio.util import args_to_dict
+from smp_audio.assemble_pydub import track_assemble_from_segments
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

@@ -29,14 +29,14 @@ import joblib
 
 from librosa import samples_to_frames
 
-from slurp.common_essentia import data_load_essentia
-from slurp.common_essentia import compute_segments_essentia
-from slurp.common_essentia import compute_tempo_beats_essentia, compute_music_extractor_essentia
-from slurp.common_librosa import compute_segments_librosa, compute_chroma_librosa, compute_beats_librosa, compute_onsets_librosa
-from slurp.assemble_pydub import track_assemble_from_segments, track_assemble_from_segments_sequential
-from slurp.graphs import graph_walk_collection_flat, graph_walk_collection
-from slurp.graphs import cb_graph_walk_build_graph
-from slurp.util import args_to_dict
+from smp_audio.common_essentia import data_load_essentia
+from smp_audio.common_essentia import compute_segments_essentia
+from smp_audio.common_essentia import compute_tempo_beats_essentia, compute_music_extractor_essentia
+from smp_audio.common_librosa import compute_segments_librosa, compute_chroma_librosa, compute_beats_librosa, compute_onsets_librosa
+from smp_audio.assemble_pydub import track_assemble_from_segments, track_assemble_from_segments_sequential
+from smp_audio.graphs import graph_walk_collection_flat, graph_walk_collection
+from smp_audio.graphs import cb_graph_walk_build_graph
+from smp_audio.util import args_to_dict
 
 from audio_segments_split import main_audio_segments_split
 from audio_features_paa import compute_features_paa

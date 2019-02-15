@@ -10,11 +10,11 @@ files.
 3. slice the data into segments based on the improved prediction
 4. write the segment slices to disk as wavs for use down the pipeline
 """
-from slurp.segments import compute_event_mean_intervals
-from slurp.segments import compute_event_merge_mexhat
-from slurp.segments import plot_event_merge_results
-from slurp.segments import compute_event_merge_heuristics
-from slurp.segments import compute_event_merge_index_to_file
+from smp_audio.segments import compute_event_mean_intervals
+from smp_audio.segments import compute_event_merge_mexhat
+from smp_audio.segments import plot_event_merge_results
+from smp_audio.segments import compute_event_merge_heuristics
+from smp_audio.segments import compute_event_merge_index_to_file
 
 def main_audio_segments_split(**kwargs):
     # number of frames, FIXME winsize, hopsize

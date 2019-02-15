@@ -10,14 +10,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from smp_base.plot import make_fig
 
-from slurp.common import data_load_librosa
-from slurp.common import compute_onsets_librosa, compute_chroma_librosa, compute_tempogram_librosa
-from slurp.common import compute_beats_librosa, compute_beats_madmon
-from slurp.common import compute_segments_librosa, compute_segments_essentia
+from smp_audio.common import data_load_librosa
+from smp_audio.common import compute_onsets_librosa, compute_chroma_librosa, compute_tempogram_librosa
+from smp_audio.common import compute_beats_librosa, compute_beats_madmon
+from smp_audio.common import compute_segments_librosa, compute_segments_essentia
 
-from slurp.plot import colors
-from slurp.plot import myplot_specshow_librosa
-from slurp.plot import myplot_onsets, myplot_beats, myplot_tempo, myplot_chroma, myplot_segments
+from smp_audio.plot import colors
+from smp_audio.plot import myplot_specshow_librosa
+from smp_audio.plot import myplot_onsets, myplot_beats, myplot_tempo, myplot_chroma, myplot_segments
 
 
 # costly_compute_cached = memory.cache(costly_compute_cached)

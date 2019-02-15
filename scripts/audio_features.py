@@ -29,7 +29,7 @@ import essentia.standard as estd
 
 import logging
 # from smp_base.common import get_module_logger
-from slurp.common import get_module_logger
+from smp_audio.common import get_module_logger
 
 logger = get_module_logger(modulename = 'music_features', loglevel = logging.DEBUG)
 

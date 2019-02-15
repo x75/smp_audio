@@ -23,11 +23,11 @@ from smp_base.plot import make_fig
 
 DEBUG=True
 
-from slurp.common import myprint
-from slurp.common import data_load_librosa
-from slurp.common import compute_chroma_librosa, compute_tempogram_librosa
-from slurp.common import compute_onsets_librosa, compute_beats_librosa, compute_beats_madmon
-from slurp.common import compute_segments_librosa
+from smp_audio.common import myprint
+from smp_audio.common import data_load_librosa
+from smp_audio.common import compute_chroma_librosa, compute_tempogram_librosa
+from smp_audio.common import compute_onsets_librosa, compute_beats_librosa, compute_beats_madmon
+from smp_audio.common import compute_segments_librosa
 
 def plotit(**kwargs):
     ############################################################

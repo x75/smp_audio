@@ -1,0 +1,7 @@
+*~
+*__pycache__*
+*cachedir*
+*.pyc
+*.ipynb_checkpoints*
+*.bak
+

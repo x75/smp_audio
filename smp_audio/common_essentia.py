@@ -101,8 +101,10 @@ def compute_music_extractor_essentia(y, sr=None):
     return result # {'y': y, }
 
 def compute_segments_essentia(Y, sr, numparts):
-    """compute part segmentation estimate using essentia's information
-    criterion approach
+    """compute audio segmentation with essentia
+
+    Compute audio segmentation using essentia's information criterion
+    function.
 
     Args:
     - Y(np.ndarray): input feature-gram (e.g. chroma)

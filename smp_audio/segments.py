@@ -83,9 +83,9 @@ def compute_event_merge_mexhat(**kwargs):
 
     final_sum = np.sum(final_, axis=1)
     ind = np.argpartition(final_sum, -numsegs)[-numsegs:] - 2
-    ind2 = np.argpartition(final_sum, -(numsegs+5))[-(numsegs+5):] - 2
+    # ind2 = np.argpartition(final_sum, -(numsegs+5))[-(numsegs+5):] - 2
 
-    return {'kernels': kernels, 'kernel_weights': kernel_weights, 'final_sum': final_sum, 'ind': ind, 'ind2': ind2}
+    return {'kernels': kernels, 'kernel_weights': kernel_weights, 'final_sum': final_sum, 'ind': ind} # , 'ind2': ind2}
 
 def plot_event_merge_results(**kwargs):
     numframes = kwargs['numframes']
@@ -93,7 +93,8 @@ def plot_event_merge_results(**kwargs):
     kernel_weights = kwargs['kernel_weights']
     final_sum = kwargs['final_sum']
     ind = kwargs['ind']
-    ind2 = kwargs['ind2']
+    ind_full = kwargs['ind_full']
+    # ind2 = kwargs['ind2']
     
     plt.subplot(2,1,2)
     for i, kernel in enumerate(kernels):
@@ -107,7 +108,8 @@ def plot_event_merge_results(**kwargs):
     linescale = np.max(final_sum)
     ax.vlines(ind, 0.5 * linescale, 1.0 * linescale, 'r', linewidth=1)
     plt.draw()
-    ax.vlines(ind2, 0 * linescale, 0.5 * linescale, 'g', linewidth=2)
+    # ax.vlines(ind2, 0 * linescale, 0.5 * linescale, 'g', linewidth=2)
+    ax.vlines(ind_full, 0 * linescale, 0.5 * linescale, 'g', linewidth=2)
     ax.set_xlim((0, numframes))
 
     plt.draw()
@@ -118,42 +120,46 @@ def plot_event_merge_results(**kwargs):
 def compute_event_merge_heuristics(**kwargs):
     numframes = kwargs['numframes']
     ind = kwargs['ind']
-    ind2 = kwargs['ind2']
-    
-    ind.sort()
-    ind2.sort()
+    seglen_min = 43 # 10
+    # ind2 = kwargs['ind2']
 
-    print('ind {0}\nind2 {1}'.format(ind, ind2))
+    # sort indices, ind2 has lower treshold / more events than ind(1)
+    ind.sort()
+    # ind2.sort()
+
+    # debug printing
+    print('ind {0}\nind2 {1}'.format(ind, None)) # ind2
 
     # min length heuristic brute force
     ind_full = np.array([0] + ind.tolist() + [numframes-1])
     print('ind_full {0}'.format(ind_full))
     # idx = np.array([True] + (np.diff(ind_full)>10).tolist()).astype(bool)
-    idx = np.diff(ind_full)>10
+    idx = np.diff(ind_full) > seglen_min
     print('idx {0}'.format(idx))
+    print('idx {0}, ind_full {1}'.format(np.sum(idx), ind_full.shape))
     ind_ = [0] + ind_full[1:][idx].tolist()
 
-    ind2_full = np.array([0] + ind2.tolist() + [numframes-1])
-    print('ind2_full {0}'.format(ind2_full))
-    # idx = np.array([True] + (np.diff(ind_full)>10).tolist()).astype(bool)
-    idx2 = np.diff(ind2_full)>10
-    print('idx2 {0}'.format(idx2))
-    ind2_ = [0] + ind2_full[1:][idx2].tolist()
+    # ind2_full = np.array([0] + ind2.tolist() + [numframes-1])
+    # print('ind2_full {0}'.format(ind2_full))
+    # # idx = np.array([True] + (np.diff(ind_full)>10).tolist()).astype(bool)
+    # idx2 = np.diff(ind2_full)>10
+    # print('idx2 {0}'.format(idx2))
+    # ind2_ = [0] + ind2_full[1:][idx2].tolist()
     
-    print('ind_ {0}\nind2 {1}'.format(ind_, ind2_))
+    print('ind_ {0}\nind2 {1}'.format(ind_, None)) # ind2_
 
-    return {'ind_': ind_, 'ind2_': ind2_}
+    return {'ind_': ind_, 'ind_full': ind_full.tolist()} # , 'ind2_': ind2_}
 
 def compute_event_merge_index_to_file(**kwargs):
     ind_ = kwargs['ind_']
-    ind2_ = kwargs['ind2_']
+    # ind2_ = kwargs['ind2_']
     filename_48 = kwargs['filename_48']
     
     # ind_cut = librosa.frames_to_samples(ind)
     # ind_cut = librosa.frames_to_samples(ind.tolist() + [numframes-1])
 
     # convert frame indices to sample indices
-    ind_cut = librosa.frames_to_samples(ind2_)
+    ind_cut = librosa.frames_to_samples(ind_) # FIXME: hardcoded choice ind2 (smaller segments / more events)
 
     # load high-quality data
     y_48, sr_48 = librosa.load(filename_48, sr=None, mono=False)
@@ -196,15 +202,15 @@ def compute_event_merge_combined(**kwargs):
     kernels = tmp_['kernels']
     final_sum = tmp_['final_sum']
     ind = tmp_['ind']
-    ind2 = tmp_['ind2']
-
-    plot_event_merge_results(**kwargs)
+    # ind2 = tmp_['ind2']
 
     tmp_ = compute_event_merge_heuristics(**kwargs)
     kwargs.update(tmp_)
 
     # kwargs['filename_48'] = '/home/src/QK/data/sound-arglaaa-2018-10-25/22.wav'
     tmp_ = compute_event_merge_index_to_file(**kwargs)
+
+    plot_event_merge_results(**kwargs)
 
     print(('write files {0}'.format(tmp_)))
 

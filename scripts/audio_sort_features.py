@@ -27,7 +27,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import joblib
 
-from librosa import samples_to_frames
+from librosa import samples_to_frames, time_to_frames
 
 from smp_audio.common_essentia import data_load_essentia
 from smp_audio.common_essentia import compute_segments_essentia
@@ -332,9 +332,6 @@ def automix_main(args):
 def autoedit_graph_from_dict(**kwargs):
     g = kwargs['g']
 
-    print((pformat(g)))
-    joblib.dump(g, './g.pkl')
-    
     # walk flat
     # tmp_ = list(graph_walk_collection_flat(g))
     # print('graph_walk_collection_flat', pformat(tmp_))
@@ -379,6 +376,8 @@ def autoedit_main(args):
     # globals
     sr_comp = kwargs['sr_comp'] # 22050
     numsegs = kwargs['numsegs'] # 10
+    seglen_min = time_to_frames(kwargs['seglen_min'])
+    seglen_max = time_to_frames(kwargs['seglen_max'])
     duration = kwargs['duration'] # 10
     timebase = "frames"
     
@@ -458,11 +457,13 @@ def autoedit_main(args):
             beats = g['func'][compute_beats_librosa](g['l4_onsets'][file_]['onsets_env'], g['l4_onsets'][file_]['onsets_frames'], start_bpm, sr_comp)
             # print('    file_: {0}, bounds_frames {1}, {2}'.format(file_, len(bounds_frames), pformat(bounds_frames)))
             g['l5_beats'][file_]['beats_{0}'.format(start_bpm)] = beats['beats']
+            g['l5_beats'][file_]['beats_{0}_16'.format(start_bpm)] = beats['beats'][::16]
 
     # layer 6: compute final segments from merging segments with beats
     # prepare
     g['l6_merge'] = OrderedDict()
-    beats = [g['l5_beats'][file_][beat_type] for beat_type in ['beats_60', 'beats_90', 'beats_120'] for file_ in g['l5_beats']]
+    beats_keys = ['beats_60', 'beats_90', 'beats_120'] + ['beats_60_16', 'beats_90_16', 'beats_120_16']
+    beats = [g['l5_beats'][file_][beat_type] for beat_type in beats_keys for file_ in g['l5_beats']]
     segs = [g['l3_segments'][file_][seg_type_] for seg_type_ in ['seg_sbic', 'seg_clust_1', 'seg_clust_2'] for file_ in g['l3_segments']]
     numframes = [g['l1_files'][filename_short]['numframes'] for filename_short in g['l1_files']]
     # compute
@@ -477,11 +478,14 @@ def autoedit_main(args):
     filename_short = list(g['l1_files'])[0]
     filename_export = filename_short[:-4] + '-autoedit.wav'
     g['l6_merge']['filename_export'] = filename_export
-    g['l7_assemble']['outfile'] = g['func'][track_assemble_from_segments](**(g['l6_merge']))
-    # g['l7_assemble']['outfile'] = g['func'][track_assemble_from_segments_sequential_scale](**(g['l6_merge']))
+    # g['l7_assemble']['outfile'] = g['func'][track_assemble_from_segments](**(g['l6_merge']))
+    g['l7_assemble']['outfile'] = g['func'][track_assemble_from_segments_sequential_scale](**(g['l6_merge']))
 
-    # plot dictionary g as graph
-    autoedit_graph_from_dict(g=g, plot=False)
+    print((pformat(g)))
+    joblib.dump(g, './g.pkl')
+    
+    # # plot dictionary g as graph
+    # autoedit_graph_from_dict(g=g, plot=False)
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -493,12 +497,15 @@ if __name__ == "__main__":
     parser.add_argument("-ns", "--numsegs", dest='numsegs', default=10, type=int, help="Number of segments for segmentation")
     parser.add_argument("-src", "--sr-comp", dest='sr_comp', default=22050, help="Sample rate for computations [22050]")
     parser.add_argument("-s", "--sorter", dest='sorter', default='features_mt_spectral_spread_mean', help="Sorting feature [features_mt_spectral_spread_mean]")
+    parser.add_argument("--seed", dest='seed', type=int, default=123, help="Random seed [123]")
+    parser.add_argument("-smin", "--seglen-min", dest='seglen_min', default=2, help="Segment length minimum in seconds [2]")
+    parser.add_argument("-smax", "--seglen-max", dest='seglen_max', default=60, help="Segment length maximum in seconds [60]")
     # params: numsegments, duration, minlength, maxlength, kernel params
     args = parser.parse_args()
 
     args.filenames = args.filenames[0]
 
-    np.random.seed(123)
+    np.random.seed(args.seed)
 
     if args.mode == 'beatiness':
         main_beatiness(args)

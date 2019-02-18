@@ -171,4 +171,3 @@ def compute_segments_librosa(Y, sr, numparts):
     bounds_samples = librosa.frames_to_samples(bounds_frames, hop_length=512, n_fft=2048)
     myprint('bounds_samples = %s / %s' % (bounds_samples.shape, bounds_samples))
     return {'bounds_frames': bounds_frames, 'bounds_times': bounds_times, 'bounds_samples': bounds_samples}
-

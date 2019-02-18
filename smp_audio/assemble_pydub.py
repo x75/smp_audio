@@ -183,6 +183,11 @@ def track_assemble_from_segments_sequential_scale(**kwargs):
 
     # make pydub segment list
     segs = segfiles_to_segs(files)
+
+    segs_duration_seconds = [seg_.duration_seconds for seg_ in segs]
+
+    # if duration < duration_seconds:
+    scale = duration / np.sum(segs_duration_seconds)
     
     # init empty song
     song = pydub.AudioSegment.empty()
@@ -194,14 +199,19 @@ def track_assemble_from_segments_sequential_scale(**kwargs):
     
     #    while song.duration_seconds < desired_duration:
     for i,seg_ in enumerate(segs):
+        if np.random.uniform(0, 1) > scale:
+            print('skipping')
+            continue
+        
         print('seg_ {0} / {1}'.format(seg_.duration_seconds, files[i]))
+        
         if i > 1:
             crossfade = 0 # 10
         else:
             crossfade = 0
         # song = song.append(seg_.apply_gain_stereo(-1, -1), crossfade=crossfade)
         song = song.append(seg_, crossfade=crossfade)
-        seg_s.append(seg_)
+        seg_s.append(i)
         # seg_ = random.randrange(0, len(segs))
         # print('seg_ {0}'.format(seg_))
         # song = song.append(segs[seg_], crossfade=0)

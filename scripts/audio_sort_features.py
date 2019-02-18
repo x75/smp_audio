@@ -33,12 +33,13 @@ from smp_audio.common_essentia import data_load_essentia
 from smp_audio.common_essentia import compute_segments_essentia
 from smp_audio.common_essentia import compute_tempo_beats_essentia, compute_music_extractor_essentia
 from smp_audio.common_librosa import compute_segments_librosa, compute_chroma_librosa, compute_beats_librosa, compute_onsets_librosa
-from smp_audio.assemble_pydub import track_assemble_from_segments, track_assemble_from_segments_sequential
+from smp_audio.assemble_pydub import track_assemble_from_segments, track_assemble_from_segments_sequential, track_assemble_from_segments_sequential_scale
 from smp_audio.graphs import graph_walk_collection_flat, graph_walk_collection
 from smp_audio.graphs import cb_graph_walk_build_graph
 from smp_audio.util import args_to_dict
+from smp_audio.segments import compute_event_merge_combined
 
-from audio_segments_split import main_audio_segments_split
+# from audio_segments_split import main_audio_segments_split
 from audio_features_paa import compute_features_paa
 
 # caching joblib
@@ -241,7 +242,7 @@ def automix_main(args):
         g['func'][func] = memory.cache(func)
 
     for func in [
-            main_audio_segments_split,
+            compute_event_merge_combined,
             track_assemble_from_segments,
     ]:
         g['func'][func] = func
@@ -398,8 +399,9 @@ def autoedit_main(args):
         g['func'][func] = memory.cache(func)
 
     for func in [
-            main_audio_segments_split,
+            compute_event_merge_combined,
             track_assemble_from_segments,
+            track_assemble_from_segments_sequential_scale,
     ]:
         g['func'][func] = func
 
@@ -464,14 +466,19 @@ def autoedit_main(args):
     segs = [g['l3_segments'][file_][seg_type_] for seg_type_ in ['seg_sbic', 'seg_clust_1', 'seg_clust_2'] for file_ in g['l3_segments']]
     numframes = [g['l1_files'][filename_short]['numframes'] for filename_short in g['l1_files']]
     # compute
-    files = g['func'][main_audio_segments_split](filename_48=filename, beats=beats, segs=segs, numframes=numframes[0], numsegs=numsegs)
+    files = g['func'][compute_event_merge_combined](filename_48=filename, beats=beats, segs=segs, numframes=numframes[0], numsegs=numsegs)
     g['l6_merge'].update(files)
+    # g['l6_merge']['files'] = files
 
     # layer 7: compute assembled song from segments and duration
     g['l7_assemble'] = OrderedDict()
     # compute
     g['l6_merge']['duration'] = duration
+    filename_short = list(g['l1_files'])[0]
+    filename_export = filename_short[:-4] + '-autoedit.wav'
+    g['l6_merge']['filename_export'] = filename_export
     g['l7_assemble']['outfile'] = g['func'][track_assemble_from_segments](**(g['l6_merge']))
+    # g['l7_assemble']['outfile'] = g['func'][track_assemble_from_segments_sequential_scale](**(g['l6_merge']))
 
     # plot dictionary g as graph
     autoedit_graph_from_dict(g=g, plot=False)

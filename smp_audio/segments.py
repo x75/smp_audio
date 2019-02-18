@@ -1,4 +1,4 @@
-"""smp.music.segments
+"""smp_audio.segments
 
 time, event, segment computations
 """
@@ -179,3 +179,33 @@ def compute_event_merge_index_to_file(**kwargs):
         ret.append(outfilename)
 
     return {'files': ret}
+
+def compute_event_merge_combined(**kwargs):
+    # number of frames, FIXME winsize, hopsize
+    numframes = kwargs['numframes']
+
+    # get mean intervals and number of event sequences to merge
+    tmp_ = compute_event_mean_intervals(**kwargs)
+    kwargs.update(tmp_)
+    intervals = tmp_['intervals']
+    numinputs = tmp_['numinputs']
+    final = tmp_['final']
+
+    tmp_ = compute_event_merge_mexhat(**kwargs)
+    kwargs.update(tmp_)
+    kernels = tmp_['kernels']
+    final_sum = tmp_['final_sum']
+    ind = tmp_['ind']
+    ind2 = tmp_['ind2']
+
+    plot_event_merge_results(**kwargs)
+
+    tmp_ = compute_event_merge_heuristics(**kwargs)
+    kwargs.update(tmp_)
+
+    # kwargs['filename_48'] = '/home/src/QK/data/sound-arglaaa-2018-10-25/22.wav'
+    tmp_ = compute_event_merge_index_to_file(**kwargs)
+
+    print(('write files {0}'.format(tmp_)))
+
+    return tmp_

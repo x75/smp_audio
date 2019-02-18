@@ -2,6 +2,8 @@
 
 .. moduleauthor:: Oswald Berthold, 2019
 
+OBSOLETE: superceded by audio_sort_features.py --mode autoedit
+
 Split a single audio wav file into segments and save the segments to
 files.
 
@@ -17,35 +19,8 @@ from smp_audio.segments import compute_event_merge_heuristics
 from smp_audio.segments import compute_event_merge_index_to_file
 
 def main_audio_segments_split(**kwargs):
-    # number of frames, FIXME winsize, hopsize
-    numframes = kwargs['numframes']
+    return compute_event_merge_combined(**kwargs)
 
-    # get mean intervals and number of event sequences to merge
-    tmp_ = compute_event_mean_intervals(**kwargs)
-    kwargs.update(tmp_)
-    intervals = tmp_['intervals']
-    numinputs = tmp_['numinputs']
-    final = tmp_['final']
-
-    tmp_ = compute_event_merge_mexhat(**kwargs)
-    kwargs.update(tmp_)
-    kernels = tmp_['kernels']
-    final_sum = tmp_['final_sum']
-    ind = tmp_['ind']
-    ind2 = tmp_['ind2']
-
-    plot_event_merge_results(**kwargs)
-
-    tmp_ = compute_event_merge_heuristics(**kwargs)
-    kwargs.update(tmp_)
-
-    # kwargs['filename_48'] = '/home/src/QK/data/sound-arglaaa-2018-10-25/22.wav'
-    tmp_ = compute_event_merge_index_to_file(**kwargs)
-
-    print(('write files {0}'.format(tmp_)))
-
-    return tmp_
-        
 if __name__ == '__main__':
     numframes = 3191
 

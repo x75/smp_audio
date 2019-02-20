@@ -179,14 +179,12 @@ def track_assemble_from_segments_sequential_scale(**kwargs):
     # wrapper
     files, filename_export, duration = track_assemble_kwargs_to_args(**kwargs)
 
-    scale = 0.5
-
     # make pydub segment list
     segs = segfiles_to_segs(files)
 
+    # duratio foo
     segs_duration_seconds = [seg_.duration_seconds for seg_ in segs]
-
-    # if duration < duration_seconds:
+    scale = 0.5
     scale = duration / np.sum(segs_duration_seconds)
     
     # init empty song

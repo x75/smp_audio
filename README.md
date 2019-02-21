@@ -27,7 +27,7 @@ sudo pip3 install numpy scipy matplotlib pandas sklearn
 Part two is the audio and MIR specific packages, which I install with pip directly
 
 ``` example
-sudo pip3 install -r requirements-simple.txt essentia librosa madmom aubio pyAudioAnalysis
+sudo pip3 install -r requirements.txt essentia librosa madmom aubio pyAudioAnalysis
 ```
 
 On Mac OSX
@@ -37,7 +37,7 @@ Install essentia with their homebrew formula <https://github.com/MTG/homebrew-es
 Then followed by
 
 ``` example
-sudo pip3 install -r requirements-simple.txt librosa madmon aubio pyAudioAnalysis
+sudo pip3 install -r requirements.txt librosa madmon aubio pyAudioAnalysis
 ```
 
 To finish, add the module path to your PYTHONPATH by running
@@ -47,6 +47,34 @@ export PYTHONPATH=/path/to/cloned/smp_audio:$PYTHONPATH
 ```
 
 In case you come back, this can be added to your shell profile.
+
+Quick start
+-----------
+
+The most interesting modes are **autoedit** and **automix**, two variations of a similar task. Autoedit is designed as a tool for session-based production styles. It takes a stereo recording of a session on the input, computes a beat aligned segmentation into different parts, and assembles these parts into an edit. It is run as
+
+``` example
+cd scripts
+python3 audio_sort_features.py --mode autoedit --filenames /path/to/single/file.wav
+```
+
+Calling the script with \`--help\` argument prints the parameters with docstring and default values
+
+``` example
+python3 audio_sort_features.py --help
+```
+
+The most important parameter is the approximate number of segments given by \`--numsegs N\`. More segments in total make individual segments shorter, making the edit more dynamic at the risk of being jumpy at a sub-bar resolution. There's no limit to file sizes, durations etc in principle but large files will exhaust your memory at some point. Can be improved later.
+
+The automix mode also compiles a set of audio segments into a single large file. While autoedit works at track level durations of order &lt; 10 minutes, automix does so at mix level ones of order 1 hour.
+
+``` example
+python3 audio_sort_features.py --mode automix --sorter extractor_lowlevel.spectral_complexity.mean --filenames /path/to/textfile_one_wavfile_path_per_line.txt
+```
+
+Current assembly modes are primitive at best, autoedit uses random and sequential segment order so far. With automix the segments are sorted by particular feature value, which can be selected with the \`--sorter\` argument.
+
+TODO: Consolidation of randomly disparate functionality is work-in-progress.
 
 Modules and workflows
 ---------------------

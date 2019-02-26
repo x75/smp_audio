@@ -486,12 +486,46 @@ def autoedit_main(args):
     
     # # plot dictionary g as graph
     # autoedit_graph_from_dict(g=g, plot=False)
+
+def segtree_main(args):
+    import aubio
+    
+    # convert args to dict
+    kwargs = args_to_dict(args)
+
+    src = aubio.source('/home/src/QK/data/sound-arglaaa-2018-10-25/24.wav', channels=1)
+    src.seek(0)
+    onsets = []
+    onsets2 = []
+
+    od = aubio.onset(method='kl', samplerate=src.samplerate)
+    od.set_threshold(0.7)
+
+    while True:
+        samples, read = src()
+        # print(samples.shape)
+        if read < src.hop_size:
+            break
+        od_result = od(samples)
+        # print(od_result)
+        onsets.append(od.get_descriptor())
+        onsets2.append(od.get_thresholded_descriptor())
+        # onsets.append(od_result)
+
+    onsets_ = np.array(onsets)
+    onsets2_ = np.array(onsets2)
+    print(onsets)
+    plt.plot(onsets_)
+    plt.plot(onsets2_)
+    plt.plot(onsets_ > od.get_threshold(), linewidth=2, alpha=0.5, linestyle='none', marker='o')
+    plt.show()
+
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--filenames", action='append', dest='filenames', help="Input file(s) []", nargs = '+', default = [])
     parser.add_argument("-m", "--mode", dest='mode',
-                        help="Feature mode [beatiness] (beatiness, music_extractor, paa_feature_extractor, autoedit, automix)",
+                        help="Feature mode [beatiness] (beatiness, music_extractor, paa_feature_extractor, autoedit, automix, segtree)",
                         default='beatiness')
     parser.add_argument("-d", "--duration", dest='duration', default=180, type=float, help="Desired duration in seconds [180]")
     parser.add_argument("-ns", "--numsegs", dest='numsegs', default=10, type=int, help="Number of segments for segmentation")
@@ -517,6 +551,8 @@ if __name__ == "__main__":
         autoedit_main(args)
     elif args.mode == 'automix':
         automix_main(args)
+    elif args.mode == 'segtree':
+        segtree_main(args)
     else:
         print('Unknown mode {0}, exiting'.format(args.mode))
         sys.exit(1)

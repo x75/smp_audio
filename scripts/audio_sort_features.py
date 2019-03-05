@@ -478,8 +478,11 @@ def autoedit_main(args):
     filename_short = list(g['l1_files'])[0]
     filename_export = filename_short[:-4] + '-autoedit.wav'
     g['l6_merge']['filename_export'] = filename_export
-    # g['l7_assemble']['outfile'] = g['func'][track_assemble_from_segments](**(g['l6_merge']))
-    g['l7_assemble']['outfile'] = g['func'][track_assemble_from_segments_sequential_scale](**(g['l6_merge']))
+
+    if kwargs['assemble_mode'] == 'random':
+        g['l7_assemble']['outfile'] = g['func'][track_assemble_from_segments](**(g['l6_merge']))
+    elif kwargs['assemble_mode'] == 'sequential':
+        g['l7_assemble']['outfile'] = g['func'][track_assemble_from_segments_sequential_scale](**(g['l6_merge']))
 
     print((pformat(g)))
     joblib.dump(g, './g.pkl')
@@ -571,6 +574,9 @@ def segtree_main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--filenames", action='append', dest='filenames', help="Input file(s) []", nargs = '+', default = [])
+    parser.add_argument("-a", "--assemble-mode", dest='assemble_mode',
+                        help="Assemble mode [random] (random, sequential)",
+                        default='beatiness')
     parser.add_argument("-m", "--mode", dest='mode',
                         help="Feature mode [beatiness] (beatiness, music_extractor, paa_feature_extractor, autoedit, automix, autobeat, segtree)",
                         default='beatiness')

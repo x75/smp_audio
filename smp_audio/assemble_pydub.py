@@ -104,16 +104,23 @@ def track_assemble_from_segments(**kwargs):
     song = pydub.AudioSegment.empty()
     # song = random.randrange(0, len(files))
 
+    filename_export_index = filename_export[:-4] + ".txt"
+    f = open(filename_export_index, 'w')
+    f.write('{0},{1}\n'.format('segindex', 'segduration'))
+    
     # while song duration is less than desired duration, select random segment and append to song
     seg_s = []
     while song.duration_seconds < desired_duration:
         seg_ = random.randrange(0, len(segs))
         print('seg_ {0}'.format(seg_))
+        f.write('{0},{1}\n'.format(seg_, segs[seg_].duration_seconds))
         song = song.append(segs[seg_], crossfade=0)
         print('song duration {0}'.format(song.duration_seconds))
         seg_s.append(seg_)
         
     # export the song
+    f.flush()
+    f.close()
     song.export(filename_export, format='wav')
 
     return {'filename_export': filename_export, 'final_duration': song.duration_seconds, 'seg_s': seg_s}
@@ -194,9 +201,12 @@ def track_assemble_from_segments_sequential_scale(**kwargs):
     seg_s = []
 
     # track bpm, maxlen2beatmultiples
+    filename_export_index = filename_export[:-4] + ".txt"
+    f = open(filename_export_index, 'w')
+    f.write('{0},{1}\n'.format('segindex', 'segduration'))
     
     #    while song.duration_seconds < desired_duration:
-    for i,seg_ in enumerate(segs):
+    for i, seg_ in enumerate(segs):
         if np.random.uniform(0, 1) > scale:
             print('skipping')
             continue
@@ -208,6 +218,7 @@ def track_assemble_from_segments_sequential_scale(**kwargs):
         else:
             crossfade = 0
         # song = song.append(seg_.apply_gain_stereo(-1, -1), crossfade=crossfade)
+        f.write('{0},{1}\n'.format(i,seg_.duration_seconds))
         song = song.append(seg_, crossfade=crossfade)
         seg_s.append(i)
         # seg_ = random.randrange(0, len(segs))
@@ -227,6 +238,8 @@ def track_assemble_from_segments_sequential_scale(**kwargs):
     # export the song
     print('song duration {0}'.format(song.duration_seconds))
     # song_ = song.apply_gain_stereo(-0.5, -0.5)
+    f.flush()
+    f.close()
     song.export(filename_export, format='wav')
 
     return {'filename_export': filename_export, 'final_duration': song.duration_seconds, 'seg_s': seg_s}

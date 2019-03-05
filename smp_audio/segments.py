@@ -179,7 +179,7 @@ def compute_event_merge_index_to_file(**kwargs):
         i_start = ind_cut_48[i-1]
         
         tmp_ = y_48[:,i_start:ind_cut_48[i]]
-        outfilename = filename_48[:-4] + "-seg2%d.wav" % (i)
+        outfilename = filename_48[:-4] + "-seg-%d.wav" % (i)
         print('writing seg %d to outfile %s' % (i, outfilename))
         librosa.output.write_wav(outfilename, tmp_, sr_48)
         ret.append(outfilename)

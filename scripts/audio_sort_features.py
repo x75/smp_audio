@@ -27,7 +27,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import joblib
 
-from librosa import samples_to_frames, time_to_frames
+from librosa import samples_to_frames, time_to_frames, frames_to_time
 
 from smp_audio.common_essentia import data_load_essentia
 from smp_audio.common_essentia import compute_segments_essentia
@@ -487,6 +487,49 @@ def autoedit_main(args):
     # # plot dictionary g as graph
     # autoedit_graph_from_dict(g=g, plot=False)
 
+# aubio foo
+def autobeat_filter(args):
+    """autobeat_filter
+
+    Filter beat array with tempo, quantization or sparsity prior
+    """
+    return {}
+
+def autobeat_main(args):
+    """autobeat_main
+
+    Extract beat from track or audio file and return tempo in bpm, array of all beat events
+    """
+    from smp_audio.common_aubio import data_load_aubio
+    from smp_audio.common_aubio import compute_onsets_aubio
+    from smp_audio.common_aubio import compute_tempo_beats_aubio
+
+    # convert args to dict
+    kwargs = args_to_dict(args)
+
+    # for filename in kwargs['filenames']:
+
+    filename = kwargs['filenames'][0]
+    onsets = compute_onsets_aubio(filename=filename)
+    # print ('onsets = {0}'.format(pformat(onsets)))
+    print ('onsets[onsets] = {0}'.format(onsets['onsets'].shape))
+    onsets_x = frames_to_time(np.arange(0, onsets['onsets'].shape[0]), sr=44100, hop_length=512)
+    
+    method = 'specdiff'
+    tempo_beats = compute_tempo_beats_aubio(path=filename, method=method)
+
+    # print ('tempo_beats = {0}'.format(pformat(tempo_beats)))
+    print ('tempo_beats[beats] = {0}'.format(tempo_beats['beats'].shape))
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(2,1,1)
+    ax1.plot(onsets_x, np.array(onsets['onsets']))
+    
+    ax2 = fig.add_subplot(2,1,2, sharex=ax1)
+    ax2.bar(tempo_beats['beats'], 1.0, width=0.1)
+    
+    plt.show()
+    
 def segtree_main(args):
     """segtree_main
 
@@ -529,7 +572,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--filenames", action='append', dest='filenames', help="Input file(s) []", nargs = '+', default = [])
     parser.add_argument("-m", "--mode", dest='mode',
-                        help="Feature mode [beatiness] (beatiness, music_extractor, paa_feature_extractor, autoedit, automix, segtree)",
+                        help="Feature mode [beatiness] (beatiness, music_extractor, paa_feature_extractor, autoedit, automix, autobeat, segtree)",
                         default='beatiness')
     parser.add_argument("-d", "--duration", dest='duration', default=180, type=float, help="Desired duration in seconds [180]")
     parser.add_argument("-ns", "--numsegs", dest='numsegs', default=10, type=int, help="Number of segments for segmentation")
@@ -555,6 +598,8 @@ if __name__ == "__main__":
         autoedit_main(args)
     elif args.mode == 'automix':
         automix_main(args)
+    elif args.mode == 'autobeat':
+        autobeat_main(args)
     elif args.mode == 'segtree':
         segtree_main(args)
     else:

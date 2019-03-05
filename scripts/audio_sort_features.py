@@ -488,6 +488,10 @@ def autoedit_main(args):
     # autoedit_graph_from_dict(g=g, plot=False)
 
 def segtree_main(args):
+    """segtree_main
+
+    Build a segmentation tree w/ scanning (tm)
+    """
     import aubio
     
     # convert args to dict

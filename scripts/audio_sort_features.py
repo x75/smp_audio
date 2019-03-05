@@ -576,7 +576,7 @@ if __name__ == "__main__":
     parser.add_argument("-f", "--filenames", action='append', dest='filenames', help="Input file(s) []", nargs = '+', default = [])
     parser.add_argument("-a", "--assemble-mode", dest='assemble_mode',
                         help="Assemble mode [random] (random, sequential)",
-                        default='beatiness')
+                        default='random')
     parser.add_argument("-m", "--mode", dest='mode',
                         help="Feature mode [beatiness] (beatiness, music_extractor, paa_feature_extractor, autoedit, automix, autobeat, segtree)",
                         default='beatiness')

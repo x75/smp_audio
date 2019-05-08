@@ -7,9 +7,21 @@
 import sys
 from aubio.cmd import AubioArgumentParser
 
+from multiprocessing import Pool
+    
+from joblib import Memory
+location = './cachedir'
+memory = Memory(location, verbose=0)
+
 def aubio_cut_parser():
     parser = AubioArgumentParser()
     parser.add_input()
+    # operation mode
+    parser.add_argument("-m","--mode",
+            action="store", dest="mode", default='default',
+            metavar = "<mode>",
+            help="program operation mode [default=default] \
+                    default|scan")
     parser.add_argument("-O","--onset-method",
             action="store", dest="onset_method", default='default',
             metavar = "<onset_method>",
@@ -152,19 +164,11 @@ def _cut_slice(options, timestamps):
                 output_dir = options.output_directory,
                 samplerate = options.samplerate)
 
-def main():
-    parser = aubio_cut_parser()
-    options = parser.parse_args()
-    if not options.source_uri and not options.source_uri2:
-        sys.stderr.write("Error: no file name given\n")
-        parser.print_help()
-        sys.exit(1)
-    elif options.source_uri2 is not None:
-        options.source_uri = options.source_uri2
+def main_default(options):
 
     # analysis
     timestamps, total_frames = _cut_analyze(options)
-
+        
     # print some info
     duration = float (total_frames) / float(options.samplerate)
     base_info = '%(source_uri)s' % {'source_uri': options.source_uri}
@@ -175,8 +179,125 @@ def main():
     info += base_info
     sys.stderr.write(info)
 
+    return {
+        'timestamps': timestamps,
+        'total_frames': total_frames,
+        'duration': duration,
+        'base_info': base_info,
+        'info': info,
+    }
+
+# def _cut_analyze_with_opts(options):
+#     timestamps, total_frames = cut_analyze_cached(options)
+#     return timestamps, total_frames
+
+def scan_with_onset_method(options):
+    
+    cut_analyze_cached = memory.cache(_cut_analyze)
+
+    # thr_init = 0.05
+    thr_init = 0.8
+    thr_incr = 0.05
+    # thr_init = 3.00
+    # thr_incr = 0.01
+    thr = thr_init
+    segcnt = 1e6
+
+    thrs = []
+    segcnts = []
+
+    while segcnt > 1:
+        options.threshold = thr
+        
+        timestamps, total_frames = cut_analyze_cached(options)
+        segcnt = len(timestamps)
+        print(options.onset_method, thr, segcnt)
+        thrs.append(thr)
+        segcnts.append(segcnt)
+        thr += thr_incr
+
+    return thrs, segcnts
+
+def main_scan(options):
+    import numpy as np
+    import matplotlib.pyplot as plt
+    
+    print('options', options)
+
+    analyze_runs = {}
+
+
+    # def f(x):
+    #     return x*x
+    
+    # options_list = []
+    # for onset_method_ in ['default', 'complexdomain', 'hfc', 'phase', 'specdiff', 'energy', 'kl', 'mkl']:
+    #     options_ = copy(options)
+    #     options_.onset_method = onset_method
+    #     options_list.append(options_)
+
+    #     # if __name__ == '__main__':
+    # with Pool(len(options_list)) as p:
+    #     # print(p.map(f, [1, 2, 3]))
+    #     print(p.map(f, [1, 2, 3]))
+            
+    for onset_method_ in ['default', 'complexdomain', 'hfc', 'phase', 'specdiff', 'energy', 'kl', 'mkl']:
+        options.onset_method = onset_method_
+        thrs, segcnts = scan_with_onset_method(options)
+        analyze_runs[onset_method_] = {'thr': thrs, 'seg': segcnts, 'onset_method': onset_method_}
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1,1,1)
+    for i,k in enumerate(analyze_runs):
+        # ax = fig.add_subplot(len(analyze_runs),1,i+1)
+        ax.plot(analyze_runs[k]['thr'], analyze_runs[k]['seg'], '-o', label=analyze_runs[k]['onset_method'], alpha=0.5)
+        # ax.set_title(analyze_runs[k]['onset_method'])
+
+    # ax.set_xscale('log')
+    ax.set_yscale('log')
+    plt.legend()
+    plt.show()
+        
+    # # print some info
+    # duration = float (total_frames) / float(options.samplerate)
+    # base_info = '%(source_uri)s' % {'source_uri': options.source_uri}
+    # base_info += ' (total %(duration).2fs at %(samplerate)dHz)\n' % \
+    #         {'duration': duration, 'samplerate': options.samplerate}
+
+    # info = "found %d timestamps in " % len(timestamps)
+    # info += base_info
+    # sys.stderr.write(info)
+
+    # return {
+    #     'timestamps': timestamps,
+    #     'total_frames': total_frames,
+    #     'duration': duration,
+    #     'base_info': base_info,
+    #     'info': info,
+    # }
+    
+def main():
+    parser = aubio_cut_parser()
+    options = parser.parse_args()
+    if not options.source_uri and not options.source_uri2:
+        sys.stderr.write("Error: no file name given\n")
+        parser.print_help()
+        sys.exit(1)
+    elif options.source_uri2 is not None:
+        options.source_uri = options.source_uri2
+
+    # print(options)
+
+    if options.mode == 'default':
+       ret = main_default(options)
+    elif options.mode == 'scan':
+       ret = main_scan(options)
+        
     if options.cut:
         _cut_slice(options, timestamps)
         info = "created %d slices from " % len(timestamps)
         info += base_info
         sys.stderr.write(info)
+
+if __name__ == '__main__':
+    main()

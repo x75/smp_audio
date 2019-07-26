@@ -416,8 +416,10 @@ def autoedit_main(args):
         g['l1_files'][filename_short] = {}
         tmp_ = g['func'][data_load_essentia](filename)
         g['l1_files'][filename_short]['data'] = tmp_[0]
+        g['l1_files'][filename_short]['numsamples'] = len(tmp_[0])
         g['l1_files'][filename_short]['numframes'] = samples_to_frames(len(tmp_[0]))
         g['l1_files'][filename_short]['sr'] = tmp_[1]
+        print('    loaded {0} with shape {1}, numsamples {2}, numframes {3}, sr {4}'.format(filename_short, g['l1_files'][filename_short]['data'].shape, g['l1_files'][filename_short]['numsamples'], g['l1_files'][filename_short]['numframes'], g['l1_files'][filename_short]['sr']))
 
     # layer 2: compute chromagram
     g['l2_chromagram'] = {}

@@ -171,3 +171,4 @@ import os
 os.environ['LIBROSA_CACHE_DIR'] = '/tmp/librosa_cache'
 import librosa
 #+END_EXAMPLE
+python3 scripts/aubio_cut.py --mode scan --quiet --bufsize 2048 --hopsize 256 /home/lib/audio/work/tsx_recur_5/sco-base.wav

@@ -196,7 +196,7 @@ def scan_with_onset_method(options):
     cut_analyze_cached = memory.cache(_cut_analyze)
 
     # thr_init = 0.05
-    thr_init = 0.8
+    thr_init = 0.2
     thr_incr = 0.05
     # thr_init = 3.00
     # thr_incr = 0.01

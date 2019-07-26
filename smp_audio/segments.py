@@ -23,7 +23,7 @@ def compute_event_mean_intervals(**kwargs):
     print('numframes', pformat(numframes))
     
     # list of average expected interval per single beat estimate
-    beats_interval = list([np.mean(np.diff(beats[i])) for i in range(len(beats))])
+    beats_interval = list([np.mean(np.diff(beats[i])) for i in range(len(beats))])# if len(beats[i]) > 1])
     # list of average segment length per single segment estimate
     segs_interval = [np.mean(np.diff(segs[i])) for i in range(len(segs))]
     # combined list of intervals

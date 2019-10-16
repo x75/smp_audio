@@ -120,6 +120,9 @@ def compute_beats_librosa(onset_env, onset_frames, start_bpm, sr):
     """    
     myprint('compute_beats_librosa: computing beat_track with start_bpm = {0}'.format(start_bpm))
     tempo, beats = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr, start_bpm=float(start_bpm))
+    # print('beats pre nan = {0}'.format(beats))
+    beats = beats[np.logical_not(np.isnan(beats))]
+    # print('beats post nan = {0}'.format(beats))
     dtempo = librosa.beat.tempo(onset_envelope=onset_env, sr=sr, aggregate=None, start_bpm=float(start_bpm))
     return {'tempo': tempo, 'dtempo': dtempo, 'beats': beats}
     

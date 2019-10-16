@@ -457,6 +457,9 @@ def autoedit_main(args):
         g['l5_beats'][file_] = {}
         for start_bpm in [60, 90, 120]:
             beats = g['func'][compute_beats_librosa](g['l4_onsets'][file_]['onsets_env'], g['l4_onsets'][file_]['onsets_frames'], start_bpm, sr_comp)
+            # print('beats type = {0}'.format(type(beats['beats'])))
+            # beats['beats'] = beats['beats'][np.logical_not(np.isnan(beats['beats']))]
+            # beats = beats[~np.isnan(beats)]
             # print('    file_: {0}, bounds_frames {1}, {2}'.format(file_, len(bounds_frames), pformat(bounds_frames)))
             g['l5_beats'][file_]['beats_{0}'.format(start_bpm)] = beats['beats']
             g['l5_beats'][file_]['beats_{0}_16'.format(start_bpm)] = beats['beats'][::16]

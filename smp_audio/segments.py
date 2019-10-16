@@ -18,14 +18,19 @@ def compute_event_mean_intervals(**kwargs):
     # list of segment boundary position arrays
     segs = kwargs['segs']
     
-    print('beats', pformat(beats))
-    print('segs', pformat(segs))
-    print('numframes', pformat(numframes))
+    print('mean_intervals beats', pformat(beats))
+    print('mean_intervals segs', pformat(segs))
+    print('mean_intervals numframes', pformat(numframes))
     
     # list of average expected interval per single beat estimate
-    beats_interval = list([np.mean(np.diff(beats[i])) for i in range(len(beats))])# if len(beats[i]) > 1])
+    for b_ in beats:
+        print('beat len {1} = {0}'.format(b_, len(b_)))
+    beats_interval = list([np.mean(np.diff(beats[i])) for i in range(len(beats)) if len(beats[i]) > 1])# if len(beats[i]) > 1])
+    beats_i = list([i for i in range(len(beats)) if len(beats[i]) > 1])# if len(beats[i]) > 1])
     # list of average segment length per single segment estimate
     segs_interval = [np.mean(np.diff(segs[i])) for i in range(len(segs))]
+    print('segs_interval = {0}, beats_interval = {1}'.format(segs_interval, beats_interval))
+
     # combined list of intervals
     intervals = segs_interval + beats_interval
 
@@ -37,8 +42,9 @@ def compute_event_mean_intervals(**kwargs):
     for i in range(len(segs)):
         print('i', i)
         final[:,i][segs[i]] = 1
-    for i in range(len(beats)):
-        print('i', i)
+    for i in range(len(beats_i)):
+    # for i in beats_i:
+        print('i', i, beats[i])
         final[:,i+len(segs)][beats[i]] = 1
     
     return {'intervals': intervals, 'numinputs': numinputs, 'final': final}

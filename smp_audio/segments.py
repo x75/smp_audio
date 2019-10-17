@@ -25,8 +25,10 @@ def compute_event_mean_intervals(**kwargs):
     # list of average expected interval per single beat estimate
     for b_ in beats:
         print('beat len {1} = {0}'.format(b_, len(b_)))
-    beats_interval = list([np.mean(np.diff(beats[i])) for i in range(len(beats)) if len(beats[i]) > 1])# if len(beats[i]) > 1])
-    beats_i = list([i for i in range(len(beats)) if len(beats[i]) > 1])# if len(beats[i]) > 1])
+    # valid interval lists have more than one element
+    beats_interval = list([np.mean(np.diff(beats[i])) for i in range(len(beats)) if len(beats[i]) > 1])
+    # valid interval lists indices
+    beats_i = list([i for i in range(len(beats)) if len(beats[i]) > 1])
     # list of average segment length per single segment estimate
     segs_interval = [np.mean(np.diff(segs[i])) for i in range(len(segs))]
     print('segs_interval = {0}, beats_interval = {1}'.format(segs_interval, beats_interval))
@@ -42,8 +44,8 @@ def compute_event_mean_intervals(**kwargs):
     for i in range(len(segs)):
         print('i', i)
         final[:,i][segs[i]] = 1
+    # use only valid indices
     for i in range(len(beats_i)):
-    # for i in beats_i:
         print('i', i, beats[i])
         final[:,i+len(segs)][beats[i]] = 1
     

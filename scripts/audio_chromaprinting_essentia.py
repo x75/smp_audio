@@ -6,7 +6,7 @@ import essentia.streaming as ess
 import matplotlib.pyplot as plt
 
 
-loader = ess.MonoLoader(filename = '/home/src/QK/data/sound-arglaaa-2018-10-25/22.wav')
+loader = ess.MonoLoader(filename = '/home/lib/audio/work/arglaaa-mini/22.wav')
 fps = ess.Chromaprinter(analysisTime=20, concatenate=True)
 pool = ess.essentia.Pool()
 
@@ -22,8 +22,13 @@ print(('fp = {0}'.format(fp)))
 
 import acoustid as ai
 # import acoustid.chromaprint
+import codecs
+import numpy as np
 
-fp_int = ai.chromaprint.decode_fingerprint(fp)[0]
+print('type(fp) = ', type(fp))
+fpbytes = bytes(fp,  'utf-8')
+print('fpbytes = {0}'.format(fpbytes))
+fp_int = ai.chromaprint.decode_fingerprint(fpbytes)[0]
 # fp_int = chromaprint.decode_fingerprint(fp)[0]
 
 fb_bin = [list('{:032b}'.format(abs(x))) for x  in fp_int] # Int to unsigned 32-bit array

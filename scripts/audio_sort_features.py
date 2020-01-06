@@ -206,14 +206,14 @@ def main_beatiness(args):
 def automix_main(args):
     """automix_main
 
-    Complete automix flow with the schema
+    Perform complete automix flow with the following schema:
     
     1. input list of audio files / text file containing list of audio files
     2. loop over files
     2.1. compute bag of measures for each file: beatiness, extractor essentia, features paa
 
-    2.2. TODO: sort files by selected feature args.sort_feature
-    2.3. TODO: assemble output wav from concatenating input files pydub
+    2.2. sort files by selected feature args.sort_feature
+    2.3. assemble output wav from concatenating input files pydub
 
     2.4. TODO: optional: local measures
     2.4. TODO: optional: complexity / information measures smp/sequence
@@ -221,12 +221,12 @@ def automix_main(args):
     # convert args to dict
     kwargs = args_to_dict(args)
 
-    print('kwargs {0}'.format(pformat(kwargs)))
+    print('automix_main: kwargs {0}'.format(pformat(kwargs)))
 
     # flow graph g
     g = OrderedDict()
 
-    # functions cached / non-cached
+    # cached functions
     g['func'] = {}
     for func in [
             compute_beats_librosa,
@@ -241,6 +241,7 @@ def automix_main(args):
     ]:
         g['func'][func] = memory.cache(func)
 
+    # uncached functions
     for func in [
             compute_event_merge_combined,
             track_assemble_from_segments,
@@ -248,6 +249,7 @@ def automix_main(args):
         g['func'][func] = func
 
 
+    # input type: text file, list of files
     if len(kwargs['filenames']) == 1 and kwargs['filenames'][0].endswith('.txt'):
         filenames = [_.rstrip() for _ in open(kwargs['filenames'][0], 'r').readlines()]
         # print('filenames {0}'.format(pformat(filenames)))
@@ -506,7 +508,8 @@ def autobeat_filter(args):
 def autobeat_main(args):
     """autobeat_main
 
-    Extract beat from track or audio file and return tempo in bpm, array of all beat events
+    Extract beat from track or audio file and return tempo in bpm,
+    array of all beat events
     """
     from smp_audio.common_aubio import data_load_aubio
     from smp_audio.common_aubio import compute_onsets_aubio
@@ -540,6 +543,8 @@ def autobeat_main(args):
     
 def segtree_main(args):
     """segtree_main
+
+    OBSOLETE see aubio_cut.py --mode scan
 
     Build a segmentation tree w/ scanning (tm)
     """

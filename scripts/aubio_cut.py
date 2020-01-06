@@ -253,8 +253,11 @@ def main_scan(options):
         ax.plot(analyze_runs[k]['thr'], analyze_runs[k]['seg'], '-o', label=analyze_runs[k]['onset_method'], alpha=0.5)
         # ax.set_title(analyze_runs[k]['onset_method'])
 
+    ax.set_title('aubio_cut scan num-segs / threshold / method')
     # ax.set_xscale('log')
     ax.set_yscale('log')
+    ax.set_xlabel('threshold')
+    ax.set_ylabel('num. segments')
     plt.legend()
     plt.show()
         

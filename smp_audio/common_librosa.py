@@ -53,6 +53,31 @@ def data_load_librosa(filename, duration=None, offset=0.0):
     myprint('Loaded audio file with %s samples at rate %d' % (y.shape, sr))
     return y, sr
 
+def data_stream_librosa(**kwargs):
+    # filename = librosa.util.example_audio_file()
+    if 'filename' in kwargs:
+        filename = kwargs['filename']
+    else:
+        filename = '/home/src/QK/data/sound-arglaaa-2018-10-25/24.wav'
+    
+    sr = librosa.get_samplerate(filename)
+    stream = librosa.stream(filename,
+                            block_length=1,
+                            frame_length=512,
+                            hop_length=512,
+                            mono=True
+    )
+    
+    return tuple((stream, sr))
+
+def data_stream_get_librosa(src, **kwargs):
+    print(src)
+    for y_block in src:
+        print(src, y_block.shape)
+        # D_block = librosa.stft(y_block, center=False)
+
+        yield tuple((y_block, len(y_block)))
+
 ################################################################################
 # compute feature transforms
 def compute_chroma_librosa(y, sr):

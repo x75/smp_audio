@@ -1,9 +1,26 @@
 """smp_audio.common
 
+Oswald Berthold, 2018
+
 common data, embedding, transform functions for offline music and
 multivariate timeseries processing
 
-Oswald Berthold, 2018
+Abstract interface
+- data_get_filename (librosa)
+- data_load (aubio, librosa, essentia)
+- data_stream (aubio, librosa, essentia)
+
+- compute_onsets (aubio, librosa)
+- compute_tempo_beats
+- compute_music_extractor
+- compute_segments (librosa, essentia)
+- compute_chroma_librosa
+- compute_tempogram_librosa
+- compute_onsets_librosa
+- compute_beats_librosa
+- compute_beats_mix
+
+- beats_to_bpm
 """
 
 import logging

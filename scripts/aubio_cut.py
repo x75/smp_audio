@@ -2,6 +2,9 @@
 
 """ this file was written by Paul Brossier
   it is released under the GNU/GPL license.
+
+ - 2020-09-01 Extended original aubio_cut script with threshold
+   scanning method
 """
 
 import sys

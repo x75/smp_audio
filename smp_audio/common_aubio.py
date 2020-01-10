@@ -13,6 +13,25 @@ def data_load_aubio(**kwargs):
 
     return src
 
+def data_stream_aubio(**kwargs):
+    if 'filename' in kwargs:
+        filename = kwargs['filename']
+    else:
+        filename = '/home/src/QK/data/sound-arglaaa-2018-10-25/24.wav'
+        
+    src = aubio.source(filename, channels=1)
+    src.seek(0)
+
+    return tuple((src, src.samplerate))
+
+def data_stream_get_aubio(src, **kwargs):
+    while True:
+        samples, read = src()
+        if read < src.hop_size:
+            break
+
+        yield tuple((samples, read))
+
 def compute_onsets_aubio(y=None, sr=None, **kwargs):
     if 'method' in kwargs:
         method = kwargs['method']

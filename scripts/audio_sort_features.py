@@ -371,6 +371,17 @@ def autoedit_main(args):
     """autoedit_main
 
     Complete autoedit flow
+
+    ..todo::
+    - loop over chunks of input, batch is large single chunk 
+    - handle returned chunk data, integrate over time
+    - chunk parallel processing (entire graph) vs. chunk serial processing (entire graph)
+    - nodes with memory and nodes without
+
+    - graph class
+    - populate 'func' in graph w/ cached/non-cached funcs
+    - step file / stream input: deal with chunking and collecting, refuse to work on files > maxlen (configurable)
+    - openl3
     """
     # convert args to dict
     kwargs = args_to_dict(args)

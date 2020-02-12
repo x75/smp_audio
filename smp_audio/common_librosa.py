@@ -199,3 +199,38 @@ def compute_segments_librosa(Y, sr, numparts):
     bounds_samples = librosa.frames_to_samples(bounds_frames, hop_length=512, n_fft=2048)
     myprint('bounds_samples = %s / %s' % (bounds_samples.shape, bounds_samples))
     return {'bounds_frames': bounds_frames, 'bounds_times': bounds_times, 'bounds_samples': bounds_samples}
+
+def myplot_specshow_librosa(ax, y):
+    D = np.abs(librosa.stft(y))
+    librosa.display.specshow(
+        librosa.amplitude_to_db(D, ref=np.max), x_axis='time', y_axis='log',
+        ax=ax
+    )
+    ax.set_title('Power spectrogram')
+
+def myplot_onsets(ax, times, o_env, onset_frames):
+    ax.plot(times, o_env, label='Onset strength')
+    ax.vlines(times[onset_frames], 0, o_env.max(), color='r', alpha=0.9,
+              linestyle='--', label='Onsets')
+
+def myplot_beats(ax, beattimes, ylow, yhigh, alpha, color, linestyle, label):
+    ax.vlines(beattimes, ylow, yhigh, alpha=alpha, color=color, linestyle=linestyle, label=label)
+
+def myplot_tempo(ax, times, tempo):
+    myprint('myplot_tempo times = %s, tempo = %s' % (times, tempo))
+    ax.plot(times, tempo, alpha=0.5, color='b', linestyle='none', marker='o', label='Tempo')
+
+def myplot_chroma(ax, chroma):
+    librosa.display.specshow(chroma, y_axis='chroma', x_axis='time', ax=ax)
+    
+def myplot_segments(ax, chroma, bound_times, color='g'):
+    ax.vlines(bound_times, 0, chroma.shape[0], color=color, linestyle='-',
+            linewidth=2, alpha=0.9, label='Segment boundaries')    
+
+def myplot_segments_hist(ax, bound_hist, idx=None, color='k'):
+    myprint('segment bound hist', bound_hist)
+    if idx is not None:
+        ax.bar([idx], bound_hist.mode, alpha=0.4, color=color)
+    else:
+        ax.bar(bound_hist[1][:-1], bound_hist[0], alpha=0.4, color=color)
+

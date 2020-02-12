@@ -24,10 +24,15 @@ from smp_base.plot import make_fig
 DEBUG=True
 
 from smp_audio.common import myprint
-from smp_audio.common import data_load_librosa
-from smp_audio.common import compute_chroma_librosa, compute_tempogram_librosa
-from smp_audio.common import compute_onsets_librosa, compute_beats_librosa, compute_beats_madmon
-from smp_audio.common import compute_segments_librosa
+from smp_audio.common_librosa import data_load_librosa
+from smp_audio.common_librosa import compute_chroma_librosa, compute_tempogram_librosa
+from smp_audio.common_librosa import compute_onsets_librosa, compute_beats_librosa
+from smp_audio.common_librosa import compute_segments_librosa
+# from smp_audio.common_madmom import compute_beats_madmon
+from smp_audio.util import args_to_dict
+
+from smp_audio.common_librosa import myplot_specshow_librosa
+from smp_audio.common_librosa import myplot_onsets, myplot_beats, myplot_tempo, myplot_chroma, myplot_segments, myplot_segments_hist
 
 def plotit(**kwargs):
     ############################################################
@@ -97,7 +102,10 @@ def main_segmentation_iter_clust(args):
 def main(args):
     """main beat detection"""
     # load data from file
-    y, sr, filename = data_load_librosa(args)
+    kwargs = args_to_dict(args)
+
+    y, sr = data_load_librosa(**kwargs)
+    filename = kwargs['filename']
     
     # myprint('Computing onsets')
     # onset_frames = librosa.onset.onset_detect(y=y, sr=sr)
@@ -107,20 +115,25 @@ def main(args):
     # # array([ 0.07 ,  0.395,  0.511,  0.627,  0.766,  0.975,
     # # 1.207,  1.324,  1.44 ,  1.788,  1.881])
 
-    chroma = compute_chroma_librosa(y, sr)
+    chroma = compute_chroma_librosa(y, sr)['chromagram']
     # tempogram = compute_tempogram_librosa(y, sr, onset_env)
     
     # compute onsets
-    onset_env, onset_times_ref, onset_frames = compute_onsets_librosa(y, sr)
+    # onset_env, onset_times_ref, onset_frames = compute_onsets_librosa(y, sr)
+    onsets = compute_onsets_librosa(y, sr)
 
     # FIXME: is there a beat? danceability?
-    # compute_beat(onset_env, onset_frames)
+    # compute_beat(onsets['onsets_env'], onsets['onsets_frames'])
 
     # compute beat tracking (librosa)
     beats = {}
     # for start_bpm in [30, 60, 90]:
     for start_bpm in [120]:
-        t_, dt_, b_ = compute_beats_librosa(onset_env, onset_frames, start_bpm, sr)
+        # t_, dt_, b_ = compute_beats_librosa(onsets['onsets_env'], onsets['onsets_frames'], start_bpm, sr)
+        beats_dict = compute_beats_librosa(onsets['onsets_env'], onsets['onsets_frames'], start_bpm, sr)
+        t_ = beats_dict['tempo']
+        dt_ = beats_dict['dtempo']
+        b_ = beats_dict['beats']
         # b_f_ = librosa.util.fix_frames(b_, x_max=chroma.shape[1])
         beatsk = 'lr_bpm{0}'.format(start_bpm)
         beats[beatsk] = {}
@@ -148,7 +161,11 @@ def main(args):
     segments = {}
     # for numparts in [5, 10]: # range(2, 20):
     for numparts in [6,7]:
-        bd_, bdt_, bds_ = compute_segments_librosa(chroma, sr, numparts)
+        # bd_, bdt_, bds_ = compute_segments_librosa(chroma, sr, numparts)
+        segments_dict = compute_segments_librosa(chroma, sr, numparts)
+        bd_ = segments_dict['bounds_frames']
+        bdt_ = segments_dict['bounds_times']
+        bds_ = segments_dict['bounds_samples']
         segments[numparts] = {}
         myprint('bounds', bd_)
         segments[numparts]['bounds'] = bd_
@@ -197,20 +214,21 @@ def main(args):
     colors = ['k', 'b', 'g', 'r', 'm', 'c']
     fig = make_fig(rows=6, cols=1, title='%s' % (filename))
     myplot_specshow_librosa(fig.axes[0], y)
-    myplot_onsets(fig.axes[1], onset_times_ref, onset_env, onset_frames)
+    myplot_onsets(fig.axes[1], onsets['onsets_times_ref'], onsets['onsets_env'], onsets['onsets_frames'])
     for i, beat_ in enumerate(beats):
         beats_ = beats[beat_]['beats']
         # [('beats', 0.5, 1.0, 0.5, 'b', '--', 'Beats'),
         #  ('beats2', 0.0, 0.5, 0.5, 'k', '-.', 'Beats2'),
         #  ('mm_beat_times', 0.25, 0.75, 'r', '-', 'mm_beats')]:
+        print(beat_, beats_)
         if beat_.startswith('lr'):
-            beattimes = onset_times_ref[beats_]
+            beattimes = onsets['onsets_times_ref'][beats_]
         else:
             beattimes = beats_
         myplot_beats(fig.axes[2], beattimes, ylow=0, yhigh=1, alpha=0.5,
                      color=colors[i], linestyle='--', label=beat_)
         if beats[beat_]['dtempo'] is not None:
-            myplot_tempo(fig.axes[3], onset_times_ref, beats[beat_]['dtempo'])
+            myplot_tempo(fig.axes[3], onsets['onsets_times_ref'], beats[beat_]['dtempo'])
 
     myplot_chroma(fig.axes[4], chroma)
     myplot_segments(fig.axes[4], chroma, segments['sbic']['bound_times'], color='r')
@@ -229,7 +247,7 @@ def main(args):
         
     fig.axes[5].set_yscale('log')
 
-    # plotit(y=y, o_env=o_env, times=times, onset_frames=onset_frames, file=args.file,
+    # plotit(y=y, o_env=o_env, times=times, onset_frames=onsets['onsets_frames'], file=args.file,
     #        tempo=tempo, beats=beats, dtempo=dtempo, 
     #        tempo2=tempo2, beats2=beats2, dtempo2=dtempo2,
     #        chroma=chroma, bounds=bounds, bound_times=bound_times,
@@ -260,7 +278,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--duration', help='Input duration (secs) to select from input file [10.0]',
                         default=10.0, type=float)
-    parser.add_argument('-f', '--file', help='Sound file to process', default=None, type=str)
+    parser.add_argument('-f', '--filename', help='Sound file to process', default=None, type=str)
 
     args = parser.parse_args()
 

@@ -1,7 +1,6 @@
 import aubio
 import numpy as np
 
-
 def data_load_aubio(**kwargs):
     if 'filename' in kwargs:
         filename = kwargs['filename']

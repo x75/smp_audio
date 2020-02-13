@@ -23,7 +23,9 @@ Abstract interface
 - beats_to_bpm
 """
 
-import logging
+from smp_base.impl import smpi
+# import logging
+logging = smpi('logging')
 
 DEBUG=True
 

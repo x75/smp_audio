@@ -1,10 +1,12 @@
-"""play with import foo
+"""dynamic module import
+
+.. note:: see `smp_base.impl.smpi` which already does this
 
 goal is to have
 
 - dynamic imports
 - support a stack of equivalent libraries with similar function sets
-- load them according to preference and availability
+- load them according to availability and preference
 
 approaches
 
@@ -12,7 +14,6 @@ approaches
 - try / except / HAVE_THATLIB
 - imp, deprecated in favor of importlib
 - __import__
-
 """
 
 import os
@@ -40,7 +41,6 @@ def load_from_file(filepath):
         class_inst = getattr(py_mod, expected_class)()
 
     return class_inst
-
 
 def load_lib_simple(action):
     action_ = importlib.import_module('actions.'+ action)

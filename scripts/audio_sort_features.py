@@ -47,10 +47,10 @@ from joblib import Memory
 location = './cachedir'
 memory = Memory(location, verbose=0)
 
-def paa_feature_extractor_main(args):
+def main_paa_feature_extractor(args):
     # convert args to dict
     kwargs = args_to_dict(args)
-    print('paa_feature_extractor_main enter kwargs {0}'.format(kwargs))
+    print('main_paa_feature_extractor enter kwargs {0}'.format(kwargs))
     
 def main_music_extractor(args):
     # convert args to dict
@@ -203,8 +203,8 @@ def main_beatiness(args):
 
     # plt.show()
 
-def automix_main(args):
-    """automix_main
+def main_automix(args):
+    """main_automix
 
     Perform complete automix flow with the following schema:
     
@@ -221,7 +221,7 @@ def automix_main(args):
     # convert args to dict
     kwargs = args_to_dict(args)
 
-    print('automix_main: kwargs {0}'.format(pformat(kwargs)))
+    print('main_automix: kwargs {0}'.format(pformat(kwargs)))
 
     # flow graph g
     g = OrderedDict()
@@ -367,8 +367,8 @@ def autoedit_graph_from_dict(**kwargs):
     # plt.gca().set_aspect(1)
     ax.set_title('autoedit_graph_from_dict')
     
-def autoedit_main(args):
-    """autoedit_main
+def main_autoedit(args):
+    """main_autoedit
 
     Complete autoedit flow
 
@@ -516,12 +516,18 @@ def autobeat_filter(args):
     """
     return {}
 
-def autobeat_main(args):
-    """autobeat_main
+def main_autobeat(args):
+    """main_autobeat
 
-    Extract beat from track or audio file and return tempo in bpm,
-    array of all beat events
+    Extract beat from audio, return tempo in bpm, array of all beat
+    onset events
+
+    .. TODO::
+    - use general lib loading
+    - create src at this level for reuse
+    - save / return beat array
     """
+    # aubio hardcoded? fix flexible lib loading
     from smp_audio.common_aubio import data_load_aubio
     from smp_audio.common_aubio import compute_onsets_aubio
     from smp_audio.common_aubio import compute_tempo_beats_aubio
@@ -530,30 +536,33 @@ def autobeat_main(args):
     kwargs = args_to_dict(args)
 
     # for filename in kwargs['filenames']:
-
     filename = kwargs['filenames'][0]
     onsets = compute_onsets_aubio(filename=filename)
     # print ('onsets = {0}'.format(pformat(onsets)))
     print ('onsets[onsets] = {0}'.format(onsets['onsets'].shape))
-    onsets_x = frames_to_time(np.arange(0, onsets['onsets'].shape[0]), sr=44100, hop_length=512)
+    onsets_x = frames_to_time(np.arange(0, onsets['onsets'].shape[0]), sr=onsets['src'].samplerate, hop_length=onsets['src'].hop_size)
     
     method = 'specdiff'
     tempo_beats = compute_tempo_beats_aubio(path=filename, method=method)
 
     # print ('tempo_beats = {0}'.format(pformat(tempo_beats)))
-    print ('tempo_beats[beats] = {0}'.format(tempo_beats['beats'].shape))
+    print ('tempo_beats[bpm] = {0}, tempo_beats[beats] = {1}'.format(tempo_beats['bpm'], tempo_beats['beats'].shape))
 
     fig = plt.figure()
     ax1 = fig.add_subplot(2,1,1)
+    ax1.set_title('onset detection function')
     ax1.plot(onsets_x, np.array(onsets['onsets']))
     
     ax2 = fig.add_subplot(2,1,2, sharex=ax1)
+    ax2.set_title('beats')
+    ax2.text(0.1, 0.1, 'Tempo = {0:.2f}'.format(tempo_beats['bpm']))
     ax2.bar(tempo_beats['beats'], 1.0, width=0.1)
+    ax2.set_xlabel('time [s]')
     
     plt.show()
     
-def segtree_main(args):
-    """segtree_main
+def main_segtree(args):
+    """main_segtree
 
     OBSOLETE see aubio_cut.py --mode scan
 
@@ -592,7 +601,7 @@ def segtree_main(args):
     plt.show()
 
     
-if __name__ == "__main__":
+if __name__ == "main____":
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--filenames", action='append', dest='filenames', help="Input file(s) []", nargs = '+', default = [])
     parser.add_argument("-a", "--assemble-mode", dest='assemble_mode',
@@ -622,13 +631,13 @@ if __name__ == "__main__":
     elif args.mode == 'paa_feature_extractor':
         main_paa_feature_extractor(args)
     elif args.mode == 'autoedit':
-        autoedit_main(args)
+        main_autoedit(args)
     elif args.mode == 'automix':
-        automix_main(args)
+        main_automix(args)
     elif args.mode == 'autobeat':
-        autobeat_main(args)
+        main_autobeat(args)
     elif args.mode == 'segtree':
-        segtree_main(args)
+        main_segtree(args)
     else:
         print('Unknown mode {0}, exiting'.format(args.mode))
         sys.exit(1)

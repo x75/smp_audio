@@ -217,7 +217,7 @@ def myplot_beats(ax, beattimes, ylow, yhigh, alpha, color, linestyle, label):
     ax.vlines(beattimes, ylow, yhigh, alpha=alpha, color=color, linestyle=linestyle, label=label)
 
 def myplot_tempo(ax, times, tempo):
-    myprint('myplot_tempo times = %s, tempo = %s' % (times, tempo))
+    # myprint('myplot_tempo times = %s, tempo = %s' % (times, tempo))
     ax.plot(times, tempo, alpha=0.5, color='b', linestyle='none', marker='o', label='Tempo')
 
 def myplot_chroma(ax, chroma):
@@ -228,7 +228,7 @@ def myplot_segments(ax, chroma, bound_times, color='g'):
             linewidth=2, alpha=0.9, label='Segment boundaries')    
 
 def myplot_segments_hist(ax, bound_hist, idx=None, color='k'):
-    myprint('segment bound hist', bound_hist)
+    # myprint('segment bound hist', bound_hist)
     if idx is not None:
         ax.bar([idx], bound_hist.mode, alpha=0.4, color=color)
     else:

@@ -23,7 +23,7 @@ def data_get_filename(args):
     else:
         return args[0]
 
-def data_load_librosa(filename, duration=None, offset=0.0):
+def data_load_librosa(filename, duration=None, offset=0.0, **kwargs):
     """data_load_librosa
 
     Data load with librosa loader

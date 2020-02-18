@@ -100,322 +100,80 @@ def main_segmentation_iter_clust(args):
     pass
 
 def auto_voice_align(beats, **kwargs):
-    voice_snips_1 = [
-        '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0000.000000.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0000.362585.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0001.430476.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0001.708730.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0003.218503.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0003.670816.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0006.319932.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0008.755420.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0015.204898.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0018.055374.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0018.869728.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0019.433764.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0019.595125.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0020.934036.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0021.758027.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0024.585760.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0026.430317.wav',
-            # '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0030.100499.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0030.130023.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0030.460227.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0030.785669.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0033.043492.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0033.471315.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0034.878617.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0036.747438.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0040.232290.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0042.518798.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0044.700159.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0047.015918.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0048.933243.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0050.795306.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0052.730385.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0054.534921.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0057.953651.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0058.263492.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0060.136122.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0061.773537.wav',
-            '/home/lib/audio/work/tsx_recur_3/data/trk006-3-sco-0000-voice-1/trk006-3-sco-0000-voice-1_0063.659592.wav',
-        ]
+    # from audio_beat_detect_2_data import voice_snips_trk006 as voice_snips
+    # from audio_beat_detect_2_data import voice_snips_1_trk006 as voice_snips_1
+    # from audio_beat_detect_2_data import voice_snips_trk008 as voice_snips
+    # from audio_beat_detect_2_data import voice_snips_1_trk008 as voice_snips_1
+    # from audio_beat_detect_2_data import voice_snips_trk026 as voice_snips
+    # from audio_beat_detect_2_data import voice_snips_1_trk026 as voice_snips_1
+    # from audio_beat_detect_2_data import voice_snips_trk_AUD20200213 as voice_snips
+    # from audio_beat_detect_2_data import voice_snips_1_trk_AUD20200213 as voice_snips_1
+    # from audio_beat_detect_2_data import voice_snips_trk_shmock2 as voice_snips
+    # from audio_beat_detect_2_data import voice_snips_1_trk_shmock2 as voice_snips_1
+    from audio_beat_detect_2_data import voice_snips_trk_shluff2 as voice_snips
+    from audio_beat_detect_2_data import voice_snips_1_trk_shluff2 as voice_snips_1
     
-    voice_snips = [
-            '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-000.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-001.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-002.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-003.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-004.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-005.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-006.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-007.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-008.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-009.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-010.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-011.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-012.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-013.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-014.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-015.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-016.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-017.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-018.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-019.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-020.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-021.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-022.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-023.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-024.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-025.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-026.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-027.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-028.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-029.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-030.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-031.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-032.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-033.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-034.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-035.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_density_lfo-036.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-000.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-001.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-002.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-003.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-004.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-005.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-006.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-007.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-008.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-009.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-010.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-011.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-012.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-013.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-014.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-015.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-016.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-017.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-018.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-019.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-020.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-021.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-022.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-023.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-024.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-025.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-026.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-027.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-028.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-029.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-030.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-031.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-032.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-033.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-034.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-035.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_length_lfo-036.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-000.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-001.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-002.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-003.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-004.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-005.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-006.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-007.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-008.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-009.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-010.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-011.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-012.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-013.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-014.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-015.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-016.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-017.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-018.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-019.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-020.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-021.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-022.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-023.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-024.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-025.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-026.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-027.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-028.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-029.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-030.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-031.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-032.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-033.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-034.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-035.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_read_lfo-036.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-000.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-001.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-002.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-003.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-004.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-005.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-006.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-007.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-008.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-009.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-010.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-011.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-012.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-013.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-014.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-015.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-016.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-017.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-018.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-019.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-020.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-021.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-022.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-023.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-024.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-025.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-026.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-027.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-028.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-029.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-030.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-031.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-032.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-033.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-034.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-035.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_graincloud_with_speed_lfo-036.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-000.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-001.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-002.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-003.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-004.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-005.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-006.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-007.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-008.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-009.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-010.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-011.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-012.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-013.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-014.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-015.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-016.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-017.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-018.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-019.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-020.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-021.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-022.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-023.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-024.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-025.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-026.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-027.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-028.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-029.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-030.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-031.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-032.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-033.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-034.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-035.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_maxspeed_graincloud-036.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-000.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-001.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-002.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-003.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-004.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-005.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-006.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-007.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-008.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-009.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-010.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-011.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-012.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-013.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-014.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-015.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-016.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-017.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-018.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-019.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-020.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-021.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-022.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-023.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-024.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-025.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-026.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-027.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-028.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-029.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-030.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-031.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-032.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-033.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-034.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-035.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_minspeed_graincloud-036.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-000.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-001.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-002.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-003.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-004.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-005.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-006.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-007.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-008.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-009.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-010.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-011.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-012.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-013.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-014.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-015.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-016.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-017.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-018.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-019.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-020.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-021.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-022.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-023.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-024.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-025.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-026.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-027.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-028.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-029.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-030.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-031.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-032.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-033.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-034.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-035.wav',
-        '/home/src/QK/smp/playground/pulsar/data/trk006-3/test_unmodulated_graincloud-036.wav',
-    ]
+    d = beats['beats']
+    beatarray = np.concatenate((d, d + d[-1] + 1))/2.0
+    beats['beatsa'] = beatarray
+
     # print(voice_snips)
+    print('beats.shape = {0}'.format(librosa.frames_to_time(beats['beats']).shape))
     print('beats = {0}'.format(librosa.frames_to_time(beats['beats'])))
     from pydub import AudioSegment
+    # # create silence from base track
+    # a_ = AudioSegment.from_wav(kwargs['filename'])
+    # a = AudioSegment.silent(duration=a_.duration_seconds*1000, frame_rate=a_.frame_rate)
     # a = AudioSegment.empty()
     a = AudioSegment.from_wav(kwargs['filename'])
+    j_voice_main = 5
     for j in range(16):
-        gain = 0 # random.randint(0, 10)
-        print('gain = {0}'.format(gain))
-        for beat_i, beat in enumerate(librosa.frames_to_time(beats['beats'])):
-            if random.uniform(0, 1) > 0.5:
-                b = AudioSegment.from_wav(random.choice(voice_snips_1))
+        gain = 0
+        # gain = random.randint(-3, 2)
+        # print('gain = {0}'.format(gain))
+        print('voice layer = {0}, gain = {1}'.format(j, gain))
+        # for beat_i, beat in enumerate(beatarray):
+        for beat_i, beat in enumerate(librosa.frames_to_time(beats['beatsa'])):
+            # if random.uniform(0, 1) > 0.5:
+            # frame_mod = 2**np.random.choice([-0.5, -0.3, -0.1, 0, 0.1, 0.3, 0.5, 0.8])
+            frame_mod = 2**np.random.choice([-0.5, -0.3, -0.1, 0, 0.1, 0.3, 0.5, 0.8, 1.3, 2.0])
+            if j < j_voice_main:
+                beat_i_scaled = int(beat_i * (len(voice_snips_1)/beats['beatsa'].shape[0]))
+                # b = AudioSegment.from_wav(random.choice(voice_snips_1))
+                # voice_snips_1_idx = np.clip(beat_i + np.random.randint(-5, 5), 0, len(voice_snips_1)-1)
+                voice_snips_1_idx = np.clip(beat_i_scaled + int(np.random.normal(0, 3)), 0, len(voice_snips_1)-1)
+                b = AudioSegment.from_wav(voice_snips_1[voice_snips_1_idx])
+                fr_ = b.frame_rate * frame_mod
+                b.set_frame_rate(int(fr_))
+                # trk008
+                # gain_max = 6
+                # gain_min = -6
+                # trk026
+                gain_max = 3
+                gain_min = -6
             else:
-                b = AudioSegment.from_wav(random.choice(voice_snips))
-            b = b.apply_gain_stereo(random.randint(-21, -6), random.randint(-21, -6))
+                if np.random.uniform(0, 1) > 0.4:
+                    beat_i_scaled = int(beat_i * (len(voice_snips)/beats['beatsa'].shape[0]))
+                    # voice_snips_idx = np.clip(beat_i + np.random.randint(-10, 10), 0, len(voice_snips)-1)
+                    voice_snips_idx = np.clip(beat_i_scaled + int(np.random.normal(0, 5)), 0, len(voice_snips)-1)
+                    if np.random.uniform(0, 1) > 0.66:
+                        b = AudioSegment.from_wav(voice_snips[voice_snips_idx])
+                    else:
+                        b = AudioSegment.from_wav(random.choice(voice_snips))
+                else:
+                    b = AudioSegment.empty()
+                # # trk008
+                # gain_max = 0
+                # gain_min = -24
+                # # trk026, trk-AUD20200213
+                # gain_max = -6
+                # gain_min = -30
+                # trk026, trk-AUD20200213
+                gain_max = 3
+                gain_min = -21
+            l_gain = random.randint(gain_min, gain_max)
+            r_gain = random.randint(gain_min, l_gain)
+            b = b.apply_gain_stereo(l_gain, r_gain)
             # b = b.apply_gain_stereo(b)
             if np.random.uniform(0, 1) > 0.8:
                 b = b.reverse()
@@ -433,6 +191,7 @@ def auto_voice_align(beats, **kwargs):
 
 def main(args):
     """main beat detection"""
+    np.random.seed(args.seed)
     # load data from file
     kwargs = args_to_dict(args)
 
@@ -618,6 +377,7 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--duration', help='Input duration (secs) to select from input file [10.0]',
                         default=10.0, type=float)
     parser.add_argument('-f', '--filename', help='Sound file to process', default=None, type=str)
+    parser.add_argument('-s', '--seed', help='Random seed [0]', default=0, type=int)
 
     args = parser.parse_args()
 

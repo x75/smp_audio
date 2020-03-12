@@ -1,5 +1,5 @@
-smp\_audio aka smp\_audio
-=========================
+smp\_audio
+==========
 
 A playground for designing audio tools, *smp\_audio* is part of the smp project, a set of conventions about sensorimotor learning and developmental models used in robotics research. Auditory perception is an important function for robots, but there are clear side-effects. For example, the modules a robot needs to "hear" things, can used to build audio- and music tools for consumers and pros with novel properties. That is the idea, that this project tries to validate.
 
@@ -138,3 +138,22 @@ import os
 os.environ['LIBROSA_CACHE_DIR'] = '/tmp/librosa_cache'
 import librosa
 ```
+
+python3 scripts/aubio\_cut.py --mode scan --quiet --bufsize 2048 --hopsize 256 /home/lib/audio/work/tsx\_recur\_5/sco-base.wav
+
+Notes
+-----
+
+### <span class="todo TODO">TODO</span> thumbnailing
+
+provided by pyAudioAnalysis, running
+
+``` example
+python3 audioAnalysis.py thumbnail --input /path/to/file.wav
+```
+
+produces a thumbnail image and two thumbnail wav snippets in /path/to/file\_thumbnail\*
+
+### <span class="todo TODO">TODO</span> stream processing
+
+switch the entire internal data flow to stream based processing and implement batch versions as a separate option.

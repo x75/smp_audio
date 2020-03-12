@@ -18,6 +18,7 @@ main_autoedit:
  - 1.1. perform pre-classification for model choice later on
  - rename: autosnd, automusic
 """
+
 import argparse, time, pickle, sys
 from collections import OrderedDict
 from pprint import pformat
@@ -599,9 +600,9 @@ def main_segtree(args):
     plt.plot(onsets2_)
     plt.plot(onsets_ > od.get_threshold(), linewidth=2, alpha=0.5, linestyle='none', marker='o')
     plt.show()
-
     
-if __name__ == "main____":
+if __name__ == "__main__":
+    print('blub')
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--filenames", action='append', dest='filenames', help="Input file(s) []", nargs = '+', default = [])
     parser.add_argument("-a", "--assemble-mode", dest='assemble_mode',

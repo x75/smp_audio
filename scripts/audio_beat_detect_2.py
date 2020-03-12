@@ -112,6 +112,8 @@ def auto_voice_align(beats, **kwargs):
     # from audio_beat_detect_2_data import voice_snips_1_trk_shmock2 as voice_snips_1
     from audio_beat_detect_2_data import voice_snips_trk_shluff2 as voice_snips
     from audio_beat_detect_2_data import voice_snips_1_trk_shluff2 as voice_snips_1
+    # from audio_beat_detect_2_data import voice_snips_trk021 as voice_snips
+    # from audio_beat_detect_2_data import voice_snips_1_trk021 as voice_snips_1
     
     d = beats['beats']
     beatarray = np.concatenate((d, d + d[-1] + 1))/2.0
@@ -127,6 +129,8 @@ def auto_voice_align(beats, **kwargs):
     # a = AudioSegment.empty()
     a = AudioSegment.from_wav(kwargs['filename'])
     j_voice_main = 5
+    voice_main_density = 0.33
+    voice_side_density = 0.66
     for j in range(16):
         gain = 0
         # gain = random.randint(-3, 2)
@@ -138,21 +142,30 @@ def auto_voice_align(beats, **kwargs):
             # frame_mod = 2**np.random.choice([-0.5, -0.3, -0.1, 0, 0.1, 0.3, 0.5, 0.8])
             frame_mod = 2**np.random.choice([-0.5, -0.3, -0.1, 0, 0.1, 0.3, 0.5, 0.8, 1.3, 2.0])
             if j < j_voice_main:
-                beat_i_scaled = int(beat_i * (len(voice_snips_1)/beats['beatsa'].shape[0]))
-                # b = AudioSegment.from_wav(random.choice(voice_snips_1))
-                # voice_snips_1_idx = np.clip(beat_i + np.random.randint(-5, 5), 0, len(voice_snips_1)-1)
-                voice_snips_1_idx = np.clip(beat_i_scaled + int(np.random.normal(0, 3)), 0, len(voice_snips_1)-1)
-                b = AudioSegment.from_wav(voice_snips_1[voice_snips_1_idx])
-                fr_ = b.frame_rate * frame_mod
-                b.set_frame_rate(int(fr_))
-                # trk008
-                # gain_max = 6
-                # gain_min = -6
-                # trk026
-                gain_max = 3
-                gain_min = -6
+                if np.random.uniform(0, 1) < voice_main_density:
+                    beat_i_scaled = int(beat_i * (len(voice_snips_1)/beats['beatsa'].shape[0]))
+                    # b = AudioSegment.from_wav(random.choice(voice_snips_1))
+                    # voice_snips_1_idx = np.clip(beat_i + np.random.randint(-5, 5), 0, len(voice_snips_1)-1)
+                    voice_snips_1_idx = np.clip(beat_i_scaled + int(np.random.normal(0, 3)), 0, len(voice_snips_1)-1)
+                    b = AudioSegment.from_wav(voice_snips_1[voice_snips_1_idx])
+                    fr_ = b.frame_rate * frame_mod
+                    b.set_frame_rate(int(fr_))
+                    # trk008
+                    # gain_max = 6
+                    # gain_min = -6
+                    # trk026
+                    # gain_max = 3
+                    # gain_min = -6
+                    # trks shluff / shmock
+                    gain_max = 3
+                    gain_min = -6
+                    # # trk021
+                    # gain_max = -3
+                    # gain_min = -12
+                else:
+                    b = AudioSegment.empty()
             else:
-                if np.random.uniform(0, 1) > 0.4:
+                if np.random.uniform(0, 1) < voice_side_density:
                     beat_i_scaled = int(beat_i * (len(voice_snips)/beats['beatsa'].shape[0]))
                     # voice_snips_idx = np.clip(beat_i + np.random.randint(-10, 10), 0, len(voice_snips)-1)
                     voice_snips_idx = np.clip(beat_i_scaled + int(np.random.normal(0, 5)), 0, len(voice_snips)-1)
@@ -169,8 +182,14 @@ def auto_voice_align(beats, **kwargs):
                 # gain_max = -6
                 # gain_min = -30
                 # trk026, trk-AUD20200213
-                gain_max = 3
-                gain_min = -21
+                # gain_max = 3
+                # gain_min = -21
+                # shluff2, shmock2
+                gain_max = -3
+                gain_min = -27
+                # # trk021
+                # gain_max = -3
+                # gain_min = -33
             l_gain = random.randint(gain_min, gain_max)
             r_gain = random.randint(gain_min, l_gain)
             b = b.apply_gain_stereo(l_gain, r_gain)

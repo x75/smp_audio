@@ -1,4 +1,4 @@
-"""smp_audio api
+"""smp_audio.common_api
 
 define the api and map calls to one or more implementation libraries,
 merge results if required and return final prediction

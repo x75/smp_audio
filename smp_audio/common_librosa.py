@@ -1,3 +1,20 @@
+"""smp_audio.common_librosa
+
+smp_audio common api, librosa implementation
+
+** stream processing
+
+see librosa blog post https://librosa.github.io/blog/2019/07/29/stream-processing/
+
+bottom line
+- consider samplerate
+- use center=False argument on functions
+- can't run cqt, recurrence_matrix
+
+functions
+- data_stream_librosa
+- data_stream_get_librosa
+"""
 from argparse import Namespace
 
 # caching librosa
@@ -54,20 +71,36 @@ def data_load_librosa(filename, duration=None, offset=0.0, **kwargs):
     return y, sr
 
 def data_stream_librosa(**kwargs):
+    """data_stream_librosa
+
+    load and stream audio data in frames, same as aubio.src does
+    """
     # filename = librosa.util.example_audio_file()
     if 'filename' in kwargs:
         filename = kwargs['filename']
     else:
         filename = '/home/src/QK/data/sound-arglaaa-2018-10-25/24.wav'
-    
+
+    if 'frame_length' in kwargs:
+        frame_length = kwargs['frame_length']
+    else:
+        frame_length = 512
+        
+    if 'hop_length' in kwargs:
+        hop_length = kwargs['hop_length']
+    else:
+        hop_length = 512
+        
+    # streaming does not provide on-the-fly resampling so we must consider the samplerate
     sr = librosa.get_samplerate(filename)
+    # open the stream
     stream = librosa.stream(filename,
                             block_length=1,
-                            frame_length=512,
-                            hop_length=512,
+                            frame_length=frame_length,
+                            hop_length=hop_length,
                             mono=True
     )
-    
+    # return stream descriptor and samplerate
     return tuple((stream, sr))
 
 def data_stream_get_librosa(src, **kwargs):

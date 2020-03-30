@@ -308,6 +308,8 @@ def main_automix(args):
         # g['l1_files'][file_]['features_mt'] = dict(zip(tmp_[1], tmp_[2]))
 
     # layer 5: 
+
+    pickle.dump(g, open('g.pkl', 'wb'))
     
     # print('files {0}'.format(pformat(files)))
     # plot dictionary g as graph
@@ -328,9 +330,10 @@ def main_automix(args):
     print('Sorting l1_files by {0}'.format(l1_files_df.sort_values(sort_key, ascending=False).path.to_string()))
     l1_files_df.sort_values(sort_key, ascending=False).path.to_csv('sendspaace-assembled-{0}-{1}.{2}'.format(3, sort_key, 'csv'))
 
-    track_assemble_from_segments_sequential(files=list(l1_files_df.sort_values(sort_key, ascending=False).path),
-                                            output_filename='sendspaace-assembled-{0}-{1}.{2}'.format(3, sort_key, 'wav'),
-                                            duration=None)
+    if args.write:
+        track_assemble_from_segments_sequential(files=list(l1_files_df.sort_values(sort_key, ascending=False).path),
+                                                output_filename='sendspaace-assembled-{0}-{1}.{2}'.format(3, sort_key, 'wav'),
+                                                duration=None)
     
 def autoedit_graph_from_dict(**kwargs):
     g = kwargs['g']
@@ -618,6 +621,7 @@ if __name__ == "__main__":
     parser.add_argument("--seed", dest='seed', type=int, default=123, help="Random seed [123]")
     parser.add_argument("-smin", "--seglen-min", dest='seglen_min', default=2, help="Segment length minimum in seconds [2]")
     parser.add_argument("-smax", "--seglen-max", dest='seglen_max', default=60, help="Segment length maximum in seconds [60]")
+    parser.add_argument("-w", "--write", dest='write', type=bool, default=False, help="Write output [False]")
     # params: numsegments, duration, minlength, maxlength, kernel params
     args = parser.parse_args()
 

@@ -110,10 +110,14 @@ def auto_voice_align(beats, **kwargs):
     # from audio_beat_detect_2_data import voice_snips_1_trk_AUD20200213 as voice_snips_1
     # from audio_beat_detect_2_data import voice_snips_trk_shmock2 as voice_snips
     # from audio_beat_detect_2_data import voice_snips_1_trk_shmock2 as voice_snips_1
-    from audio_beat_detect_2_data import voice_snips_trk_shluff2 as voice_snips
-    from audio_beat_detect_2_data import voice_snips_1_trk_shluff2 as voice_snips_1
+    # from audio_beat_detect_2_data import voice_snips_trk_shluff2 as voice_snips
+    # from audio_beat_detect_2_data import voice_snips_1_trk_shluff2 as voice_snips_1
     # from audio_beat_detect_2_data import voice_snips_trk021 as voice_snips
     # from audio_beat_detect_2_data import voice_snips_1_trk021 as voice_snips_1
+    from audio_beat_detect_2_data import voice_snips_multitrack002 as voice_snips
+    from audio_beat_detect_2_data import voice_snips_1_multitrack002 as voice_snips_1
+    # from audio_beat_detect_2_data import voice_snips_multipat0001 as voice_snips
+    # from audio_beat_detect_2_data import voice_snips_1_multipat0001 as voice_snips_1
     
     d = beats['beats']
     beatarray = np.concatenate((d, d + d[-1] + 1))/2.0
@@ -141,6 +145,8 @@ def auto_voice_align(beats, **kwargs):
             # if random.uniform(0, 1) > 0.5:
             # frame_mod = 2**np.random.choice([-0.5, -0.3, -0.1, 0, 0.1, 0.3, 0.5, 0.8])
             frame_mod = 2**np.random.choice([-0.5, -0.3, -0.1, 0, 0.1, 0.3, 0.5, 0.8, 1.3, 2.0])
+            gain_max = -9
+            gain_min = -12
             if j < j_voice_main:
                 if np.random.uniform(0, 1) < voice_main_density:
                     beat_i_scaled = int(beat_i * (len(voice_snips_1)/beats['beatsa'].shape[0]))
@@ -157,11 +163,14 @@ def auto_voice_align(beats, **kwargs):
                     # gain_max = 3
                     # gain_min = -6
                     # trks shluff / shmock
-                    gain_max = 3
-                    gain_min = -6
+                    # gain_max = 3
+                    # gain_min = -6
                     # # trk021
                     # gain_max = -3
                     # gain_min = -12
+                    # multipat0001
+                    gain_max = 0
+                    gain_min = -9
                 else:
                     b = AudioSegment.empty()
             else:
@@ -185,11 +194,15 @@ def auto_voice_align(beats, **kwargs):
                 # gain_max = 3
                 # gain_min = -21
                 # shluff2, shmock2
-                gain_max = -3
-                gain_min = -27
+                # gain_max = -3
+                # gain_min = -27
                 # # trk021
                 # gain_max = -3
                 # gain_min = -33
+                # multipat0001
+                gain_max = -9
+                gain_min = -33
+
             l_gain = random.randint(gain_min, gain_max)
             r_gain = random.randint(gain_min, l_gain)
             b = b.apply_gain_stereo(l_gain, r_gain)

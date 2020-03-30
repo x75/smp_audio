@@ -20,7 +20,6 @@ from keras.models import model_from_json
 from smp_audio.common_librosa import data_stream_librosa, data_stream_get_librosa
 from smp_audio.common_aubio import data_stream_aubio, data_stream_get_aubio
 
-
 def model_serialize(model):
     # serialize model to JSON
     model_json = model.to_json()
@@ -53,7 +52,7 @@ def main(args):
     # load model
     model = model_unserialize(args.modelfile)
     print(f'model {model}')
-
+    
     # load model training data
     data = pd.read_csv('../notebooks/data-stream.csv')
     data = data.drop(['filename'],axis=1)
@@ -105,7 +104,7 @@ def main(args):
         y_ = model.predict(X_s)
 
         # print(f'frame {blk_i} prediction {y_}')
-        print(f'frame {blk_i} prediction {np.argmax(y_)}')
+        # print(f'frame {blk_i} prediction {np.argmax(y_)}')
         
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

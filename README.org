@@ -174,7 +174,6 @@ import librosa
 #+END_EXAMPLE
 python3 scripts/aubio_cut.py --mode scan --quiet --bufsize 2048 --hopsize 256 /home/lib/audio/work/tsx_recur_5/sco-base.wav
 ** Notes
-
 *** TODO thumbnailing
 
 provided by pyAudioAnalysis, running

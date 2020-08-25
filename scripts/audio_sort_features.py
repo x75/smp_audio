@@ -1,4 +1,4 @@
-"""sort audio files by some scalar feature: beatiness, density
+"""sort audio files by some scalar feature: beatiness, density, etc
 
 algorithm prototype
  1. input: list of files

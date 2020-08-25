@@ -18,8 +18,8 @@ def data_stream_aubio(**kwargs):
         filename = kwargs['filename']
     else:
         filename = '/home/src/QK/data/sound-arglaaa-2018-10-25/24.wav'
-        
-    src = aubio.source(filename, channels=1)
+
+    src = aubio.source(filename, hop_size=kwargs['frame_length'], channels=kwargs['num_channels'])
     src.seek(0)
 
     return tuple((src, src.samplerate))

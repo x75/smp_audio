@@ -116,7 +116,8 @@ def compute_segments_essentia(Y, sr, numparts):
     - bound_times(np.ndarray): boundaries in time index space
     - bound_samples(np.ndarray): boundaries in sample index space
     """    
-    from essentia.standard import SBic
+    # from essentia.standard import SBic
+    from essentia.streaming import SBic
     print('Y', type(Y))
     # Y = np.atleast_2d(Y)
     sbic = SBic(cpw=0.5, inc1=60, inc2=20, minLength=50, size1=200, size2=300)

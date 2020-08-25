@@ -114,10 +114,12 @@ def auto_voice_align(beats, **kwargs):
     # from audio_beat_detect_2_data import voice_snips_1_trk_shluff2 as voice_snips_1
     # from audio_beat_detect_2_data import voice_snips_trk021 as voice_snips
     # from audio_beat_detect_2_data import voice_snips_1_trk021 as voice_snips_1
-    from audio_beat_detect_2_data import voice_snips_multitrack002 as voice_snips
-    from audio_beat_detect_2_data import voice_snips_1_multitrack002 as voice_snips_1
+    # from audio_beat_detect_2_data import voice_snips_multitrack002 as voice_snips
+    # from audio_beat_detect_2_data import voice_snips_1_multitrack002 as voice_snips_1
     # from audio_beat_detect_2_data import voice_snips_multipat0001 as voice_snips
     # from audio_beat_detect_2_data import voice_snips_1_multipat0001 as voice_snips_1
+    from audio_beat_detect_2_data import voice_snips_swud as voice_snips
+    from audio_beat_detect_2_data import voice_snips_1_swud as voice_snips_1
     
     d = beats['beats']
     beatarray = np.concatenate((d, d + d[-1] + 1))/2.0
@@ -128,13 +130,18 @@ def auto_voice_align(beats, **kwargs):
     print('beats = {0}'.format(librosa.frames_to_time(beats['beats'])))
     from pydub import AudioSegment
     # # create silence from base track
-    # a_ = AudioSegment.from_wav(kwargs['filename'])
-    # a = AudioSegment.silent(duration=a_.duration_seconds*1000, frame_rate=a_.frame_rate)
+    a_ = AudioSegment.from_wav(kwargs['filename'])
+    a_0 = AudioSegment.silent(duration=a_.duration_seconds*1000, frame_rate=a_.frame_rate)
+    a_1 = AudioSegment.silent(duration=a_.duration_seconds*1000, frame_rate=a_.frame_rate)
     # a = AudioSegment.empty()
-    a = AudioSegment.from_wav(kwargs['filename'])
+    # a = AudioSegment.from_wav(kwargs['filename'])
     j_voice_main = 5
+    # all
     voice_main_density = 0.33
     voice_side_density = 0.66
+    # swud
+    voice_main_density = 0.9
+    voice_side_density = 0.6
     for j in range(16):
         gain = 0
         # gain = random.randint(-3, 2)
@@ -152,10 +159,11 @@ def auto_voice_align(beats, **kwargs):
                     beat_i_scaled = int(beat_i * (len(voice_snips_1)/beats['beatsa'].shape[0]))
                     # b = AudioSegment.from_wav(random.choice(voice_snips_1))
                     # voice_snips_1_idx = np.clip(beat_i + np.random.randint(-5, 5), 0, len(voice_snips_1)-1)
-                    voice_snips_1_idx = np.clip(beat_i_scaled + int(np.random.normal(0, 3)), 0, len(voice_snips_1)-1)
-                    b = AudioSegment.from_wav(voice_snips_1[voice_snips_1_idx])
-                    fr_ = b.frame_rate * frame_mod
-                    b.set_frame_rate(int(fr_))
+                    # voice_snips_1_idx = np.clip(beat_i_scaled + int(np.random.normal(0, 3)), 0, len(voice_snips_1)-1)
+                    voice_snips_1_idx = np.clip(beat_i_scaled + int(np.random.normal(0, 1)), 0, len(voice_snips_1)-1)
+                    b_0 = AudioSegment.from_wav(voice_snips_1[voice_snips_1_idx])
+                    fr_ = b_0.frame_rate * frame_mod
+                    b_0.set_frame_rate(int(fr_))
                     # trk008
                     # gain_max = 6
                     # gain_min = -6
@@ -169,21 +177,35 @@ def auto_voice_align(beats, **kwargs):
                     # gain_max = -3
                     # gain_min = -12
                     # multipat0001
-                    gain_max = 0
-                    gain_min = -9
+                    # gain_max = 0
+                    # gain_min = -9
+                    # swud
+                    gain_max = 9
+                    gain_min = -6
                 else:
-                    b = AudioSegment.empty()
+                    b_0 = AudioSegment.empty()
+
+                l_gain = random.randint(gain_min, gain_max)
+                r_gain = random.randint(gain_min, l_gain)
+                b_0 = b_0.apply_gain_stereo(l_gain, r_gain)
+                # b = b.apply_gain_stereo(b)
+                if np.random.uniform(0, 1) > 0.8:
+                    b_0 = b_0.reverse()
+            
+                if np.random.uniform(0, 1) > 0.9:
+                    a_0 = a_0.overlay(b_0, position=beat*1000, gain_during_overlay=gain)
+                    
             else:
                 if np.random.uniform(0, 1) < voice_side_density:
                     beat_i_scaled = int(beat_i * (len(voice_snips)/beats['beatsa'].shape[0]))
                     # voice_snips_idx = np.clip(beat_i + np.random.randint(-10, 10), 0, len(voice_snips)-1)
                     voice_snips_idx = np.clip(beat_i_scaled + int(np.random.normal(0, 5)), 0, len(voice_snips)-1)
                     if np.random.uniform(0, 1) > 0.66:
-                        b = AudioSegment.from_wav(voice_snips[voice_snips_idx])
+                        b_1 = AudioSegment.from_wav(voice_snips[voice_snips_idx])
                     else:
-                        b = AudioSegment.from_wav(random.choice(voice_snips))
+                        b_1 = AudioSegment.from_wav(random.choice(voice_snips))
                 else:
-                    b = AudioSegment.empty()
+                    b_1 = AudioSegment.empty()
                 # # trk008
                 # gain_max = 0
                 # gain_min = -24
@@ -200,20 +222,24 @@ def auto_voice_align(beats, **kwargs):
                 # gain_max = -3
                 # gain_min = -33
                 # multipat0001
-                gain_max = -9
+                # gain_max = -9
+                # gain_min = -33
+                # multipat0001
+                gain_max = -3
                 gain_min = -33
 
-            l_gain = random.randint(gain_min, gain_max)
-            r_gain = random.randint(gain_min, l_gain)
-            b = b.apply_gain_stereo(l_gain, r_gain)
-            # b = b.apply_gain_stereo(b)
-            if np.random.uniform(0, 1) > 0.8:
-                b = b.reverse()
+                l_gain = random.randint(gain_min, gain_max)
+                r_gain = random.randint(gain_min, l_gain)
+                b_1 = b_1.apply_gain_stereo(l_gain, r_gain)
+                # b = b.apply_gain_stereo(b)
+                if np.random.uniform(0, 1) > 0.8:
+                    b_1 = b_1.reverse()
             
-            if np.random.uniform(0, 1) > 0.9:
-                a = a.overlay(b, position=beat*1000, gain_during_overlay=gain)
+                if np.random.uniform(0, 1) > 0.9:
+                    a_1 = a_1.overlay(b_1, position=beat*1000, gain_during_overlay=gain)
 
-    a.export("out.wav", format="wav")
+    a_0.export("out_a_0.wav", format="wav")
+    a_1.export("out_a_1.wav", format="wav")
 
     # make new buffer / wav file
     # skip to time

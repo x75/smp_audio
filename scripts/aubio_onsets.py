@@ -28,8 +28,8 @@ onset_detectors = {
 
 # src = aubio.source(input_file, channels=1)
 # src.seek(0)
-# src, src_samplerate = data_stream_aubio(filename=input_file)
-src, src_samplerate = data_stream_librosa(filename=input_file)
+src, src_samplerate = data_stream_aubio(filename=input_file)
+# src, src_samplerate = data_stream_librosa(filename=input_file)
 
 print(src, src_samplerate)
 
@@ -50,8 +50,8 @@ for onset_detector in onset_detectors:
 #     od.set_threshold(1.0)
 
 # while True:
-# for item in data_stream_get_aubio(src):
-for item in data_stream_get_librosa(src):
+for item in data_stream_get_aubio(src):
+# for item in data_stream_get_librosa(src):
     samples = item[0]
     read = item[1]
     print(samples.shape, read)

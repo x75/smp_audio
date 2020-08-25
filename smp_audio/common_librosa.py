@@ -93,6 +93,8 @@ def data_stream_librosa(**kwargs):
         
     # streaming does not provide on-the-fly resampling so we must consider the samplerate
     sr = librosa.get_samplerate(filename)
+    # get duration
+    # dur = librosa.get_duration(filename)
     # open the stream
     stream = librosa.stream(filename,
                             block_length=1,
@@ -104,16 +106,16 @@ def data_stream_librosa(**kwargs):
     return tuple((stream, sr))
 
 def data_stream_get_librosa(src, **kwargs):
-    print(src)
+    print(f'data_stream_get_librosa {src}')
     for y_block in src:
-        print(src, y_block.shape)
+        # print(f'data_stream_get_librosa src={src}, blk.shape={y_block.shape}')
         # D_block = librosa.stft(y_block, center=False)
 
         yield tuple((y_block, len(y_block)))
 
 ################################################################################
 # compute feature transforms
-def compute_chroma_librosa(y, sr):
+def compute_chroma_librosa(y, sr, *args, **kwargs):
     """compute chromagram using librosa
 
     Args:
@@ -123,7 +125,7 @@ def compute_chroma_librosa(y, sr):
     Returns:
     - chroma(np.ndarray): chromagram array
     """
-    chroma = librosa.feature.chroma_cqt(y=y, sr=sr)
+    chroma = librosa.feature.chroma_cqt(y=y, sr=sr, **kwargs)
     myprint('computing chroma w/ {0}'.format(chroma.shape))
     return {'chromagram': chroma}
 

@@ -18,7 +18,6 @@ main_autoedit:
  - 1.1. perform pre-classification for model choice later on
  - rename: autosnd, automusic
 """
-
 import argparse, time, pickle, sys
 from collections import OrderedDict
 from pprint import pformat
@@ -33,7 +32,13 @@ from librosa import samples_to_frames, time_to_frames, frames_to_time
 from smp_audio.common_essentia import data_load_essentia
 from smp_audio.common_essentia import compute_segments_essentia
 from smp_audio.common_essentia import compute_tempo_beats_essentia, compute_music_extractor_essentia
+from smp_audio.common_librosa import data_load_librosa
 from smp_audio.common_librosa import compute_segments_librosa, compute_chroma_librosa, compute_beats_librosa, compute_onsets_librosa
+# aubio hardcoded? fix flexible lib loading
+from smp_audio.common_aubio import data_load_aubio
+from smp_audio.common_aubio import compute_onsets_aubio
+from smp_audio.common_aubio import compute_tempo_beats_aubio
+
 from smp_audio.assemble_pydub import track_assemble_from_segments, track_assemble_from_segments_sequential, track_assemble_from_segments_sequential_scale
 from smp_audio.graphs import graph_walk_collection_flat, graph_walk_collection
 from smp_audio.graphs import cb_graph_walk_build_graph
@@ -90,7 +95,8 @@ def main_beatiness(args):
 
     # caching
     # compute_tempo_beats_cached = memory.cache(compute_tempo_beats)
-    data_load_essentia_cached = memory.cache(data_load_essentia)
+    # data_load_essentia_cached = memory.cache(data_load_essentia)
+    data_load_essentia_cached = memory.cache(data_load_librosa)
     compute_tempo_beats_cached = memory.cache(compute_tempo_beats_essentia)
     
     files = {}
@@ -531,11 +537,6 @@ def main_autobeat(args):
     - create src at this level for reuse
     - save / return beat array
     """
-    # aubio hardcoded? fix flexible lib loading
-    from smp_audio.common_aubio import data_load_aubio
-    from smp_audio.common_aubio import compute_onsets_aubio
-    from smp_audio.common_aubio import compute_tempo_beats_aubio
-
     # convert args to dict
     kwargs = args_to_dict(args)
 
@@ -603,11 +604,23 @@ def main_segtree(args):
     plt.plot(onsets2_)
     plt.plot(onsets_ > od.get_threshold(), linewidth=2, alpha=0.5, linestyle='none', marker='o')
     plt.show()
+
+def main_scanfiles(args):
+    """main_scanfiles
+
+    scan files and analyze for features: path, length, fingerprint, energy, entropy, segments
+    """
+    # load list of file to scan, for each file
+    # compute features
+    # problem: granularity: short files / long files, fixed size chunks / varisized chunks (segmentation)
+    # problem: granularity: from onset level to part level
+    # problem: localization, fractional calculus
     
 if __name__ == "__main__":
-    print('blub')
+    print(f'main enter')
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--filenames", action='append', dest='filenames', help="Input file(s) []", nargs = '+', default = [])
+    
+    parser.add_argument("-f", "--filenames", action='append', dest='filenames', help="Input file(s) []", nargs = '+', default = [], required=True)
     parser.add_argument("-a", "--assemble-mode", dest='assemble_mode',
                         help="Assemble mode [random] (random, sequential)",
                         default='random')

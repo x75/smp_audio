@@ -298,7 +298,11 @@ def main():
        ret = main_default(options)
     elif options.mode == 'scan':
        ret = main_scan(options)
-        
+
+    timestamps = ret['timestamps']
+    base_info = ret['base_info']
+    # info = ret['info']
+       
     if options.cut:
         _cut_slice(options, timestamps)
         info = "created %d slices from " % len(timestamps)

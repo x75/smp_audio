@@ -48,9 +48,9 @@ data_streams = {
     }
 }
 
-def main_timing_read(filename, src, sr, framesize, args):
+def main_timing_read_stream(filename, src, sr, framesize, args):
     # global data_streams
-    print(f'main_timing_read args = {args}')
+    print(f'main_timing_read_stream args = {args}')
 
     # 1 open file, stream, data-stream/live-src
     # 2 scan the frames and print timing info
@@ -82,15 +82,15 @@ def main_timing_read(filename, src, sr, framesize, args):
         # rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr, n_fft=framesize, hop_length=framesize, center=False)
         # zcr = librosa.feature.zero_crossing_rate(y, frame_length=framesize, hop_length=framesize, center=False)
         # mfcc = librosa.feature.mfcc(y=y, sr=sr, n_fft=framesize, hop_length=framesize, center=False)
-        # print(f'    timing_read y {y.shape}, {chroma_stft.shape}')
+        # print(f'    timing_read_stream y {y.shape}, {chroma_stft.shape}')
     
     end = time.time()
     time_taken = end - start
     print(('\nThe function took {:.2f} s to compute.'.format(time_taken)))
     return {'mode': args.mode, 'filename': filename, 'time': time_taken}
     
-def main_autoedit(filename, src, sr, framesize, args):
-    """autoedit is an extended aubio_cut
+def main_autoedit_stream(filename, src, sr, framesize, args):
+    """autoedit_stream is an extended aubio_cut
 
     it generates several different segmentations and finds overlapping
     boundaries.
@@ -98,7 +98,7 @@ def main_autoedit(filename, src, sr, framesize, args):
     issues:
     - timing reference: samples, frames, seconds
     """
-    print(f'main_autoedit args = {args}\n    length = {args.srclength/framesize}')
+    print(f'main_autoedit_stream args = {args}\n    length = {args.srclength/framesize}')
     start = time.time()
     # while src read next
     # for blk_i, blk_y in enumerate(src):
@@ -112,7 +112,7 @@ def main_autoedit(filename, src, sr, framesize, args):
         if len(blk_y) < framesize: continue
         y = blk_y
         
-        # insert autoedit computation graph
+        # insert autoedit_stream computation graph
         # 1 get features for m in method
         chromagram = compute_chroma_librosa(blk_y, sr, hop_length=framesize)['chromagram']
         # 2 get segments for m in method
@@ -152,11 +152,11 @@ def get_src(filename, args):
 
     
 def main(args):
-    print(f'main args = {args}')
-    if args.mode == 'timing_read':
-        _main = main_timing_read
-    elif args.mode == 'autoedit':
-        _main = main_autoedit
+    # print(f'main args = {args}')
+    if args.mode == 'timing_read_stream':
+        _main = main_timing_read_stream
+    elif args.mode == 'autoedit_stream':
+        _main = main_autoedit_stream
 
     ret = []
     for filename_i, filename in enumerate(args.filenames[0]):
@@ -167,12 +167,13 @@ def main(args):
     print(f'ret = {pprint.pformat(ret)}')
 
 if __name__ == '__main__':
+    
     parser = argparse.ArgumentParser()
     # filenames array
     # parser.add_argument('-f', '--filename', type=str, help="Audio file to analyze [None]", default=None)
     parser.add_argument("-f", "--filenames", action='append', dest='filenames', help="Input file(s) []", nargs = '+', default = [])
     # mode: modes
-    parser.add_argument('-m', '--mode', type=str, help="Processing mode [timing_read]", default='timing_read')
+    parser.add_argument('-m', '--mode', type=str, help="Processing mode [timing_read_stream]", default='timing_read_stream')
     # remove
     # parser.add_argument('-m', '--modelfile', type=str, help="Model file to load [model.json]", default='model.json')
     args = parser.parse_args()

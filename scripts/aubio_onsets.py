@@ -26,17 +26,21 @@ onset_detectors = {
     "specdiff": {}, "kl": {}, "mkl": {}, "specflux": {},
 }
 
+frame_size = 1024
 # src = aubio.source(input_file, channels=1)
 # src.seek(0)
-src, src_samplerate = data_stream_aubio(filename=input_file)
+src, src_samplerate = data_stream_aubio(filename=input_file, frame_size=frame_size)
 # src, src_samplerate = data_stream_librosa(filename=input_file)
 
 print(src, src_samplerate)
 
+
+# onset(onset_method, bufsize, hopsize, samplerate)
+
 for onset_detector in onset_detectors:
     onset_detectors[onset_detector]['onsets'] = []
     onset_detectors[onset_detector]['onsets_thresholded'] = []
-    onset_detectors[onset_detector]['instance'] = aubio.onset(method=onset_detector, samplerate=src_samplerate)
+    onset_detectors[onset_detector]['instance'] = aubio.onset(onset_detector, frame_size, frame_size, samplerate=src_samplerate)
     onset_detectors[onset_detector]['instance'].set_threshold(1.0)
     # onsets = []
     # onsets_thresholded = []
@@ -52,10 +56,11 @@ for onset_detector in onset_detectors:
 # while True:
 for item in data_stream_get_aubio(src):
 # for item in data_stream_get_librosa(src):
+    # print(f'')
     samples = item[0]
     read = item[1]
-    print(samples.shape, read)
-    if read < 512: break
+    # print(f'samples.shape {samples.shape}, read = {read})
+    if read < frame_size: break
     for onset_detector in onset_detectors:
         od = onset_detectors[onset_detector]['instance']
         od(samples)

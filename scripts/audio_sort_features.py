@@ -18,7 +18,7 @@ main_autoedit:
  - 1.1. perform pre-classification for model choice later on
  - rename: autosnd, automusic
 """
-import argparse, time, pickle, sys
+import argparse, time, pickle, sys, os
 from collections import OrderedDict
 from pprint import pformat
 import numpy as np
@@ -26,6 +26,8 @@ import networkx as nx
 import pandas as pd
 import matplotlib.pyplot as plt
 import joblib
+import wave
+import audioread
 
 from librosa import samples_to_frames, time_to_frames, frames_to_time
 
@@ -38,6 +40,10 @@ from smp_audio.common_librosa import compute_segments_librosa, compute_chroma_li
 from smp_audio.common_aubio import data_load_aubio
 from smp_audio.common_aubio import compute_onsets_aubio
 from smp_audio.common_aubio import compute_tempo_beats_aubio
+
+# stream input
+from smp_audio.common_librosa import data_stream_librosa, data_stream_get_librosa
+from smp_audio.common_aubio import data_stream_aubio, data_stream_get_aubio
 
 from smp_audio.assemble_pydub import track_assemble_from_segments, track_assemble_from_segments_sequential, track_assemble_from_segments_sequential_scale
 from smp_audio.graphs import graph_walk_collection_flat, graph_walk_collection
@@ -52,6 +58,157 @@ from audio_features_paa import compute_features_paa
 from joblib import Memory
 location = './cachedir'
 memory = Memory(location, verbose=0)
+
+# backend = 'librosa'
+backend = 'aubio'
+
+data_streams = {
+    'librosa': {
+        'open': data_stream_librosa,
+        'read': data_stream_get_librosa,
+    },
+    'aubio': {
+        'open': data_stream_aubio,
+        'read': data_stream_get_aubio,
+    }
+}
+
+def get_filefp(filepath):
+    duration, fp_encoded = acoustid.fingerprint_file(filepath)
+    fingerprint, version = chromaprint.decode_fingerprint(fp_encoded)
+    return fingerprint
+
+def get_filelength(filepath):
+    # f = sf.SoundFile(filepath)
+    # filelength = len(f) / f.samplerate
+
+    with audioread.audio_open(filepath) as f:
+        print(f.channels, f.samplerate, f.duration)
+        filelength = f.duration
+    return filelength
+
+def get_fileinfo(filepath):
+    # f = sf.SoundFile(filepath)
+    # filelength = len(f) / f.samplerate
+
+    with audioread.audio_open(filepath) as f:
+        print(f.channels, f.samplerate, f.duration)
+        # filelength = f.duration
+        return {'channels': f.channels, 'samplerate': f.samplerate, 'duration': f.duration}
+    return {}
+    
+def get_filehash(filepath):
+    # m = hashlib.md5()
+    m = hashlib.sha256()
+    with open(filepath, 'rb') as f: 
+        for byte_block in iter(lambda: f.read(4096),b""):
+            m.update(byte_block)
+        # for chunk in iter(f.read(1024)):
+        #     m.update(chunk)
+        return m.hexdigest()
+    return None
+
+def main_timing_read_stream(filename, src, sr, framesize, args):
+    # global data_streams
+    print(f'main_timing_read_stream args = {args}')
+
+    # 1 open file, stream, data-stream/live-src
+    # 2 scan the frames and print timing info
+
+    # 3 handle multiple filenames
+    # 4 handle multiple samplerates
+
+    X = []
+    Y = []
+    start = time.time()
+    # while src read next
+    # for blk_i, blk_y in enumerate(src):
+    for blk_i, blk_y_tup in enumerate(data_streams[backend]['read'](src)):
+        blk_y = blk_y_tup[0]
+        blk_y_len = blk_y_tup[1]
+        # src_len_blks = src.duration/blk_y_len
+        # print(f'i {blk_i}/{src_len_blks}, y {blk_y.shape}')
+        # print(f'i {blk_i}, y {blk_y.shape}')
+
+        if len(blk_y) < framesize: continue
+        # D_block = librosa.stft(blk_y, n_fft=framesize, hop_length=framesize, center=False)
+        # print(f'D_block {D_block.shape}')
+        # D.append(D_block[:,0])
+        y = blk_y
+        # chroma_stft = librosa.feature.chroma_stft(y=y, sr=sr, n_fft=framesize, hop_length=framesize, center=False)
+        # rmse = librosa.feature.rms(y=y, frame_length=framesize, hop_length=framesize, center=False)
+        # spec_cent = librosa.feature.spectral_centroid(y=y, sr=sr, n_fft=framesize, hop_length=framesize, center=False)
+        # spec_bw = librosa.feature.spectral_bandwidth(y=y, sr=sr, n_fft=framesize, hop_length=framesize, center=False)
+        # rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr, n_fft=framesize, hop_length=framesize, center=False)
+        # zcr = librosa.feature.zero_crossing_rate(y, frame_length=framesize, hop_length=framesize, center=False)
+        # mfcc = librosa.feature.mfcc(y=y, sr=sr, n_fft=framesize, hop_length=framesize, center=False)
+        # print(f'    timing_read_stream y {y.shape}, {chroma_stft.shape}')
+    
+    end = time.time()
+    time_taken = end - start
+    print(('\nThe function took {:.2f} s to compute.'.format(time_taken)))
+    return {'mode': args.mode, 'filename': filename, 'time': time_taken}
+    
+def main_autoedit_stream(filename, src, sr, framesize, args):
+    """autoedit_stream is an extended aubio_cut
+
+    it generates several different segmentations and finds overlapping
+    boundaries.
+
+    issues:
+    - timing reference: samples, frames, seconds
+    """
+    print(f'main_autoedit_stream args = {args}\n    length = {args.srclength/framesize}')
+    start = time.time()
+    # while src read next
+    # for blk_i, blk_y in enumerate(src):
+    for blk_i, blk_y_tup in enumerate(data_streams[backend]['read'](src)):
+        blk_y = blk_y_tup[0]
+        blk_y_len = blk_y_tup[1]
+        # src_len_blks = src.duration/blk_y_len
+        # print(f'i {blk_i}/{src_len_blks}, y {blk_y.shape}')
+        print(f'i {blk_i}, y {blk_y.shape}')
+
+        if len(blk_y) < framesize: continue
+        y = blk_y
+        
+        # insert autoedit_stream computation graph
+        # 1 get features for m in method
+        chromagram = compute_chroma_librosa(blk_y, sr, hop_length=framesize)['chromagram']
+        # 2 get segments for m in method
+        # 2.1 m = essentia, broken with essentia frame processing model
+        # segments1 = compute_segments_essentia(blk_y, sr, 10)
+        # 2.2 m = librosa
+        segments2 = compute_segments_librosa(blk_y, sr, 10)
+        
+        # 3 get onsets for m in method
+        # 4 get beat for m in method
+        # 5 probabilistic overlap combination
+        # 6 assemble
+    
+    end = time.time()
+    time_taken = end - start
+    print(('\nThe function took {:.2f} s to compute.'.format(time_taken)))
+    return {'mode': args.mode, 'filename': filename, 'time': time_taken}    
+
+def get_src(filename, args):
+    # filename = args.filenames[0][filename_i]
+    print(f'filename = {filename}')
+    # load audio data
+    framesize = 1024
+
+    srcfile = wave.open(filename, mode='rb')
+    srcparams = srcfile.getparams()
+    length = srcparams[3] # pos 3 is nframes
+
+    src, sr = data_streams[backend]['open'](
+        filename=filename,
+        frame_length=framesize,
+        hop_length=framesize,
+        num_channels=1,
+    )
+    # print(f'sr={sr}')
+    return src, sr, framesize, filename, length
 
 def main_paa_feature_extractor(args):
     # convert args to dict
@@ -615,6 +772,189 @@ def main_scanfiles(args):
     # problem: granularity: short files / long files, fixed size chunks / varisized chunks (segmentation)
     # problem: granularity: from onset level to part level
     # problem: localization, fractional calculus
+    pass
+
+"""
+- batch vs. frame vs. sample based processing: blocksize
+- low-level api backend
+- track db: 1 file, 2 service, check plb, droptrack
+- audiofile_tool
+  - audio file info
+  - duration
+  - duration stats
+- grab file, split large files into manageable chunks
+- autoedit multifile input
+- autoedit power sorting and distribution/envelopes
+- graphical sound browser
+
+
+- merge with droptrack/player/store.py
+"""
+def recursive_walk(paths, filenames):
+    # iterate over list argument paths
+    for path in paths:
+        # do os.walk
+        for root, dirs, files in os.walk(path):
+            print(f'        root {root}, dirs {dirs}, files {files}')
+            # iterate file on this dir level
+            for _file in files:
+                # ignore garbage files
+                if _file in ['.DS_Store']:
+                    continue
+                # append the file to expanded list
+                filenames.append(root + '/' + _file)
+
+    # return result
+    return filenames
+
+def args_filenames_expand(args_filenames):
+    _filenames = []
+    # check filenames for: audiofile, textfile, directory
+    for filename in args_filenames:
+        print(f'filename {filename}')
+        print(f'    basename {os.path.basename(filename)}')
+        print(f'     dirname {os.path.dirname(filename)}')
+        # is a directory, walk it
+        if os.path.isdir(filename):
+            print(f'       isdir {os.path.isdir(filename)}')
+            print(f'       walking ...')
+            tmp = recursive_walk([filename], [])
+            print(f'        tmp filenames from walk {pformat(tmp)}')
+            _filenames.extend(tmp)
+        # is a text file containing a list of audiofiles
+        elif filename.endswith('.txt'):
+            # read the entire files into list
+            tmp = open(filename, 'r').readlines()
+            # strip junk from each string
+            tmp = [_.strip() for _ in tmp]
+            # tmp = ['sdsd']
+            print(f'        tmp filenames from  txt {pformat(tmp)}')
+            _filenames.extend(tmp)
+        # is a plain audio filename
+        else:
+            _filenames.append(filename)
+
+    # return result
+    return _filenames
+
+class audiofile_store(object):
+    def __init__(self):
+        # init track store
+        self.trackstore_filename = 'data/trackstore.csv'
+        # self.trackstore_key = 'miniclub6'
+        try:
+            self.ts = pd.read_csv(self.trackstore_filename)
+            # self.trackstore = pd.HDFStore(self.trackstore_filename, mode='a')
+            # self.ts = pd.read_hdf(self.trackstore_filename, self.trackstore_key)
+        except Exception as e:
+            print('Could not load trackstore from file at {0}'.format(self.trackstore_filename))
+            # continue without trackstore
+            # self.trackstore = None
+            # self.trackstore = pd.DataFrame(columns=['id', 'url', 'filename', 'filepath', 'length', 'fingerprint', 'hash'])
+            self.ts = pd.DataFrame({
+                'id': 0,
+                'url': 'none',
+                'filename': 'none',
+                'filepath': 'none',
+                'duration': 0.0,
+                'channels': 0,
+                'samplerate': 0,
+                'codec': 'none',
+                'fingerprint': 'none',
+                'hash': ''
+            }, index=pd.Index([0]))
+            self.ts.to_csv(self.trackstore_filename, index=False)
+            
+        # self.ts = self.trackstore[self.trackstore_key]
+
+def split_large_audiofile(filename):
+    """split large audiofile
+
+    If audiofile `filename` is longer than a threshold, split into
+    manageable chunks of < threshold.
+
+    Uses aubiocut scanning to find a suitable segmentation combining:
+
+    onset_method, threshold, bufsize, and minioi
+    """
+    
+        
+def main_audiofile_tool(args):
+    """audiofile tool
+
+    - input files: filenames args, textfile list of files, tree scanning
+    - open track db: do we know the track?
+    - if known: return precomputed info
+    - if unknown: compute info and put it into db
+    """
+    print(f'main_audiofile_tool args {pformat(args)}')
+
+    # augment filenames with single files, textfile with list, scanned directories
+    filenames = args_filenames_expand(args.filenames)
+    print(f'filenames expanded {pformat(filenames)}')
+
+    # open existing track db
+    # csv, sqlite, hdf5
+    # uuid, name, path, duration, channels, fingerprint, color
+    afs = audiofile_store()
+    print(f'trackstore loaded with {afs.ts.shape[0]} entries')
+
+    # loop over filenames
+    for filename in filenames:
+        print(f'    processing {filename}')
+        # audioread open
+        fi = get_fileinfo(filename)
+        print(f'      fileinfo {pformat(fi)}')
+        # if file is longer than 10 minutes = 600 seconds
+        if fi['duration'] > 600.0:
+            print(f'      file too long')
+            # split file into good chunks using aubiocut with minioi
+            _filenames = split_large_audiofile(filename)
+
+    return None
+    
+def main(args):
+    # print(f'main args = {args}')
+    
+    np.random.seed(args.seed)
+
+    if args.mode == 'beatiness':
+        _main = main_beatiness
+    elif args.mode == 'music_extractor':
+        _main = main_music_extractor
+    elif args.mode == 'paa_feature_extractor':
+        _main = main_paa_feature_extractor
+    elif args.mode == 'autoedit':
+        _main = main_autoedit
+    elif args.mode == 'automix':
+        _main = main_automix
+    elif args.mode == 'autobeat':
+        _main = main_autobeat
+    elif args.mode == 'segtree':
+        _main = main_segtree
+    elif args.mode == 'audiofile_tool':
+        _main = main_audiofile_tool
+    elif args.mode == 'timing_read_stream':
+        _main = main_timing_read_stream
+    elif args.mode == 'autoedit_stream':
+        _main = main_autoedit_stream
+    else:
+        print('Unknown mode {0}, exiting'.format(args.mode))
+        sys.exit(1)
+
+    if args.mode.endswith('_stream'):
+        ret = []
+        for filename_i, filename in enumerate(args.filenames[0]):
+            print(f'main running {args.mode} on {filename}')
+            src, sr, framesize, filename, args.srclength = get_src(filename, args)
+            ret.append(_main(filename, src, sr, framesize, args))
+
+        print(f'ret = {pprint.pformat(ret)}')
+    else:
+        args.filenames = args.filenames[0]
+    
+        ret = _main(args)
+        plt.show()
     
 if __name__ == "__main__":
     print(f'main enter')
@@ -625,7 +965,7 @@ if __name__ == "__main__":
                         help="Assemble mode [random] (random, sequential)",
                         default='random')
     parser.add_argument("-m", "--mode", dest='mode',
-                        help="Feature mode [beatiness] (beatiness, music_extractor, paa_feature_extractor, autoedit, automix, autobeat, segtree)",
+                        help="Feature mode [beatiness] (beatiness, music_extractor, paa_feature_extractor, autoedit, automix, autobeat, segtree, timing_read_stream, autoedit_stream)",
                         default='beatiness')
     parser.add_argument("-d", "--duration", dest='duration', default=180, type=float, help="Desired duration in seconds [180]")
     parser.add_argument("-ns", "--numsegs", dest='numsegs', default=10, type=int, help="Number of segments for segmentation")
@@ -638,26 +978,4 @@ if __name__ == "__main__":
     # params: numsegments, duration, minlength, maxlength, kernel params
     args = parser.parse_args()
 
-    args.filenames = args.filenames[0]
-
-    np.random.seed(args.seed)
-
-    if args.mode == 'beatiness':
-        main_beatiness(args)
-    elif args.mode == 'music_extractor':
-        main_music_extractor(args)
-    elif args.mode == 'paa_feature_extractor':
-        main_paa_feature_extractor(args)
-    elif args.mode == 'autoedit':
-        main_autoedit(args)
-    elif args.mode == 'automix':
-        main_automix(args)
-    elif args.mode == 'autobeat':
-        main_autobeat(args)
-    elif args.mode == 'segtree':
-        main_segtree(args)
-    else:
-        print('Unknown mode {0}, exiting'.format(args.mode))
-        sys.exit(1)
-
-    plt.show()
+    main(args)

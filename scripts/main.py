@@ -150,7 +150,6 @@ def get_src(filename, args):
     # print(f'sr={sr}')
     return src, sr, framesize, filename, length
 
-    
 def main(args):
     # print(f'main args = {args}')
     if args.mode == 'timing_read_stream':

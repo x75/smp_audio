@@ -19,6 +19,11 @@ def data_stream_aubio(**kwargs):
     else:
         filename = '/home/src/QK/data/sound-arglaaa-2018-10-25/24.wav'
 
+    if 'frame_length' not in [kwargs]:
+        kwargs['frame_length'] = 1024
+    if 'num_channels' not in [kwargs]:
+        kwargs['num_channels'] = 1
+
     src = aubio.source(filename, hop_size=kwargs['frame_length'], channels=kwargs['num_channels'])
     src.seek(0)
 

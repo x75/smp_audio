@@ -167,7 +167,7 @@ def _cut_slice(options, timestamps):
                 output_dir = options.output_directory,
                 samplerate = options.samplerate)
 
-def main_default(options):
+def aubiocut_default(options):
 
     # analysis
     timestamps, total_frames = _cut_analyze(options)
@@ -221,7 +221,7 @@ def scan_with_onset_method(options):
 
     return thrs, segcnts
 
-def main_scan(options):
+def aubiocut_scan(options):
     import numpy as np
     import matplotlib.pyplot as plt
     
@@ -295,9 +295,9 @@ def main():
     # print(options)
 
     if options.mode == 'default':
-       ret = main_default(options)
+       ret = aubiocut_default(options)
     elif options.mode == 'scan':
-       ret = main_scan(options)
+       ret = aubiocut_scan(options)
 
     timestamps = ret['timestamps']
     base_info = ret['base_info']

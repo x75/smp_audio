@@ -14,17 +14,17 @@ def data_load_aubio(**kwargs):
     return src
 
 def data_stream_aubio(**kwargs):
-    if 'filename' in kwargs:
-        filename = kwargs['filename']
-    else:
-        filename = '/home/src/QK/data/sound-arglaaa-2018-10-25/24.wav'
-
-    if 'frame_length' not in [kwargs]:
+    if 'filename' not in kwargs:
+        kwargs['filename'] = '/home/src/QK/data/sound-arglaaa-2018-10-25/24.wav'
+    if 'samplerate' not in kwargs:
+        kwargs['samplerate'] = 0 # auto
+    if 'frame_length' not in kwargs:
         kwargs['frame_length'] = 1024
-    if 'num_channels' not in [kwargs]:
+    if 'num_channels' not in kwargs:
         kwargs['num_channels'] = 1
 
-    src = aubio.source(filename, hop_size=kwargs['frame_length'], channels=kwargs['num_channels'])
+    # src = aubio.source(filename, hop_size=kwargs['frame_length'], channels=kwargs['num_channels'])
+    src = aubio.source(kwargs['filename'], kwargs['samplerate'], kwargs['frame_length'], kwargs['num_channels'])
     src.seek(0)
 
     return tuple((src, src.samplerate))

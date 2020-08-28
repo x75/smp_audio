@@ -3,18 +3,27 @@
 """ this file was written by Paul Brossier
   it is released under the GNU/GPL license.
 
- - 2020-09-01 Extended original aubio_cut script with threshold
-   scanning method
+ - 2019-09-01 Oswald Berthold, Extended original aubio_cut script with threshold scanning method
+ - 2020-08-28 Oswald Berthold, merged aubio_onsets.py
+
 """
 
 import sys
+import numpy as np
 from aubio.cmd import AubioArgumentParser
 
 from multiprocessing import Pool
-    
+
+from smp_audio.common_aubio import data_stream_aubio, data_stream_get_aubio
+
 from joblib import Memory
 location = './cachedir'
 memory = Memory(location, verbose=0)
+
+# onset_detectors = {
+#     "energy": {}, "hfc": {}, "complex": {}, "phase": {}, "wphase": {},
+#     "specdiff": {}, "kl": {}, "mkl": {}, "specflux": {},
+# }
 
 def aubio_cut_parser():
     parser = AubioArgumentParser()
@@ -114,9 +123,13 @@ def _cut_analyze(options):
     # analyze pass
     from aubio import onset, tempo, source
 
-    s = source(source_uri, samplerate, hopsize)
+    print(f'_cut_analyze bufsize {bufsize}, hopsize {hopsize}')
+    # s = source(source_uri, samplerate, hopsize)
+    s, _samplerate = data_stream_aubio(filename=source_uri, frame_length=bufsize)
+    print(f'_cut_analyze s.uri {s.uri}, s.duration {s.duration}, s.samplerate {s.samplerate}, s.channels {s.channels}, s.hop_size {s.hop_size}')
     if samplerate == 0:
-        samplerate = s.get_samplerate()
+        samplerate = _samplerate
+        # samplerate = s.get_samplerate()
         options.samplerate = samplerate
 
     if options.beat:
@@ -214,7 +227,7 @@ def scan_with_onset_method(options):
         
         timestamps, total_frames = cut_analyze_cached(options)
         segcnt = len(timestamps)
-        print(options.onset_method, thr, segcnt)
+        print(f'scanning w/ {options.onset_method}, {round(thr, 2)}, {segcnt}')
         thrs.append(thr)
         segcnts.append(segcnt)
         thr += thr_incr
@@ -222,8 +235,7 @@ def scan_with_onset_method(options):
     return thrs, segcnts
 
 def aubiocut_scan(options):
-    import numpy as np
-    import matplotlib.pyplot as plt
+    # import matplotlib.pyplot as plt
     
     print('options', options)
 
@@ -249,12 +261,22 @@ def aubiocut_scan(options):
         thrs, segcnts = scan_with_onset_method(options)
         analyze_runs[onset_method_] = {'thr': thrs, 'seg': segcnts, 'onset_method': onset_method_}
 
+    return analyze_runs
+
+def aubiocut_scan_plot(analyze_runs):
+    import matplotlib.pyplot as plt
+    thrs = []
+    segs = []
+    
     fig = plt.figure()
-    ax = fig.add_subplot(1,1,1)
+    ax = fig.add_subplot(1,2,1)
     for i,k in enumerate(analyze_runs):
         # ax = fig.add_subplot(len(analyze_runs),1,i+1)
         ax.plot(analyze_runs[k]['thr'], analyze_runs[k]['seg'], '-o', label=analyze_runs[k]['onset_method'], alpha=0.5)
         # ax.set_title(analyze_runs[k]['onset_method'])
+        # print(f'aubiocut_scan_plot {k} {np.array(analyze_runs[k]["seg"]).shape}')
+        thrs.append(analyze_runs[k]['thr'])
+        segs.append(analyze_runs[k]['seg'])
 
     ax.set_title('aubio_cut scan num-segs / threshold / method')
     # ax.set_xscale('log')
@@ -262,6 +284,15 @@ def aubiocut_scan(options):
     ax.set_xlabel('threshold')
     ax.set_ylabel('num. segments')
     plt.legend()
+
+    ax2 = fig.add_subplot(1,2,2)
+    thrs_a = np.hstack(thrs)
+    segs_a = np.hstack(segs)
+    print(f'thrs_a {thrs_a.shape}, segs_a {segs_a.shape}')
+    # ax2.plot(thrs_a, segs_a, 'ko', alpha=0.3)
+    ax2.hist(segs_a, bins=np.max(segs_a)+1, orientation='horizontal')
+    ax2.set_yscale('log')
+    
     plt.show()
         
     # # print some info
@@ -281,6 +312,83 @@ def aubiocut_scan(options):
     #     'base_info': base_info,
     #     'info': info,
     # }
+
+# onset(onset_method, bufsize, hopsize, samplerate)
+def aubio_onset_detectors(args):
+    """aubio onset detectors
+
+    Compute and display all aubio onset detection functions for a
+    given input file.
+
+    aubio load and calling pattern deduced from ipy session
+    """
+    onset_detectors = {
+        "energy": {}, "hfc": {}, "complex": {}, "phase": {}, "wphase": {},
+        "specdiff": {}, "kl": {}, "mkl": {}, "specflux": {},
+    }
+
+    frame_size = 1024
+    # src = aubio.source(input_file, channels=1)
+    # src.seek(0)
+    src, src_samplerate = data_stream_aubio(filename=args.input_file, frame_size=frame_size)
+    # src, src_samplerate = data_stream_librosa(filename=input_file)
+
+    print(src, src_samplerate)
+
+    for onset_detector in onset_detectors:
+        onset_detectors[onset_detector]['onsets'] = []
+        onset_detectors[onset_detector]['onsets_thresholded'] = []
+        onset_detectors[onset_detector]['instance'] = aubio.onset(onset_detector, frame_size, frame_size, samplerate=src_samplerate)
+        onset_detectors[onset_detector]['instance'].set_threshold(1.0)
+        # onsets = []
+        # onsets_thresholded = []
+        # onset_detectors = []
+    
+    # buf_size=512, hop_size=512,
+
+    # for func in onset_detection_functions:
+    #     od = aubio.onset(method=onset_method, samplerate=src.samplerate)
+    #     onset_detectors.append(od)
+    #     od.set_threshold(1.0)
+
+    # while True:
+    itemcnt = 0
+    for item in data_stream_get_aubio(src):
+    # for item in data_stream_get_librosa(src):
+        print(f'{itemcnt} / {round(src.duration/src.hop_size)}')
+        samples = item[0]
+        read = item[1]
+        itemcnt += 1
+        # print(f'samples.shape {samples.shape}, read = {read})
+        if read < frame_size: break
+        for onset_detector in onset_detectors:
+            od = onset_detectors[onset_detector]['instance']
+            od(samples)
+            onset_detectors[onset_detector]['onsets_thresholded'].append(od.get_thresholded_descriptor())
+            onset_detectors[onset_detector]['onsets'].append(od.get_descriptor())
+
+    print('Computed {0} frames'.format(len(onset_detectors[onset_detector]['onsets'])))
+    return onset_detectors
+
+def aubio_onset_detectors_plot(onset_detectors, input_file):
+    import matplotlib.pyplot as plt
+    fig = plt.figure()
+    fig.suptitle('onsets (aubio {0}) for {1}'.format('onsets', input_file))
+
+    onsets_list = []
+    for i, onset_detector in enumerate(onset_detectors):
+        ax = fig.add_subplot(len(onset_detectors),2,2*i+1)
+        ax.set_title(onset_detector)
+        onsets_list.append(np.array(onset_detectors[onset_detector]['onsets']))
+        ax.plot(onsets_list[-1], label='onsets')
+        ax.legend()
+        ax = fig.add_subplot(len(onset_detectors),2,2*i+2)
+        ax.set_title(onset_detector)
+        # ax.plot(np.array(onset_detectors[onset_detector]['onsets_thresholded']), alpha=0.5, label='thresholded onsets')
+        ax.plot(np.array(onset_detectors[onset_detector]['onsets_thresholded']) > 0, label='thresholded onsets')
+        ax.legend()
+        
+    plt.show()
     
 def main():
     parser = aubio_cut_parser()
@@ -298,9 +406,15 @@ def main():
        ret = aubiocut_default(options)
     elif options.mode == 'scan':
        ret = aubiocut_scan(options)
+       aubiocut_scan_plot(ret)
+    elif options.mode == 'onsets':
+       ret = aubio_onset_detectors(options)
+       aubio_onset_detectors_plot(ret, options.source_uri)
 
-    timestamps = ret['timestamps']
-    base_info = ret['base_info']
+    if 'timestamps' in ret:
+        timestamps = ret['timestamps']
+    if 'base_info' in ret:
+        base_info = ret['base_info']
     # info = ret['info']
        
     if options.cut:

@@ -644,6 +644,7 @@ def main_autoedit(args):
             g['l5_beats'][file_]['beats_{0}'.format(start_bpm)] = beats['beats']
             g['l5_beats'][file_]['beats_{0}_16'.format(start_bpm)] = beats['beats'][::16]
 
+    joblib.dump(g, './g-pre.pkl')
     # layer 6: compute final segments from merging segments with beats
     # prepare
     g['l6_merge'] = OrderedDict()
@@ -867,7 +868,7 @@ class audiofile_store(object):
             
         # self.ts = self.trackstore[self.trackstore_key]
 
-def split_large_audiofile(filename):
+def split_large_audiofile(filename, args):
     """split large audiofile
 
     If audiofile `filename` is longer than a threshold, split into
@@ -877,7 +878,31 @@ def split_large_audiofile(filename):
 
     onset_method, threshold, bufsize, and minioi
     """
-    
+    from aubio_cut import _cut_analyze, _cut_slice
+    options = argparse.Namespace()
+    # options: onset_method, minioi, threshold
+    # options: hop_size, buf_size, samplerate, source_uri
+    options.onset_method = 'default'
+    options.minioi = '300s'
+    options.threshold = 1.0
+    options.hop_size = 2048
+    options.buf_size = 2048
+    options.samplerate = 0
+    options.source_uri = filename
+    options.beat = False
+    options.verbose = True
+    options.cut_every_nslices = None
+    options.cut_until_nslices = None
+    options.cut_until_nsamples = None
+    options.output_directory = None
+    timestamps, total_frames = _cut_analyze(options)
+
+    _cut_slice(options, timestamps)
+    info = f'created {len(timestamps)} slices from {total_frames} frames\n'
+    # info += base_info
+    sys.stderr.write(info)
+
+    return timestamps, total_frames
         
 def main_audiofile_tool(args):
     """audiofile tool
@@ -909,8 +934,8 @@ def main_audiofile_tool(args):
         if fi['duration'] > 600.0:
             print(f'      file too long')
             # split file into good chunks using aubiocut with minioi
-            _filenames = split_large_audiofile(filename)
-
+            _filenames = split_large_audiofile(filename, args)
+            print(f'_filenames {pformat(_filenames)}')
     return None
     
 def main(args):
@@ -949,7 +974,7 @@ def main(args):
             src, sr, framesize, filename, args.srclength = get_src(filename, args)
             ret.append(_main(filename, src, sr, framesize, args))
 
-        print(f'ret = {pprint.pformat(ret)}')
+        print(f'ret = {pformat(ret)}')
     else:
         args.filenames = args.filenames[0]
     

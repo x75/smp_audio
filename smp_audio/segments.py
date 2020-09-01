@@ -18,40 +18,44 @@ def compute_event_mean_intervals(**kwargs):
     # list of segment boundary position arrays
     segs = kwargs['segs']
     
-    print('mean_intervals beats', pformat(beats))
-    print('mean_intervals segs', pformat(segs))
+    print('mean_intervals beats', pformat(len(beats)))
+    print('mean_intervals segs', pformat(len(segs)))
     print('mean_intervals numframes', pformat(numframes))
     
     # list of average expected interval per single beat estimate
     for b_ in beats:
-        print('beat len {1} = {0}'.format(b_, len(b_)))
+        print('beat len {1} = {0}'.format('b_', len(b_)))
     # valid interval lists have more than one element
     beats_interval = list([np.mean(np.diff(beats[i])) for i in range(len(beats)) if len(beats[i]) > 1])
     # valid interval lists indices
     beats_i = list([i for i in range(len(beats)) if len(beats[i]) > 1])
     # list of average segment length per single segment estimate
     segs_interval = [np.mean(np.diff(segs[i])) for i in range(len(segs))]
-    print('segs_interval = {0}, beats_interval = {1}'.format(segs_interval, beats_interval))
+    print('segs_interval = {0}\nbeats_interval = {1}'.format(segs_interval, beats_interval))
 
     # combined list of intervals
     intervals = segs_interval + beats_interval
 
     numinputs = len(intervals)
 
-    print('intervals = {0}, numinputs = {1}'.format(intervals, numinputs))
+    print('intervals = {0}\nnuminputs = {1}'.format(intervals, numinputs))
 
     final = np.zeros((numframes, numinputs))
     for i in range(len(segs)):
-        print('i', i)
-        final[:,i][segs[i]] = 1
+        print(f'    segs[{i}] = {segs[i]}, {len(segs)}')
+        final[:,i][segs[i][:-1]] = 1
     # use only valid indices
     for i in range(len(beats_i)):
-        print('i', i, beats[i])
+        print(f'    beat i={i}, beats[{i}]')
         final[:,i+len(segs)][beats[i]] = 1
     
     return {'intervals': intervals, 'numinputs': numinputs, 'final': final}
 
 def compute_event_merge_mexhat(**kwargs):
+    """event merge with mexican hat func
+
+    
+    """
     numframes = kwargs['numframes']
     numinputs = kwargs['numinputs']
     intervals = kwargs['intervals']
@@ -59,7 +63,8 @@ def compute_event_merge_mexhat(**kwargs):
     numsegs = kwargs['numsegs']
     
     # final empty
-    final_ = np.zeros((numframes, 10))
+    # final_ = np.zeros((numframes, 10))
+    final_ = np.zeros((numframes, numinputs))
 
     # scale_factor = 25
     # norm_factor = 3
@@ -87,6 +92,7 @@ def compute_event_merge_mexhat(**kwargs):
     print('kernel_weights_raw {0}\nkernel_weights {1}'.format(kernel_weights_raw, kernel_weights))
 
     for i in range(numinputs):
+        print(f'    event_merge_mexhat numinput {i}/{numinputs}, {final_.shape}')
         final_[:,i] = np.convolve(final[:,i], kernels[i], mode='same')
 
     final_sum = np.sum(final_, axis=1)

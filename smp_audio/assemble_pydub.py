@@ -30,7 +30,9 @@ def segfiles_to_segs(files):
     Convert list of input filenames into list of loaded pydub AudioSegments
     """
     segs = []
+    print(f'segfiles_to_segs files {pformat(files)}')
     for file_ in files:
+        print(f'segfiles_to_segs file {file_}')
         if file_.endswith('.mp3'):
             try:
                 seg_ = pydub.AudioSegment.from_mp3(file_)
@@ -148,7 +150,7 @@ def track_assemble_from_segments_sequential(**kwargs):
     for i,seg_ in enumerate(segs):
         print('seg_ {0} / {1}'.format(seg_.duration_seconds, files[i]))
         if i > 1:
-            crossfade = 0 # 10
+            crossfade = 10
         else:
             crossfade = 0
         # song = song.append(seg_.apply_gain_stereo(-1, -1), crossfade=crossfade)
@@ -156,7 +158,7 @@ def track_assemble_from_segments_sequential(**kwargs):
         seg_s.append(seg_)
         # seg_ = random.randrange(0, len(segs))
         # print('seg_ {0}'.format(seg_))
-        # song = song.append(segs[seg_], crossfade=0)
+        # Song = song.append(segs[seg_], crossfade=0)
         print('song duration {0}'.format(song.duration_seconds))
         
     files_snips = [pydub.AudioSegment.from_file(_.rstrip()) for _ in open('/home/lib/audio/work/fm_2019_sendspaace/data/files_snips.txt', 'r').readlines()]

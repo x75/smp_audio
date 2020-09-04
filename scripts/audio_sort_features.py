@@ -648,7 +648,7 @@ def main_autoedit(args):
     # layer 6: compute final segments from merging segments with beats
     # prepare
     g['l6_merge'] = OrderedDict()
-    files_ = []
+    g['l6_merge']['files'] = []
     for file_ in g['l1_files']:
         dirname = os.path.dirname(filename)
         print(f'main_autoedit l6_merge {file_} / {dirname}/{filename}')
@@ -660,9 +660,9 @@ def main_autoedit(args):
         numframes = g['l1_files'][file_]['numframes']
         # compute
         files = g['func'][compute_event_merge_combined](filename_48=dirname + '/' + file_, beats=beats, segs=segs, numframes=numframes, numsegs=numsegs)
-        # files_.extend(files)
-        g['l6_merge'].update(files)
-    # g['l6_merge']['files'] = files_
+        
+        g['l6_merge']['files'].extend(files['files'])
+        print('    autoedit l6_merge {0}, {1}'.format(file_, g['l6_merge']['files']))
 
     # layer 7: compute assembled song from segments and duration
     g['l7_assemble'] = OrderedDict()

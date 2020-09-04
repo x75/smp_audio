@@ -24,29 +24,30 @@ def compute_event_mean_intervals(**kwargs):
     
     # list of average expected interval per single beat estimate
     for b_ in beats:
-        print('beat len {1} = {0}'.format('b_', len(b_)))
+        # print('beat len {1} = {0}'.format('b_', len(b_)))
+        pass
     # valid interval lists have more than one element
     beats_interval = list([np.mean(np.diff(beats[i])) for i in range(len(beats)) if len(beats[i]) > 1])
     # valid interval lists indices
     beats_i = list([i for i in range(len(beats)) if len(beats[i]) > 1])
     # list of average segment length per single segment estimate
     segs_interval = [np.mean(np.diff(segs[i])) for i in range(len(segs))]
-    print('segs_interval = {0}\nbeats_interval = {1}'.format(segs_interval, beats_interval))
+    # print('segs_interval = {0}\nbeats_interval = {1}'.format(segs_interval, beats_interval))
 
     # combined list of intervals
     intervals = segs_interval + beats_interval
 
     numinputs = len(intervals)
 
-    print('intervals = {0}\nnuminputs = {1}'.format(intervals, numinputs))
+    # print('intervals = {0}\nnuminputs = {1}'.format(intervals, numinputs))
 
     final = np.zeros((numframes, numinputs))
     for i in range(len(segs)):
-        print(f'    segs[{i}] = {segs[i]}, {len(segs)}')
+        # print(f'    segs[{i}] = {segs[i]}, {len(segs)}')
         final[:,i][segs[i][:-1]] = 1
     # use only valid indices
     for i in range(len(beats_i)):
-        print(f'    beat i={i}, beats[{i}]')
+        # print(f'    beat i={i}, beats[{i}]')
         final[:,i+len(segs)][beats[i]] = 1
     
     return {'intervals': intervals, 'numinputs': numinputs, 'final': final}
@@ -89,10 +90,10 @@ def compute_event_merge_mexhat(**kwargs):
     # kernel_weights = [1/(0.25*_+1) for _ in range(numinputs)]
     # kernel_weights = [kernel_weights_raw[i]/kernel_weights_max for i in range(numinputs)]
 
-    print('kernel_weights_raw {0}\nkernel_weights {1}'.format(kernel_weights_raw, kernel_weights))
+    # print('kernel_weights_raw {0}\nkernel_weights {1}'.format(kernel_weights_raw, kernel_weights))
 
     for i in range(numinputs):
-        print(f'    event_merge_mexhat numinput {i}/{numinputs}, {final_.shape}')
+        # print(f'    event_merge_mexhat numinput {i}/{numinputs}, {final_.shape}')
         final_[:,i] = np.convolve(final[:,i], kernels[i], mode='same')
 
     final_sum = np.sum(final_, axis=1)
@@ -142,15 +143,15 @@ def compute_event_merge_heuristics(**kwargs):
     # ind2.sort()
 
     # debug printing
-    print('ind {0}\nind2 {1}'.format(ind, None)) # ind2
+    # print('ind {0}\nind2 {1}'.format(ind, None)) # ind2
 
     # min length heuristic brute force
     ind_full = np.array([0] + ind.tolist() + [numframes-1])
-    print('ind_full {0}'.format(ind_full))
+    # print('ind_full {0}'.format(ind_full))
     # idx = np.array([True] + (np.diff(ind_full)>10).tolist()).astype(bool)
     idx = np.diff(ind_full) > seglen_min
-    print('idx {0}'.format(idx))
-    print('idx {0}, ind_full {1}'.format(np.sum(idx), ind_full.shape))
+    # print('idx {0}'.format(idx))
+    # print('idx {0}, ind_full {1}'.format(np.sum(idx), ind_full.shape))
     ind_ = [0] + ind_full[1:][idx].tolist()
 
     # ind2_full = np.array([0] + ind2.tolist() + [numframes-1])
@@ -160,7 +161,7 @@ def compute_event_merge_heuristics(**kwargs):
     # print('idx2 {0}'.format(idx2))
     # ind2_ = [0] + ind2_full[1:][idx2].tolist()
     
-    print('ind_ {0}\nind2 {1}'.format(ind_, None)) # ind2_
+    # print('ind_ {0}\nind2 {1}'.format(ind_, None)) # ind2_
 
     return {'ind_': ind_, 'ind_full': ind_full.tolist()} # , 'ind2_': ind2_}
 
@@ -177,7 +178,7 @@ def compute_event_merge_index_to_file(**kwargs):
 
     # load high-quality data
     y_48, sr_48 = librosa.load(filename_48, sr=None, mono=False)
-    print('y_48 {0}, sr_48 {1}'.format(y_48, sr_48))
+    # print('y_48 {0}, sr_48 {1}'.format(y_48, sr_48))
     assert len(y_48.shape) > 1 and y_48.shape[0] == 2
     
     # convert sample indices for samplerate
@@ -224,8 +225,9 @@ def compute_event_merge_combined(**kwargs):
     # kwargs['filename_48'] = '/home/src/QK/data/sound-arglaaa-2018-10-25/22.wav'
     tmp_ = compute_event_merge_index_to_file(**kwargs)
 
-    plot_event_merge_results(**kwargs)
+    
+    # plot_event_merge_results(**kwargs)
 
-    print(('write files {0}'.format(tmp_)))
+    # print(('compute_event_merge_combined write files {0}'.format(tmp_)))
 
     return tmp_

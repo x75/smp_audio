@@ -77,7 +77,7 @@ def track_assemble_kwargs_to_args(**kwargs):
         files = files_default
     else:
         files = kwargs['files']
-    print('files = {0}'.format(pformat(files)))
+    # print('track_assemble_kwargs_to_args files = {0}'.format(pformat(files)))
           
     # parameter
     if kwargs['duration'] is None:

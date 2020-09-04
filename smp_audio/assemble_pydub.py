@@ -117,7 +117,7 @@ def track_assemble_from_segments(**kwargs):
         print('seg_ {0}'.format(seg_))
         f.write('{0},{1}\n'.format(seg_, segs[seg_].duration_seconds))
         song = song.append(segs[seg_], crossfade=0)
-        print('song duration {0}'.format(song.duration_seconds))
+        print('song duration {0:.2f}'.format(song.duration_seconds))
         seg_s.append(seg_)
         
     # export the song

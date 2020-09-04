@@ -886,10 +886,21 @@ def autocover_feature_matrix(args):
         ax3.set_aspect(length1/length0)
         ax3.axis('off')
         # ax3.set_title(os.path.basename(filename))
-        savefilename = os.path.dirname(filename) + '/' + os.path.basename(filename)[:-4] + '.pdf'
-        print(f'saving to {savefilename}')
+        if len(os.path.dirname(filename)) > 0:
+            sep = '/'
+        else:
+            sep = ''
+            
         fig.set_size_inches((10, 10))
-        fig.savefig(savefilename, dpi=300, bbox_inches='tight')
+
+        for savetype in ['.pdf', '.jpg']:
+            savefilename = os.path.dirname(filename) + sep + os.path.basename(filename)[:-4] + savetype
+            print(f'saving to {savefilename}')
+            fig.savefig(savefilename, dpi=300, bbox_inches='tight')
+
+        # save as png / jpg straightaway?
+        # use inkscape to post process
+        # inkscape --export-png=11.84.0.-1.0-1.1-1_5072.884286-autoedit-11_master_16bit.png --export-dpi=400 11.84.0.-1.0-1.1-1_5072.884286-autoedit-11_master_16bit.pdf
         plt.show()
         
 

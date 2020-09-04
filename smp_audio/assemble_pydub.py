@@ -173,6 +173,7 @@ def track_assemble_from_segments_sequential(**kwargs):
     # export the song
     print('song duration {0}'.format(song.duration_seconds))
     # song_ = song.apply_gain_stereo(-0.5, -0.5)
+    print('song export to {0}'.format(filename_export))
     song.export(filename_export, format='wav')
 
     return {'filename_export': filename_export, 'final_duration': song.duration_seconds, 'seg_s': seg_s}
@@ -210,10 +211,10 @@ def track_assemble_from_segments_sequential_scale(**kwargs):
     #    while song.duration_seconds < desired_duration:
     for i, seg_ in enumerate(segs):
         if np.random.uniform(0, 1) > scale:
-            print('skipping')
+            # print('skipping')
             continue
         
-        print('seg_ {0} / {1}'.format(seg_.duration_seconds, files[i]))
+        # print('seg_ {0} / {1}'.format(seg_.duration_seconds, files[i]))
         
         if i > 1:
             crossfade = 0 # 10
@@ -226,8 +227,11 @@ def track_assemble_from_segments_sequential_scale(**kwargs):
         # seg_ = random.randrange(0, len(segs))
         # print('seg_ {0}'.format(seg_))
         # song = song.append(segs[seg_], crossfade=0)
-        print('song duration {0}'.format(song.duration_seconds))
+        # print('song duration {0}'.format(song.duration_seconds))
         
+    f.flush()
+    f.close()
+    
     # files_snips = [pydub.AudioSegment.from_file(_.rstrip()) for _ in open('/home/lib/audio/work/fm_2019_sendspaace/data/files_snips.txt', 'r').readlines()]
     # insert_pos = np.random.normal(np.cumsum([[song.duration_seconds / len(files_snips)] * len(files_snips)]), scale=100).tolist()
 
@@ -240,8 +244,7 @@ def track_assemble_from_segments_sequential_scale(**kwargs):
     # export the song
     print('song duration {0}'.format(song.duration_seconds))
     # song_ = song.apply_gain_stereo(-0.5, -0.5)
-    f.flush()
-    f.close()
+    print('song export to {0}'.format(filename_export))
     song.export(filename_export, format='wav')
 
     return {'filename_export': filename_export, 'final_duration': song.duration_seconds, 'seg_s': seg_s}

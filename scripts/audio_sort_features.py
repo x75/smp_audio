@@ -669,7 +669,8 @@ def main_autoedit(args):
     # compute
     g['l6_merge']['duration'] = duration
     filename_short = list(g['l1_files'])[0]
-    filename_export = filename_short[:-4] + '-autoedit.wav'
+    autoedit_count = autoedit_get_count()
+    filename_export = f'{filename_short[:-4]}-autoedit-{autoedit_count}.wav'
     g['l6_merge']['filename_export'] = filename_export
 
     if kwargs['assemble_mode'] == 'random':
@@ -677,12 +678,34 @@ def main_autoedit(args):
     elif kwargs['assemble_mode'] == 'sequential':
         g['l7_assemble']['outfile'] = g['func'][track_assemble_from_segments_sequential_scale](**(g['l6_merge']))
 
-    print((pformat(g)))
-    joblib.dump(g, './g.pkl')
+    # print((pformat(g)))
+    # joblib.dump(g, './g.pkl')
+    filename_export_graph = f'{filename_export[:-4]}.pkl'
+    print(f'exporting graph to {filename_export_graph}')
+    joblib.dump(g, filename_export_graph)
     
     # # plot dictionary g as graph
     # autoedit_graph_from_dict(g=g, plot=False)
 
+def autoedit_get_count():
+    """autoedit get count
+
+    load autoedit count from file, if it does not exist, init zero and
+    save to file.
+    """
+    autoedit_count_filename = 'data/audio_sort_features/autoedit-count.txt'
+    if os.path.exists(autoedit_count_filename):
+        autoedit_count = int(open(autoedit_count_filename, 'r').read().strip())
+        print(f'autoedit_get_count from file {autoedit_count}, {type(autoedit_count)}')
+    else:
+        autoedit_count = 0
+        print(f'autoedit_get_count file no found, init {autoedit_count}')
+    autoedit_count_new = autoedit_count + 1
+    f = open(autoedit_count_filename, 'w')
+    f.write(f'{autoedit_count_new}\n')
+    f.flush()
+    return autoedit_count
+    
 # aubio foo
 def autobeat_filter(args):
     """autobeat_filter

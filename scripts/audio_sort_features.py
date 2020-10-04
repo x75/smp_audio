@@ -731,7 +731,8 @@ def autocover_feature_matrix(args):
         # save as png / jpg straightaway?
         # use inkscape to post process
         # inkscape --export-png=11.84.0.-1.0-1.1-1_5072.884286-autoedit-11_master_16bit.png --export-dpi=400 11.84.0.-1.0-1.1-1_5072.884286-autoedit-11_master_16bit.pdf
-        plt.show()
+        
+        # plt.show()
 
 def autocover_recurrenceplot(args):
     import librosa
@@ -989,8 +990,8 @@ def main(args):
         args.filenames = args.filenames[0]
     
         ret = _main(args)
-        plt.show()
-    
+        # plt.show()
+
 if __name__ == "__main__":
     print(f'main enter')
     parser = argparse.ArgumentParser()
@@ -999,6 +1000,9 @@ if __name__ == "__main__":
     parser.add_argument("-a", "--assemble-mode", dest='assemble_mode',
                         help="Assemble mode [random] (random, sequential)",
                         default='random')
+    parser.add_argument("-ax", "--assemble-crossfade", dest='assemble_crossfade', type=int,
+                        help="Crossfade duration in assemble [10]",
+                        default=10)
     parser.add_argument("-m", "--mode", dest='mode',
                         help="Feature mode [beatiness] (beatiness, music_extractor, paa_feature_extractor, autoedit, automix, autobeat, segtree, timing_read_stream, autoedit_stream)",
                         default='beatiness')

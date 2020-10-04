@@ -1,6 +1,6 @@
 shopt -s nullglob
 let playlist_duration_ms=0
-for song_file in *.{mp3,ogg,m4a,flac,wav}; do
+for song_file in *.{mp3,ogg,m4a,mp4,flac,wav}; do
 	echo $playlist_duration_ms pre
 	echo $song_file
   	# playlist_duration_ms=$(expr $playlist_duration_ms + $(mediainfo --Inform="Audio;%Duration%" "$song_file"))

@@ -15,8 +15,8 @@ from smp_audio.assemble_pydub import track_assemble_from_segments, track_assembl
 # caching joblib
 from joblib import Memory
 location = './cachedir'
-# memory = Memory(location, verbose=0)
-memory = Memory(None)
+memory = Memory(location, verbose=0)
+# memory = Memory(None)
 
 # def timethis(func):
 #     @wraps(func)
@@ -189,6 +189,8 @@ def main_autoedit(args):
     # filename_export = f'{filename_short[:-4]}-autoedit-{autoedit_count}.wav'
     filename_export = f'data/{filename_short[:-4]}-autoedit-{autoedit_count}.wav'
     g['l6_merge']['filename_export'] = filename_export
+    # crossfade argument
+    g['l6_merge']['assemble_crossfade'] = args.assemble_crossfade
 
     if kwargs['assemble_mode'] == 'random':
         g['l7_assemble']['outfile'] = g['func'][track_assemble_from_segments](**(g['l6_merge']))
@@ -203,5 +205,12 @@ def main_autoedit(args):
     
     # # plot dictionary g as graph
     # autoedit_graph_from_dict(g=g, plot=False)
-    return {'filename': filename_export, 'length': 100, 'numsegs': 10,
-    'autoedit_graph': filename_export_graph}
+    ret = {
+        'filename_': filename_export,
+        'length': 100,
+        'numsegs': 10,
+        'autoedit_graph': filename_export_graph
+    }
+    ret.update(g['l7_assemble']['outfile'])
+    
+    return ret

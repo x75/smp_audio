@@ -84,8 +84,14 @@ def track_assemble_kwargs_to_args(**kwargs):
         duration = 180
     else:
         duration = kwargs['duration']
-          
-    return files, filename_export, duration
+
+    # parameter
+    if 'crossfade' in kwargs:
+        crossfade = kwargs['crossfade']
+    else:
+        crossfade = 10
+        
+    return files, filename_export, duration, crossfade
         
 def track_assemble_from_segments(**kwargs):
     """track_assemble_from_segments
@@ -95,7 +101,7 @@ def track_assemble_from_segments(**kwargs):
 
     Sequence is sampled randomly from list of segments.
     """
-    files, filename_export, desired_duration = track_assemble_kwargs_to_args(**kwargs)
+    files, filename_export, desired_duration, crossfade = track_assemble_kwargs_to_args(**kwargs)
         
     # make pydub segment list
     # segs = [pydub.AudioSegment.from_wav(file_) for file_ in files]
@@ -109,14 +115,22 @@ def track_assemble_from_segments(**kwargs):
     filename_export_index = filename_export[:-4] + ".txt"
     f = open(filename_export_index, 'w')
     f.write('{0},{1}\n'.format('segindex', 'segduration'))
-    
+
+    # crossfade = 0
     # while song duration is less than desired duration, select random segment and append to song
     seg_s = []
     while song.duration_seconds < desired_duration:
         seg_ = random.randrange(0, len(segs))
         print('seg_ {0}'.format(seg_))
         f.write('{0},{1}\n'.format(seg_, segs[seg_].duration_seconds))
-        song = song.append(segs[seg_], crossfade=0)
+
+        if len(seg_s) > 0:
+            # crossfade_eff = 10
+            crossfade_eff = crossfade
+        else:
+            crossfade_eff = 0
+        
+        song = song.append(segs[seg_], crossfade=crossfade_eff)
         print('song duration {0:.2f}'.format(song.duration_seconds))
         seg_s.append(seg_)
         
@@ -136,7 +150,7 @@ def track_assemble_from_segments_sequential(**kwargs):
     Sequence is sampled in input-list order.
     """
     # wrapper
-    files, filename_export, duration = track_assemble_kwargs_to_args(**kwargs)
+    files, filename_export, duration, crossfade = track_assemble_kwargs_to_args(**kwargs)
     
     # make pydub segment list
     segs = segfiles_to_segs(files)
@@ -150,11 +164,12 @@ def track_assemble_from_segments_sequential(**kwargs):
     for i,seg_ in enumerate(segs):
         print('seg_ {0} / {1}'.format(seg_.duration_seconds, files[i]))
         if i > 1:
-            crossfade = 10
+            # crossfade_eff = 10
+            crossfade_eff = crossfade
         else:
-            crossfade = 0
-        # song = song.append(seg_.apply_gain_stereo(-1, -1), crossfade=crossfade)
-        song = song.append(seg_, crossfade=crossfade)
+            crossfade_eff = 0
+        # song = song.append(seg_.apply_gain_stereo(-1, -1), crossfade=crossfade_eff)
+        song = song.append(seg_, crossfade=crossfade_eff)
         seg_s.append(seg_)
         # seg_ = random.randrange(0, len(segs))
         # print('seg_ {0}'.format(seg_))
@@ -187,7 +202,7 @@ def track_assemble_from_segments_sequential_scale(**kwargs):
     Sequence is sampled in input-list order.
     """
     # wrapper
-    files, filename_export, duration = track_assemble_kwargs_to_args(**kwargs)
+    files, filename_export, duration, crossfade = track_assemble_kwargs_to_args(**kwargs)
 
     # make pydub segment list
     segs = segfiles_to_segs(files)
@@ -214,15 +229,19 @@ def track_assemble_from_segments_sequential_scale(**kwargs):
             # print('skipping')
             continue
         
-        # print('seg_ {0} / {1}'.format(seg_.duration_seconds, files[i]))
-        
-        if i > 1:
-            crossfade = 0 # 10
+        if i > 1 and song.duration_seconds > 0.001:
+            # crossfade_eff = 10
+            crossfade_eff = crossfade
         else:
-            crossfade = 0
-        # song = song.append(seg_.apply_gain_stereo(-1, -1), crossfade=crossfade)
+            crossfade_eff = 0
+            
+        print('    assemble seq scl crossfade {0}'.format(crossfade_eff))
+        print('    assemble seq scl song duration {0}'.format(song.duration_seconds))
+        print('    assemble seq scl seg_ duration {0}\n    {1}'.format(seg_.duration_seconds, files[i]))
+        
+        # song = song.append(seg_.apply_gain_stereo(-1, -1), crossfade=crossfade_eff)
         f.write('{0},{1}\n'.format(i,seg_.duration_seconds))
-        song = song.append(seg_, crossfade=crossfade)
+        song = song.append(seg_, crossfade=crossfade_eff)
         seg_s.append(i)
         # seg_ = random.randrange(0, len(segs))
         # print('seg_ {0}'.format(seg_))

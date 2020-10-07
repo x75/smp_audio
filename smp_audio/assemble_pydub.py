@@ -119,20 +119,33 @@ def track_assemble_from_segments(**kwargs):
     # crossfade = 0
     # while song duration is less than desired duration, select random segment and append to song
     seg_s = []
+    i = 0
     while song.duration_seconds < desired_duration:
         seg_ = random.randrange(0, len(segs))
         print('seg_ {0}'.format(seg_))
         f.write('{0},{1}\n'.format(seg_, segs[seg_].duration_seconds))
 
-        if len(seg_s) > 0:
+        if i > 1 and song.duration_seconds > 0.01 and seg_.duration_seconds > 0.01:
             # crossfade_eff = 10
             crossfade_eff = crossfade
         else:
             crossfade_eff = 0
+            
+        print('    assemble rnd crossfade {0}'.format(crossfade_eff))
+        print('    assemble rnd song duration {0}'.format(song.duration_seconds))
+        print('    assemble rnd seg_ duration {0}\n    {1}'.format(seg_.duration_seconds, files[i]))
+        
+        # if len(seg_s) > 0:
+        #     # crossfade_eff = 10
+        #     crossfade_eff = crossfade
+        # else:
+        #     crossfade_eff = 0
         
         song = song.append(segs[seg_], crossfade=crossfade_eff)
         print('song duration {0:.2f}'.format(song.duration_seconds))
         seg_s.append(seg_)
+        # increase counter
+        i = i + 1
         
     # export the song
     f.flush()
@@ -229,7 +242,7 @@ def track_assemble_from_segments_sequential_scale(**kwargs):
             # print('skipping')
             continue
         
-        if i > 1 and song.duration_seconds > 0.001:
+        if i > 1 and song.duration_seconds > 0.01 and seg_.duration_seconds > 0.01:
             # crossfade_eff = 10
             crossfade_eff = crossfade
         else:
@@ -266,7 +279,7 @@ def track_assemble_from_segments_sequential_scale(**kwargs):
     print('song export to {0}'.format(filename_export))
     song.export(filename_export, format='wav')
 
-    return {'filename_export': filename_export, 'final_duration': song.duration_seconds, 'seg_s': seg_s}
+    return {'filename_export': filename_export, 'final_duration': round(song.duration_seconds, 2), 'seg_s': seg_s}
 
 if __name__ == '__main__':
     print('smp_music.smp_audio.assemble_pydub')

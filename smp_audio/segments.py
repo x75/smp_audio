@@ -9,6 +9,7 @@ from scipy.stats import norm
 import numpy as np
 import matplotlib.pyplot as plt
 import librosa
+import soundfile
 
 def compute_event_mean_intervals(**kwargs):
     # number of frames, FIXME winsize, hopsize
@@ -196,7 +197,8 @@ def compute_event_merge_index_to_file(**kwargs):
         tmp_ = y_48[:,i_start:ind_cut_48[i]]
         outfilename = filename_48[:-4] + "-seg-%d.wav" % (i)
         print('writing seg %d to outfile %s' % (i, outfilename))
-        librosa.output.write_wav(outfilename, tmp_, sr_48)
+        # librosa.output.write_wav(outfilename, tmp_, sr_48)
+        soundfile.write(outfilename, tmp_.T, sr_48, 'PCM_16', format='WAV')
         ret.append(outfilename)
 
     return {'files': ret}

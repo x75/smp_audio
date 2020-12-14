@@ -4,6 +4,7 @@ time, event, segment computations
 """
 
 from pprint import pformat
+import os
 from scipy import signal
 from scipy.stats import norm
 import numpy as np
@@ -77,8 +78,10 @@ def compute_event_merge_mexhat(**kwargs):
     for i in range(numinputs):
         tmp_ = norm.pdf(np.arange(-intervals[i]/ norm_factor, intervals[i]/ norm_factor), loc=0, scale=intervals[i]/ scale_factor)
         kernels_gaussian.append(tmp_)
-    
-    kernels_mexhat = [signal.ricker(points=250, a=intervals[i]/10.0) for i in range(numinputs)]
+
+    numpoints = min(250, numframes)
+    print(f'    mexhat numpoints = {numpoints}')
+    kernels_mexhat = [signal.ricker(points=numpoints, a=intervals[i]/10.0) for i in range(numinputs)]
 
     kernels = kernels_mexhat
     # print('kernels = {0}'.format(kernels))
@@ -170,6 +173,7 @@ def compute_event_merge_index_to_file(**kwargs):
     ind_ = kwargs['ind_']
     # ind2_ = kwargs['ind2_']
     filename_48 = kwargs['filename_48']
+    print(f'compute_event_merge_index_to_file filename_48 = {filename_48}')
     
     # ind_cut = librosa.frames_to_samples(ind)
     # ind_cut = librosa.frames_to_samples(ind.tolist() + [numframes-1])
@@ -195,7 +199,16 @@ def compute_event_merge_index_to_file(**kwargs):
         i_start = ind_cut_48[i-1]
         
         tmp_ = y_48[:,i_start:ind_cut_48[i]]
-        outfilename = filename_48[:-4] + "-seg-%d.wav" % (i)
+
+        filename_48_dir = os.path.dirname(filename_48)
+        filename_48_base = os.path.basename(filename_48)
+        filename_48_base_list = filename_48_base.split('.')
+        filename_48_base_name = ".".join(filename_48_base_list[:-1])
+        filename_48_base_type = filename_48_base_list[-1]
+        suflen = len(filename_48_base_type)+1
+        outfilename =  f"{filename_48_dir}/{filename_48_base_name}-seg-{i}.wav"
+        #
+        # outfilename = 'data/' + filename_48[:-4] + "-seg-%d.wav" % (i)
         print('writing seg %d to outfile %s' % (i, outfilename))
         # librosa.output.write_wav(outfilename, tmp_, sr_48)
         soundfile.write(outfilename, tmp_.T, sr_48, 'PCM_16', format='WAV')

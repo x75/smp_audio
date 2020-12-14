@@ -167,7 +167,7 @@ def main_autoedit(args):
     g['l6_merge']['files'] = []
     for file_ in g['l1_files']:
         dirname = os.path.dirname(filename)
-        print(f'main_autoedit l6_merge {file_} / {dirname}/{filename}')
+        print(f'main_autoedit l6_merge file_ {file_}, dirname {dirname}, filename {filename}')
         beats_keys = ['beats_60', 'beats_90', 'beats_120'] + ['beats_60_16', 'beats_90_16', 'beats_120_16']
         # beats = [g['l5_beats'][file_][beat_type] for beat_type in beats_keys for file_ in g['l1_files']]
         beats = [g['l5_beats'][file_][beat_type] for beat_type in beats_keys]
@@ -175,6 +175,7 @@ def main_autoedit(args):
         segs = [g['l3_segments'][file_][seg_type_] for seg_type_ in ['seg_sbic', 'seg_clust_1', 'seg_clust_2']]
         numframes = g['l1_files'][file_]['numframes']
         # compute
+        print(f'    autoedit l6_merge dirname {dirname}, filename {filename}')
         files = g['func'][compute_event_merge_combined](filename_48=dirname + '/' + file_, beats=beats, segs=segs, numframes=numframes, numsegs=numsegs)
         
         g['l6_merge']['files'].extend(files['files'])

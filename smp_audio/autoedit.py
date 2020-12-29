@@ -37,13 +37,19 @@ def autoedit_get_count():
     load autoedit count from file, if it does not exist, init zero and
     save to file.
     """
-    autoedit_count_filename = 'data/audio_sort_features/autoedit-count.txt'
+    autoedit_count_datadir = './data/audio_sort_features'
+    autoedit_count_filename = f'{autoedit_count_datadir}/autoedit-count.txt'
     if os.path.exists(autoedit_count_filename):
         autoedit_count = int(open(autoedit_count_filename, 'r').read().strip())
         print(f'autoedit_get_count from file {autoedit_count}, {type(autoedit_count)}')
     else:
+        print(f'autoedit_get_count file not found, initializing')
         autoedit_count = 0
-        print(f'autoedit_get_count file no found, init {autoedit_count}')
+        makedirs_ok = os.makedirs(autoedit_count_datadir, exist_ok=True)
+        print(f'autoedit_get_count autoedit_count = {autoedit_count}')
+        print(f'autoedit_get_count autoedit_datadir = {autoedit_count_datadir}')
+        print(f'autoedit_get_count autoedit_datadir created {makedirs_ok}')
+        
     autoedit_count_new = autoedit_count + 1
     f = open(autoedit_count_filename, 'w')
     f.write(f'{autoedit_count_new}\n')

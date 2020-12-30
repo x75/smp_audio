@@ -1009,6 +1009,7 @@ def main(args):
         print('Unknown mode {0}, exiting'.format(args.mode))
         sys.exit(1)
 
+    # experimental WIP
     if args.mode.endswith('_stream'):
         ret = []
         for filename_i, filename in enumerate(args.filenames[0]):

@@ -37,13 +37,19 @@ def autoedit_get_count():
     load autoedit count from file, if it does not exist, init zero and
     save to file.
     """
-    autoedit_count_filename = 'data/audio_sort_features/autoedit-count.txt'
+    autoedit_count_datadir = './data/audio_sort_features'
+    autoedit_count_filename = f'{autoedit_count_datadir}/autoedit-count.txt'
     if os.path.exists(autoedit_count_filename):
         autoedit_count = int(open(autoedit_count_filename, 'r').read().strip())
         print(f'autoedit_get_count from file {autoedit_count}, {type(autoedit_count)}')
     else:
+        print(f'autoedit_get_count file not found, initializing')
         autoedit_count = 0
-        print(f'autoedit_get_count file no found, init {autoedit_count}')
+        makedirs_ok = os.makedirs(autoedit_count_datadir, exist_ok=True)
+        print(f'autoedit_get_count autoedit_count = {autoedit_count}')
+        print(f'autoedit_get_count autoedit_datadir = {autoedit_count_datadir}')
+        print(f'autoedit_get_count autoedit_datadir created {makedirs_ok}')
+        
     autoedit_count_new = autoedit_count + 1
     f = open(autoedit_count_filename, 'w')
     f.write(f'{autoedit_count_new}\n')
@@ -167,7 +173,7 @@ def main_autoedit(args):
     g['l6_merge']['files'] = []
     for file_ in g['l1_files']:
         dirname = os.path.dirname(filename)
-        print(f'main_autoedit l6_merge {file_} / {dirname}/{filename}')
+        print(f'main_autoedit l6_merge file_ {file_}, dirname {dirname}, filename {filename}')
         beats_keys = ['beats_60', 'beats_90', 'beats_120'] + ['beats_60_16', 'beats_90_16', 'beats_120_16']
         # beats = [g['l5_beats'][file_][beat_type] for beat_type in beats_keys for file_ in g['l1_files']]
         beats = [g['l5_beats'][file_][beat_type] for beat_type in beats_keys]
@@ -175,6 +181,7 @@ def main_autoedit(args):
         segs = [g['l3_segments'][file_][seg_type_] for seg_type_ in ['seg_sbic', 'seg_clust_1', 'seg_clust_2']]
         numframes = g['l1_files'][file_]['numframes']
         # compute
+        print(f'    autoedit l6_merge dirname {dirname}, filename {filename}')
         files = g['func'][compute_event_merge_combined](filename_48=dirname + '/' + file_, beats=beats, segs=segs, numframes=numframes, numsegs=numsegs)
         
         g['l6_merge']['files'].extend(files['files'])

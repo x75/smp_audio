@@ -25,9 +25,12 @@ import numpy as np
 import networkx as nx
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
+import colorcet as cc
 import joblib
 import wave
 import audioread
+
 
 from librosa import samples_to_frames, time_to_frames, frames_to_time
 
@@ -637,7 +640,6 @@ def autocover_feature_matrix(args):
     import librosa
     from pyunicorn.timeseries import RecurrencePlot
     from matplotlib.colors import LogNorm
-    import colorcet as cc
     kwargs = args_to_dict(args)
     # open file compute frame based features
     
@@ -712,7 +714,11 @@ def autocover_feature_matrix(args):
         ys = np.linspace(0, length0, length0)
         xs = np.linspace(0, length1, length1)
         # ax3.pcolormesh(xs, ys, np.log(feature_matrix), cmap=plt.get_cmap("Oranges"))
-        ax3.pcolormesh(xs, ys, np.log(feature_matrix), cmap=cc.cm['colorwheel'])
+        # ax3.pcolormesh(xs, ys, np.log(feature_matrix), cmap=cc.cm['colorwheel'])
+        # mycmap = cc.cm['colorwheel']
+        mycmap = cc.cm[np.random.choice(list(cc.cm.keys()))]
+        print(f'    mycmap = {mycmap.name}')
+        ax3.pcolormesh(xs, ys, np.log(feature_matrix), cmap=mycmap)
         ax3.set_aspect(length1/length0)
         ax3.axis('off')
         # ax3.set_title(os.path.basename(filename))
@@ -741,35 +747,60 @@ def autocover_recurrenceplot(args):
     # open file compute frame based features
     
     print(f'autocover kwargs {pformat(kwargs)}')
-    w, samplerate = librosa.load(kwargs['filenames'][0])
+    filename = kwargs['filenames'][0]
+    w, samplerate = librosa.load(filename)
 
+    RecurrencePlot_cached = memory.cache(RecurrencePlot)
+    # RecurrencePlot_cached = RecurrencePlot
+    
     framesize = 4096
     mfcc = librosa.feature.mfcc(y=w, sr=samplerate, n_fft=framesize, hop_length=framesize, center=False)
-    rp = RecurrencePlot(mfcc.T, threshold_std=0.5)
+    rp = RecurrencePlot_cached(mfcc.T, threshold_std=0.5)
     plotdata = rp.recurrence_matrix()
     
     fig = plt.figure()      
     
-    ax1 = fig.add_subplot(221)
-    ax1.plot(w)
+    # ax1 = fig.add_subplot(221)
+    # ax1.plot(w)
     
     # print ("recmat.shape", rp.recurrence_matrix().shape)
 
     length = plotdata.shape[0]
-
-    ax2 = fig.add_subplot(222)
+    
+    # ax2 = fig.add_subplot(222)
+    ax2 = fig.add_subplot(111)
     # ax2.matshow(rp.recurrence_matrix())
     xs = np.linspace(0, length, length)
     ys = np.linspace(0, length, length)
-    ax2.pcolormesh(xs, ys, plotdata, cmap=plt.get_cmap("Oranges"))
+    #mycmap = plt.get_cmap("Oranges")
+    mycmap = cc.cm[np.random.choice(list(cc.cm.keys()))]
+    print(f'    mycmap = {mycmap.name}, min {plotdata.min()}, max {plotdata.max()}')
+    plotdata = plotdata + 1
+    ax2.pcolormesh(xs, ys, plotdata,
+                   norm=colors.LogNorm(vmin=plotdata.min(), vmax=plotdata.max()),
+                   cmap=mycmap)
     ax2.set_aspect(1)
-    ax2.set_xlabel("$n$")                                                                                    
-    ax2.set_ylabel("$n$")
+    ax2.axis('off')
+    # ax2.set_xlabel("$n$")                                                                                    
+    # ax2.set_ylabel("$n$")
 
-    ax3 = fig.add_subplot(223)
-    ax3.imshow(mfcc[1:,:], aspect='auto', origin='lower', interpolation='none')
+    # ax3 = fig.add_subplot(223)
+    # ax3.imshow(mfcc[1:,:], aspect='auto', origin='lower', interpolation='none')
     
-    plt.show()
+    if len(os.path.dirname(filename)) > 0:
+        sep = '/'
+    else:
+        sep = ''
+            
+    fig.set_size_inches((10, 10))
+
+    # for savetype in ['.pdf', '.jpg']:
+    for savetype in ['.jpg']:
+        savefilename = os.path.dirname(filename) + sep + os.path.basename(filename)[:-4] + savetype
+        print(f'saving to {savefilename}')
+        fig.savefig(savefilename, dpi=300, bbox_inches='tight')
+            
+    # plt.show()
 
     
 def main_scanfiles(args):

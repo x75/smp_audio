@@ -1,12 +1,15 @@
 shopt -s nullglob
 let playlist_duration_ms=0
-for song_file in *.{mp3,ogg,m4a,mp4,flac,wav}; do
-	echo $playlist_duration_ms pre
-	echo $song_file
+for song_file in *.{mp3,mp4,ogg,m4a,flac,wav,aiff,aif}; do
+	echo enter \#\#\#\#\#
+	echo     song file         $song_file
+	echo duration accumulated $playlist_duration_ms pre
   	# playlist_duration_ms=$(expr $playlist_duration_ms + $(mediainfo --Inform="Audio;%Duration%" "$song_file"))
-	echo dur $(mediainfo --Inform="Audio;%Duration%" "$song_file")
-  	playlist_duration_ms=$(expr $playlist_duration_ms + $(mediainfo --Inform="Audio;%Duration%" "$song_file"))
-	echo $playlist_duration_ms post
+	song_duration=$(mediainfo --Inform="Audio;%Duration%" "$song_file")
+	song_duration_int=${song_duration%.*}
+	echo     song duration dur $song_duration_int
+  	playlist_duration_ms=$(expr $playlist_duration_ms + $song_duration_int)
+	echo duration accumulated $playlist_duration_ms post
 done
 shopt -u nullglob
 

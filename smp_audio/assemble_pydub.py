@@ -133,7 +133,7 @@ def track_assemble_from_segments(**kwargs):
             
         print('    assemble rnd crossfade {0}'.format(crossfade_eff))
         print('    assemble rnd song duration {0}'.format(song.duration_seconds))
-        print('    assemble rnd seg_ duration {0}\n    {1}'.format(segs[seg_].duration_seconds, files[i]))
+        print('    assemble rnd seg_ duration {0}\n    {1}'.format(segs[seg_].duration_seconds, files[seg_]))
         
         # if len(seg_s) > 0:
         #     # crossfade_eff = 10

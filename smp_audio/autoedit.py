@@ -194,7 +194,13 @@ def main_autoedit(args):
     filename_short = list(g['l1_files'])[0]
     autoedit_count = autoedit_get_count()
     # filename_export = f'{filename_short[:-4]}-autoedit-{autoedit_count}.wav'
-    filename_export = f'data/{filename_short[:-4]}-autoedit-{autoedit_count}.wav'
+    # filename_export = f'data/{filename_short[:-4]}-autoedit-{autoedit_count}.wav'
+    dirname = os.path.dirname(filename)
+    filename_export = os.path.join(
+        dirname,
+        'data',
+        f'{filename_short[:-4]}-autoedit-{autoedit_count}.wav'
+    )
     g['l6_merge']['filename_export'] = filename_export
     # crossfade argument
     g['l6_merge']['assemble_crossfade'] = args.assemble_crossfade

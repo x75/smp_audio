@@ -201,12 +201,16 @@ def compute_event_merge_index_to_file(**kwargs):
         tmp_ = y_48[:,i_start:ind_cut_48[i]]
 
         filename_48_dir = os.path.dirname(filename_48)
+        filename_48_dir_data = os.path.join(filename_48_dir, 'data')
         filename_48_base = os.path.basename(filename_48)
         filename_48_base_list = filename_48_base.split('.')
         filename_48_base_name = ".".join(filename_48_base_list[:-1])
         filename_48_base_type = filename_48_base_list[-1]
         suflen = len(filename_48_base_type)+1
-        outfilename =  f"{filename_48_dir}/data/{filename_48_base_name}-seg-{i}.wav"
+        if not os.path.exists(filename_48_dir_data):
+            os.makedirs(filename_48_dir_data)
+        # outfilename =  f"{filename_48_dir}/data/{filename_48_base_name}-seg-{i}.wav"
+        outfilename =  f"{filename_48_dir_data}/{filename_48_base_name}-seg-{i}.wav"
         #
         # outfilename = 'data/' + filename_48[:-4] + "-seg-%d.wav" % (i)
         print('writing seg %d to outfile %s' % (i, outfilename))

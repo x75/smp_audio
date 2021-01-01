@@ -1025,7 +1025,7 @@ def main(args):
         # plt.show()
 
 if __name__ == "__main__":
-    print(f'main enter')
+    print(f'main {sys.argv[0]}')
     parser = argparse.ArgumentParser()
     
     parser.add_argument("-f", "--filenames", action='append', dest='filenames', help="Input file(s) []", nargs = '+', default = [], required=True)
@@ -1046,9 +1046,12 @@ if __name__ == "__main__":
     parser.add_argument("--seed", dest='seed', type=int, default=123, help="Random seed [123]")
     parser.add_argument("-smin", "--seglen-min", dest='seglen_min', default=2, help="Segment length minimum in seconds [2]")
     parser.add_argument("-smax", "--seglen-max", dest='seglen_max', default=60, help="Segment length maximum in seconds [60]")
-    parser.add_argument("-v", "--verbose", dest='verbose', type=bool, default=False, help="Be verbose [False]")
-    parser.add_argument("-w", "--write", dest='write', type=bool, default=False, help="Write output [False]")
+    parser.add_argument("-v", "--verbose", dest='verbose', action='store_true', default=False, help="Be verbose [False]")
+    parser.add_argument("-w", "--write", dest='write', action='store_true', default=False, help="Write output [False]")
     # params: numsegments, duration, minlength, maxlength, kernel params
     args = parser.parse_args()
+
+    if args.verbose:
+        print(f'main mode {args.mode}')
 
     main(args)

@@ -37,7 +37,7 @@ def autoedit_get_count(rootdir='./', verbose=False):
     load autoedit count from file, if it does not exist, init zero and
     save to file.
     """
-    autoedit_count_datadir = os.path.join(rootdir, 'data/audio_sort_features')
+    autoedit_count_datadir = os.path.join(rootdir, 'data/autoedit')
     autoedit_count_filename = os.path.join(autoedit_count_datadir, 'autoedit-count.txt')
     if os.path.exists(autoedit_count_filename):
         autoedit_count = int(open(autoedit_count_filename, 'r').read().strip())
@@ -65,7 +65,7 @@ def main_autoedit(args):
     Complete autoedit flow
 
     ..todo::
-    - loop over chunks of input, batch is large single chunk 
+    - loop over chunks of input, batch is large single chunk
     - handle returned chunk data, integrate over time
     - chunk parallel processing (entire graph) vs. chunk serial processing (entire graph)
     - nodes with memory and nodes without
@@ -78,19 +78,24 @@ def main_autoedit(args):
     # convert args to dict
     kwargs = args_to_dict(args)
 
-    # globals
+    # convert arguments to locals, TODO: config file for autoedit param dict
     sr_comp = kwargs['sr_comp'] # 22050
     numsegs = kwargs['numsegs'] # 10
     seglen_min = time_to_frames(kwargs['seglen_min'])
     seglen_max = time_to_frames(kwargs['seglen_max'])
     duration = kwargs['duration'] # 10
+    verbose = kwargs['verbose']
+    
     timebase = "frames"
+    spacer = '\n    '
     
     # caching
     # compute_music_extractor_essentia_cached = memory.cache(compute_music_extractor_essentia)
 
+    # computation graph g
     g = OrderedDict()
 
+    # populate graph with functions
     g['func'] = {}
     for func in [
             compute_beats_librosa,
@@ -112,8 +117,10 @@ def main_autoedit(args):
     # layer 1: file data
     g['l1_files'] = OrderedDict()
     for filename in kwargs['filenames']:
+        # replace with basename
         filename_short = filename.split('/')[-1]
-        print(('    filename_short: {0}'.format(filename_short)))
+        if verbose:
+            print(('main_autoedit{1}filename_short: {0}'.format(filename_short, spacer)))
         # files[filename_short] = compute_tempo_beats(filename)
         # load data
         # y, sr = data_load_essentia_cached(filename)
@@ -124,7 +131,8 @@ def main_autoedit(args):
         g['l1_files'][filename_short]['numsamples'] = len(tmp_[0])
         g['l1_files'][filename_short]['numframes'] = samples_to_frames(len(tmp_[0]))
         g['l1_files'][filename_short]['sr'] = tmp_[1]
-        print('    loaded {0} with shape {1}, numsamples {2}, numframes {3}, sr {4}'.format(filename_short, g['l1_files'][filename_short]['data'].shape, g['l1_files'][filename_short]['numsamples'], g['l1_files'][filename_short]['numframes'], g['l1_files'][filename_short]['sr']))
+        if verbose:
+            print('main_autoedit{5}loaded {0} with shape {1}, numsamples {2}, numframes {3}, sr {4}'.format(filename_short, g['l1_files'][filename_short]['data'].shape, g['l1_files'][filename_short]['numsamples'], g['l1_files'][filename_short]['numframes'], g['l1_files'][filename_short]['sr'], spacer))
 
     # layer 2: compute chromagram
     g['l2_chromagram'] = {}
@@ -169,14 +177,20 @@ def main_autoedit(args):
             g['l5_beats'][file_]['beats_{0}'.format(start_bpm)] = beats['beats']
             g['l5_beats'][file_]['beats_{0}_16'.format(start_bpm)] = beats['beats'][::16]
 
-    joblib.dump(g, './g-pre.pkl')
     # layer 6: compute final segments from merging segments with beats
-    # prepare
     g['l6_merge'] = OrderedDict()
     g['l6_merge']['files'] = []
     for file_ in g['l1_files']:
+        # get basedir from filename
         dirname = os.path.dirname(filename)
-        print(f'main_autoedit l6_merge file_ {file_}, dirname {dirname}, filename {filename}')
+        # return realpath absolute path
+        # dirname = os.path.dirname(os.path.realpath(filename))
+        if dirname == '':
+            dirname = '.'
+            
+        if verbose:
+            print(f'main_autoedit dirname {dirname}')
+            print(f'main_autoedit{spacer}l6_merge file_ {file_}, dirname {dirname}, filename {filename}')
         beats_keys = ['beats_60', 'beats_90', 'beats_120'] + ['beats_60_16', 'beats_90_16', 'beats_120_16']
         # beats = [g['l5_beats'][file_][beat_type] for beat_type in beats_keys for file_ in g['l1_files']]
         beats = [g['l5_beats'][file_][beat_type] for beat_type in beats_keys]
@@ -184,11 +198,20 @@ def main_autoedit(args):
         segs = [g['l3_segments'][file_][seg_type_] for seg_type_ in ['seg_sbic', 'seg_clust_1', 'seg_clust_2']]
         numframes = g['l1_files'][file_]['numframes']
         # compute
-        print(f'    autoedit l6_merge dirname {dirname}, filename {filename}')
-        files = g['func'][compute_event_merge_combined](filename_48=dirname + '/' + file_, beats=beats, segs=segs, numframes=numframes, numsegs=numsegs)
+        if verbose:
+            print(f'main_autoedit{spacer}l6_merge dirname {dirname}, filename {filename}')
+        files = g['func'][compute_event_merge_combined](
+            filename_48=dirname + '/' + file_,
+            beats=beats,
+            segs=segs,
+            numframes=numframes,
+            numsegs=numsegs,
+            verbose=verbose,
+        )
         
         g['l6_merge']['files'].extend(files['files'])
-        print('    autoedit l6_merge {0}, {1}'.format(file_, g['l6_merge']['files']))
+        if verbose:
+            print('main_autoedit{2}l6_merge {0}, {1}'.format(file_, g['l6_merge']['files'], spacer))
 
     # layer 7: compute assembled song from segments and duration
     g['l7_assemble'] = OrderedDict()
@@ -216,7 +239,7 @@ def main_autoedit(args):
     # print((pformat(g)))
     # joblib.dump(g, './g.pkl')
     filename_export_graph = f'{filename_export[:-4]}.pkl'
-    print(f'exporting graph to {filename_export_graph}')
+    print(f'main_autoedit{spacer}exporting graph to {filename_export_graph}')
     joblib.dump(g, filename_export_graph)
     
     # # plot dictionary g as graph

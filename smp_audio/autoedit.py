@@ -280,20 +280,27 @@ def main_autoedit(args):
     elif args.assemble_mode == 'sequential':
         g['l7_assemble']['outfile'] = g['func'][track_assemble_from_segments_sequential_scale](**(g['l6_merge']))
 
+
+    export_filename = g['l7_assemble']['outfile']['filename_export']
+    export_duration = g['l7_assemble']['outfile']['final_duration']
+    export_segs = g['l7_assemble']['outfile']['seg_s']
+    export_numsegs = len(g['l7_assemble']['outfile']['seg_s'])
+        
     # print((pformat(g)))
     # joblib.dump(g, './g.pkl')
-    filename_export_graph = f'{filename_export[:-4]}.pkl'
-    print(f'main_autoedit{spacer}exporting graph to {filename_export_graph}')
-    joblib.dump(g, filename_export_graph)
+    export_filename_graph = f'{export_filename[:-4]}.pkl'
+    print(f'main_autoedit{spacer}exporting graph to {export_filename_graph}')
+    joblib.dump(g, export_filename_graph)
     
     # # plot dictionary g as graph
     # autoedit_graph_from_dict(g=g, plot=False)
     ret = {
-        'filename_': filename_export,
-        'length': 100, # FIXME get the real length of the edit
-        'numsegs': 10, # FIXME get the real number of segments found
-        'autoedit_graph': filename_export_graph
+        'filename_': export_filename,
+        'length': export_duration,
+        'numsegs': export_numsegs,
+        'filename_graph': export_filename_graph
     }
-    ret.update(g['l7_assemble']['outfile'])
+    # # yeah nice, should be obsolete
+    # ret.update(g['l7_assemble']['outfile'])
     
     return ret

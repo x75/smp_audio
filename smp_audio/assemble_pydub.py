@@ -152,7 +152,12 @@ def track_assemble_from_segments(**kwargs):
     f.close()
     song.export(filename_export, format='wav')
 
-    return {'filename_export': filename_export, 'final_duration': song.duration_seconds, 'seg_s': seg_s}
+    # FIXME: change this to export_filename, duration, segs, numsegs
+    return {
+        'filename_export': filename_export,
+        'final_duration': song.duration_seconds,
+        'seg_s': seg_s
+    }
 
 def track_assemble_from_segments_sequential(**kwargs):
     """track_assemble_from_segments_sequential
@@ -279,7 +284,11 @@ def track_assemble_from_segments_sequential_scale(**kwargs):
     print('song export to {0}'.format(filename_export))
     song.export(filename_export, format='wav')
 
-    return {'filename_export': filename_export, 'final_duration': round(song.duration_seconds, 2), 'seg_s': seg_s}
+    return {
+        'filename_export': filename_export,
+        'final_duration': round(song.duration_seconds, 2),
+        'seg_s': seg_s
+    }
 
 if __name__ == '__main__':
     print('smp_music.smp_audio.assemble_pydub')

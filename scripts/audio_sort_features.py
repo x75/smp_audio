@@ -51,13 +51,13 @@ from smp_audio.common_aubio import data_stream_aubio, data_stream_get_aubio
 from smp_audio.assemble_pydub import track_assemble_from_segments, track_assemble_from_segments_sequential, track_assemble_from_segments_sequential_scale
 from smp_audio.graphs import graph_walk_collection_flat, graph_walk_collection
 from smp_audio.graphs import cb_graph_walk_build_graph
-from smp_audio.util import args_to_dict
+from smp_audio.util import args_to_dict, ns2kw, kw2ns
 from smp_audio.segments import compute_event_merge_combined
 
 # from audio_segments_split import main_audio_segments_split
 from audio_features_paa import compute_features_paa
 
-from smp_audio.autoedit import main_autoedit
+from smp_audio.autoedit import main_autoedit, autoedit_conf_default
 
 # caching joblib
 from joblib import Memory
@@ -977,7 +977,23 @@ def main_audiofile_tool(args):
             _filenames = split_large_audiofile(filename, args)
             print(f'_filenames {pformat(_filenames)}')
     return None
-    
+
+def main_autoargs(args):
+    """main.autoargs
+
+    Just print the args
+    """
+    print(f'args is type {type(args)}')
+    print(f'args {args}')
+    kwargs = ns2kw(args)
+    print(f'args to dict {pformat(kwargs)}')
+    args_ = kw2ns(kwargs)
+    print(f'args from dict {args_}')
+
+    # Namespace object is not iterable :(
+    # for k in args:
+    #     print(f'    args.{k} {args.k}')
+
 def main(args):
     # print(f'main args = {args}')
     
@@ -1005,6 +1021,8 @@ def main(args):
         _main = main_autoedit_stream
     elif args.mode == 'autocover':
         _main = main_autocover
+    elif args.mode == 'autoargs':
+        _main = main_autoargs
     else:
         print('Unknown mode {0}, exiting'.format(args.mode))
         sys.exit(1)

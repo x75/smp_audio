@@ -1,3 +1,7 @@
+"""smp_audio.autoedit
+
+autoedit function
+"""
 import os
 from collections import OrderedDict
 
@@ -6,7 +10,7 @@ import numpy as np
 from librosa import samples_to_frames, time_to_frames, frames_to_time
 
 from smp_audio.common_essentia import data_load_essentia
-from smp_audio.util import args_to_dict
+from smp_audio.util import args_to_dict, ns2kw, kw2ns
 from smp_audio.common_librosa import compute_segments_librosa, compute_chroma_librosa, compute_beats_librosa, compute_onsets_librosa
 from smp_audio.common_essentia import compute_segments_essentia
 from smp_audio.segments import compute_event_merge_combined
@@ -30,6 +34,31 @@ memory = Memory(location, verbose=0)
 
 # memory = object()
 # memory.cache = timethis
+
+# TODO: create autoedit_conf_default
+autoedit_conf = {
+    'default': {
+        'assemble_crossfade': 10,
+        'assemble_mode': 'random',
+        'duration': 60.0,
+        'filenames': [],
+        'mode': 'autoedit',
+        'numsegs': 20,
+        'rootdir': './',
+        'seed': 1234,
+        'seglen_max': 60,
+        'seglen_min': 2,
+        'sorter': 'features_mt_spectral_spread_mean',
+        'sr_comp': 22050,
+        'verbose': False,
+        'write': False
+    },
+}
+# floats
+autoedit_conf_types_float = ['assemble_crossfade', 'duration']
+# ints
+autoedit_conf_types_int = ['numsegs', 'seed', 'seglen_max', 'seglen_min', 'sr_comp']
+autoedit_conf_default = autoedit_conf['default']
 
 def autoedit_get_count(rootdir='./', verbose=False):
     """autoedit get count
@@ -59,6 +88,17 @@ def autoedit_get_count(rootdir='./', verbose=False):
     f.flush()
     return autoedit_count
 
+def autoedit_args_check(args):
+    """autoedit_args_check
+
+    Type check arguments
+    """
+    for t in autoedit_conf_types_float:
+        setattr(args, t, float(getattr(args, t)))
+    for t in autoedit_conf_types_int:
+        setattr(args, t, int(getattr(args, t)))
+    return args
+        
 def main_autoedit(args):
     """main_autoedit
 
@@ -76,16 +116,20 @@ def main_autoedit(args):
     - openl3
     """
     # convert args to dict
-    kwargs = args_to_dict(args)
+    # kwargs = args_to_dict(args)
 
     # convert arguments to locals, TODO: config file for autoedit param dict
-    sr_comp = kwargs['sr_comp'] # 22050
-    numsegs = kwargs['numsegs'] # 10
-    seglen_min = time_to_frames(kwargs['seglen_min'])
-    seglen_max = time_to_frames(kwargs['seglen_max'])
-    duration = kwargs['duration'] # 10
-    verbose = kwargs['verbose']
+    # sr_comp = kwargs['sr_comp'] # 22050
+    # numsegs = kwargs['numsegs'] # 10
+    # duration = kwargs['duration'] # 10
+    # verbose = kwargs['verbose']
+    # seglen_min = time_to_frames(kwargs['seglen_min'])
+    # seglen_max = time_to_frames(kwargs['seglen_max'])
+
+    args = autoedit_args_check(args)
     
+    seglen_min = time_to_frames(args.seglen_min)
+    seglen_max = time_to_frames(args.seglen_max)
     timebase = "frames"
     spacer = '\n    '
     
@@ -116,10 +160,10 @@ def main_autoedit(args):
 
     # layer 1: file data
     g['l1_files'] = OrderedDict()
-    for filename in kwargs['filenames']:
+    for filename in args.filenames:
         # replace with basename
         filename_short = filename.split('/')[-1]
-        if verbose:
+        if args.verbose:
             print(('main_autoedit{1}filename_short: {0}'.format(filename_short, spacer)))
         # files[filename_short] = compute_tempo_beats(filename)
         # load data
@@ -131,7 +175,7 @@ def main_autoedit(args):
         g['l1_files'][filename_short]['numsamples'] = len(tmp_[0])
         g['l1_files'][filename_short]['numframes'] = samples_to_frames(len(tmp_[0]))
         g['l1_files'][filename_short]['sr'] = tmp_[1]
-        if verbose:
+        if args.verbose:
             print('main_autoedit{5}loaded {0} with shape {1}, numsamples {2}, numframes {3}, sr {4}'.format(filename_short, g['l1_files'][filename_short]['data'].shape, g['l1_files'][filename_short]['numsamples'], g['l1_files'][filename_short]['numframes'], g['l1_files'][filename_short]['sr'], spacer))
 
     # layer 2: compute chromagram
@@ -139,29 +183,29 @@ def main_autoedit(args):
     for file_ in g['l1_files']:
         # file_key = '{0}-{1}'.format(file_, 'chromagram')
         g['l2_chromagram'][file_] = {}
-        g['l2_chromagram'][file_]['data'] = g['func'][compute_chroma_librosa](g['l1_files'][file_]['data'], sr_comp)['chromagram']
+        g['l2_chromagram'][file_]['data'] = g['func'][compute_chroma_librosa](g['l1_files'][file_]['data'], args.sr_comp)['chromagram']
 
     # layer 3: compute segments based on chromagram
     g['l3_segments'] = OrderedDict()
     for file_ in g['l2_chromagram']:
         # file_key = '{0}-{1}'.format(file_, 'segments')
-        bounds_frames = g['func'][compute_segments_essentia](g['l2_chromagram'][file_]['data'], sr_comp, numsegs)['bounds_frames']
+        bounds_frames = g['func'][compute_segments_essentia](g['l2_chromagram'][file_]['data'], args.sr_comp, args.numsegs)['bounds_frames']
         # print(('    file_: {0}, bounds_frames {1}, {2}'.format(file_, len(bounds_frames), pformat(bounds_frames))))
         g['l3_segments'][file_] = {}
         g['l3_segments'][file_]['seg_sbic'] = np.clip(bounds_frames, 0, [g['l1_files'][filename_short]['numframes'] for filename_short in g['l1_files']][0]-1)
 
-        bounds_frames = g['func'][compute_segments_librosa](g['l2_chromagram'][file_]['data'], sr_comp, numsegs)['bounds_frames']
+        bounds_frames = g['func'][compute_segments_librosa](g['l2_chromagram'][file_]['data'], args.sr_comp, args.numsegs)['bounds_frames']
         # print(('    file_: {0}, bounds_frames {1}, {2}'.format(file_, len(bounds_frames), pformat(bounds_frames))))
         g['l3_segments'][file_]['seg_clust_1'] = bounds_frames
 
-        bounds_frames = g['func'][compute_segments_librosa](g['l2_chromagram'][file_]['data'], sr_comp, numsegs + 5)['bounds_frames']
+        bounds_frames = g['func'][compute_segments_librosa](g['l2_chromagram'][file_]['data'], args.sr_comp, args.numsegs + 5)['bounds_frames']
         # print(('    file_: {0}, bounds_frames {1}, {2}'.format(file_, len(bounds_frames), pformat(bounds_frames))))
         g['l3_segments'][file_]['seg_clust_2'] = bounds_frames
         
     # layer 4: compute onsets
     g['l4_onsets'] = OrderedDict()
     for file_ in g['l1_files']:
-        onsets = g['func'][compute_onsets_librosa](g['l1_files'][file_]['data'], sr_comp)
+        onsets = g['func'][compute_onsets_librosa](g['l1_files'][file_]['data'], args.sr_comp)
         g['l4_onsets'][file_] = onsets
 
     # layer 5: compute beats based on onsets
@@ -169,7 +213,7 @@ def main_autoedit(args):
     for file_ in g['l4_onsets']:
         g['l5_beats'][file_] = {}
         for start_bpm in [60, 90, 120]:
-            beats = g['func'][compute_beats_librosa](g['l4_onsets'][file_]['onsets_env'], g['l4_onsets'][file_]['onsets_frames'], start_bpm, sr_comp)
+            beats = g['func'][compute_beats_librosa](g['l4_onsets'][file_]['onsets_env'], g['l4_onsets'][file_]['onsets_frames'], start_bpm, args.sr_comp)
             # print('beats type = {0}'.format(type(beats['beats'])))
             # beats['beats'] = beats['beats'][np.logical_not(np.isnan(beats['beats']))]
             # beats = beats[~np.isnan(beats)]
@@ -188,7 +232,7 @@ def main_autoedit(args):
         if dirname == '':
             dirname = '.'
             
-        if verbose:
+        if args.verbose:
             print(f'main_autoedit dirname {dirname}')
             print(f'main_autoedit{spacer}l6_merge file_ {file_}, dirname {dirname}, filename {filename}')
         beats_keys = ['beats_60', 'beats_90', 'beats_120'] + ['beats_60_16', 'beats_90_16', 'beats_120_16']
@@ -198,25 +242,25 @@ def main_autoedit(args):
         segs = [g['l3_segments'][file_][seg_type_] for seg_type_ in ['seg_sbic', 'seg_clust_1', 'seg_clust_2']]
         numframes = g['l1_files'][file_]['numframes']
         # compute
-        if verbose:
+        if args.verbose:
             print(f'main_autoedit{spacer}l6_merge dirname {dirname}, filename {filename}')
         files = g['func'][compute_event_merge_combined](
             filename_48=dirname + '/' + file_,
             beats=beats,
             segs=segs,
             numframes=numframes,
-            numsegs=numsegs,
-            verbose=verbose,
+            numsegs=args.numsegs,
+            verbose=args.verbose,
         )
         
         g['l6_merge']['files'].extend(files['files'])
-        if verbose:
+        if args.verbose:
             print('main_autoedit{2}l6_merge {0}, {1}'.format(file_, g['l6_merge']['files'], spacer))
 
     # layer 7: compute assembled song from segments and duration
     g['l7_assemble'] = OrderedDict()
     # compute
-    g['l6_merge']['duration'] = duration
+    g['l6_merge']['duration'] = args.duration
     filename_short = list(g['l1_files'])[0]
     autoedit_count = autoedit_get_count(args.rootdir)
     # filename_export = f'{filename_short[:-4]}-autoedit-{autoedit_count}.wav'
@@ -231,9 +275,9 @@ def main_autoedit(args):
     # crossfade argument
     g['l6_merge']['assemble_crossfade'] = args.assemble_crossfade
 
-    if kwargs['assemble_mode'] == 'random':
+    if args.assemble_mode == 'random':
         g['l7_assemble']['outfile'] = g['func'][track_assemble_from_segments](**(g['l6_merge']))
-    elif kwargs['assemble_mode'] == 'sequential':
+    elif args.assemble_mode == 'sequential':
         g['l7_assemble']['outfile'] = g['func'][track_assemble_from_segments_sequential_scale](**(g['l6_merge']))
 
     # print((pformat(g)))
@@ -246,8 +290,8 @@ def main_autoedit(args):
     # autoedit_graph_from_dict(g=g, plot=False)
     ret = {
         'filename_': filename_export,
-        'length': 100,
-        'numsegs': 10,
+        'length': 100, # FIXME get the real length of the edit
+        'numsegs': 10, # FIXME get the real number of segments found
         'autoedit_graph': filename_export_graph
     }
     ret.update(g['l7_assemble']['outfile'])

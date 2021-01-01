@@ -31,24 +31,27 @@ memory = Memory(location, verbose=0)
 # memory = object()
 # memory.cache = timethis
 
-def autoedit_get_count():
+def autoedit_get_count(rootdir='./', verbose=False):
     """autoedit get count
 
     load autoedit count from file, if it does not exist, init zero and
     save to file.
     """
-    autoedit_count_datadir = './data/audio_sort_features'
-    autoedit_count_filename = f'{autoedit_count_datadir}/autoedit-count.txt'
+    autoedit_count_datadir = os.path.join(rootdir, 'data/audio_sort_features')
+    autoedit_count_filename = os.path.join(autoedit_count_datadir, 'autoedit-count.txt')
     if os.path.exists(autoedit_count_filename):
         autoedit_count = int(open(autoedit_count_filename, 'r').read().strip())
-        print(f'autoedit_get_count from file {autoedit_count}, {type(autoedit_count)}')
+        if verbose:
+            print(f'autoedit_get_count from file {autoedit_count}, {type(autoedit_count)}')
     else:
-        print(f'autoedit_get_count file not found, initializing')
+        if verbose:
+            print(f'autoedit_get_count file not found, initializing')
         autoedit_count = 0
         makedirs_ok = os.makedirs(autoedit_count_datadir, exist_ok=True)
-        print(f'autoedit_get_count autoedit_count = {autoedit_count}')
-        print(f'autoedit_get_count autoedit_datadir = {autoedit_count_datadir}')
-        print(f'autoedit_get_count autoedit_datadir created {makedirs_ok}')
+        if verbose:
+            print(f'autoedit_get_count autoedit_count = {autoedit_count}')
+            print(f'autoedit_get_count autoedit_datadir = {autoedit_count_datadir}')
+            print(f'autoedit_get_count autoedit_datadir created {makedirs_ok}')
         
     autoedit_count_new = autoedit_count + 1
     f = open(autoedit_count_filename, 'w')
@@ -192,7 +195,7 @@ def main_autoedit(args):
     # compute
     g['l6_merge']['duration'] = duration
     filename_short = list(g['l1_files'])[0]
-    autoedit_count = autoedit_get_count()
+    autoedit_count = autoedit_get_count(args.rootdir)
     # filename_export = f'{filename_short[:-4]}-autoedit-{autoedit_count}.wav'
     # filename_export = f'data/{filename_short[:-4]}-autoedit-{autoedit_count}.wav'
     dirname = os.path.dirname(filename)

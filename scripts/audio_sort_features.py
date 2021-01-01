@@ -1040,11 +1040,13 @@ if __name__ == "__main__":
                         default='beatiness')
     parser.add_argument("-d", "--duration", dest='duration', default=180, type=float, help="Desired duration in seconds [180]")
     parser.add_argument("-ns", "--numsegs", dest='numsegs', default=10, type=int, help="Number of segments for segmentation")
+    parser.add_argument("-r", "--rootdir", type=str, default='./', help="Root directory to prepend to all working directories [./]")
     parser.add_argument("-src", "--sr-comp", dest='sr_comp', default=22050, help="Sample rate for computations [22050]")
     parser.add_argument("-s", "--sorter", dest='sorter', default='features_mt_spectral_spread_mean', help="Sorting feature [features_mt_spectral_spread_mean]")
     parser.add_argument("--seed", dest='seed', type=int, default=123, help="Random seed [123]")
     parser.add_argument("-smin", "--seglen-min", dest='seglen_min', default=2, help="Segment length minimum in seconds [2]")
     parser.add_argument("-smax", "--seglen-max", dest='seglen_max', default=60, help="Segment length maximum in seconds [60]")
+    parser.add_argument("-v", "--verbose", dest='verbose', type=bool, default=False, help="Be verbose [False]")
     parser.add_argument("-w", "--write", dest='write', type=bool, default=False, help="Write output [False]")
     # params: numsegments, duration, minlength, maxlength, kernel params
     args = parser.parse_args()

@@ -58,11 +58,9 @@ from smp_audio.segments import compute_event_merge_combined
 from audio_features_paa import compute_features_paa
 
 from smp_audio.autoedit import main_autoedit, autoedit_conf_default
+from smp_audio.autocover import main_autocover, autocover_conf_default
 
-# caching joblib
-from joblib import Memory
-location = './cachedir'
-memory = Memory(location, verbose=0)
+from smp_audio.caching import memory
 
 # backend = 'librosa'
 backend = 'aubio'
@@ -233,7 +231,7 @@ def main_music_extractor(args):
     start = time.time()
     for filename in kwargs['filenames']:
         filename_short = filename.split('/')[-1]
-        print(('file: {0}'.format(filename_short)))
+        print(f'main_music_extractor filename_short: {filename_short}')
         # files[filename_short] = compute_tempo_beats(filename)
         # load data
         # y, sr = data_load_essentia_cached(filename)
@@ -265,7 +263,7 @@ def main_beatiness(args):
     start = time.time()
     for filename in kwargs['filenames']:
         filename_short = filename.split('/')[-1]
-        print(('file: {0}'.format(filename_short)))
+        print(f'main_beatiness filename_short {filename_short}')
         # files[filename_short] = compute_tempo_beats(filename)
         # load data
         y, sr = data_load_essentia_cached(filename)
@@ -275,12 +273,12 @@ def main_beatiness(args):
         del files[filename_short]['beats']
     end = time.time()
 
-    print(('\nThe function took {:.2f} s to compute.'.format(end - start)))
+    print(('main_beatiness\n    the function took {:.2f} s to compute.'.format(end - start)))
     # print(pformat(files))
     for k, v in list(files.items()):
         # del v['beats_intervals']
         # del v['beats_intervals']
-        print(('file {0}\n{1}'.format(k, pformat(v))))
+        print(('main_beatiness file {0}\n    {1}'.format(k, pformat(v))))
 
     # save results file to pickle
     joblib.dump(files, 'audio-beatiness-essentia-files-dict-beatiness.pkl')
@@ -627,182 +625,6 @@ def main_segtree(args):
     plt.show()
 
 
-def main_autocover(args):
-    """autocover
-
-    take an audiofile and create a cover for it using data driven
-    mapping, be able to select from different mappings
-    """
-    # autocover_recurrenceplot(args)
-    autocover_feature_matrix(args)
-
-def autocover_feature_matrix(args):
-    import librosa
-    from pyunicorn.timeseries import RecurrencePlot
-    from matplotlib.colors import LogNorm
-    kwargs = args_to_dict(args)
-    # open file compute frame based features
-    
-    print(f'autocover kwargs {pformat(kwargs)}')
-    # w, samplerate = librosa.load(kwargs['filenames'][0])
-
-    compute_features_paa_cached = memory.cache(compute_features_paa)
-    compute_music_extractor_essentia_cached = memory.cache(compute_music_extractor_essentia)
-    
-    for filename in kwargs['filenames']:
-        F, F_names, G = compute_features_paa_cached(filename)
-        print(f'F_names {pformat(F_names)}\nF {F.shape}, G {G.shape}')
-
-        feature_matrix = []
-        for i, feature_key in enumerate([
-                'zcr_mean',
-                'energy_mean',
-                'energy_entropy_mean',
-                'spectral_centroid_mean',
-                'spectral_spread_mean',
-                'spectral_entropy_mean',
-                'spectral_flux_mean',
-                'spectral_rolloff_mean',
-                'mfcc_1_mean',
-                'mfcc_2_mean',
-                'mfcc_3_mean',
-                'mfcc_4_mean',
-                'mfcc_5_mean',
-                'mfcc_6_mean',
-                'mfcc_7_mean',
-                'mfcc_8_mean',
-                'mfcc_9_mean',
-                'mfcc_10_mean',
-                'mfcc_11_mean',
-                'mfcc_12_mean',
-                'mfcc_13_mean',
-                'chroma_1_mean',
-                'chroma_2_mean',
-                'chroma_3_mean',
-                'chroma_4_mean',
-                'chroma_5_mean',
-                'chroma_6_mean',
-                'chroma_7_mean',
-                'chroma_8_mean',
-                'chroma_9_mean',
-                'chroma_10_mean',
-                'chroma_11_mean',
-                'chroma_12_mean',
-        ]):
-            feature_matrix.append(G[i])
-
-        me = compute_music_extractor_essentia_cached(filename)
-        print(f'music extractor {type(me)}')
-            
-        feature_matrix = np.array(feature_matrix)
-        print(f'feature_matrix {np.min(feature_matrix)} {np.max(feature_matrix)}')
-
-        fig = plt.figure()
-    
-        # ax2.pcolormesh(xs, ys, plotdata, cmap=plt.get_cmap("Oranges"))
-
-        nmin = np.min(feature_matrix)
-        nmax = np.max(feature_matrix)
-        ax3 = fig.add_subplot(111)
-        # ax3.imshow(np.log(feature_matrix), aspect='auto', origin='lower',
-        #            interpolation='none',
-        #            # norm=LogNorm(vmin=nmin, vmax=nmax)
-        # )
-
-        length0 = feature_matrix.shape[0]
-        length1 = feature_matrix.shape[1]
-        ys = np.linspace(0, length0, length0)
-        xs = np.linspace(0, length1, length1)
-        # ax3.pcolormesh(xs, ys, np.log(feature_matrix), cmap=plt.get_cmap("Oranges"))
-        # ax3.pcolormesh(xs, ys, np.log(feature_matrix), cmap=cc.cm['colorwheel'])
-        # mycmap = cc.cm['colorwheel']
-        mycmap = cc.cm[np.random.choice(list(cc.cm.keys()))]
-        print(f'    mycmap = {mycmap.name}')
-        ax3.pcolormesh(xs, ys, np.log(feature_matrix), cmap=mycmap)
-        ax3.set_aspect(length1/length0)
-        ax3.axis('off')
-        # ax3.set_title(os.path.basename(filename))
-        if len(os.path.dirname(filename)) > 0:
-            sep = '/'
-        else:
-            sep = ''
-            
-        fig.set_size_inches((10, 10))
-
-        for savetype in ['.pdf', '.jpg']:
-            savefilename = os.path.dirname(filename) + sep + os.path.basename(filename)[:-4] + savetype
-            print(f'saving to {savefilename}')
-            fig.savefig(savefilename, dpi=300, bbox_inches='tight')
-
-        # save as png / jpg straightaway?
-        # use inkscape to post process
-        # inkscape --export-png=11.84.0.-1.0-1.1-1_5072.884286-autoedit-11_master_16bit.png --export-dpi=400 11.84.0.-1.0-1.1-1_5072.884286-autoedit-11_master_16bit.pdf
-        
-        # plt.show()
-
-def autocover_recurrenceplot(args):
-    import librosa
-    from pyunicorn.timeseries import RecurrencePlot
-    kwargs = args_to_dict(args)
-    # open file compute frame based features
-    
-    print(f'autocover kwargs {pformat(kwargs)}')
-    filename = kwargs['filenames'][0]
-    w, samplerate = librosa.load(filename)
-
-    RecurrencePlot_cached = memory.cache(RecurrencePlot)
-    # RecurrencePlot_cached = RecurrencePlot
-    
-    framesize = 4096
-    mfcc = librosa.feature.mfcc(y=w, sr=samplerate, n_fft=framesize, hop_length=framesize, center=False)
-    rp = RecurrencePlot_cached(mfcc.T, threshold_std=0.5)
-    plotdata = rp.recurrence_matrix()
-    
-    fig = plt.figure()      
-    
-    # ax1 = fig.add_subplot(221)
-    # ax1.plot(w)
-    
-    # print ("recmat.shape", rp.recurrence_matrix().shape)
-
-    length = plotdata.shape[0]
-    
-    # ax2 = fig.add_subplot(222)
-    ax2 = fig.add_subplot(111)
-    # ax2.matshow(rp.recurrence_matrix())
-    xs = np.linspace(0, length, length)
-    ys = np.linspace(0, length, length)
-    #mycmap = plt.get_cmap("Oranges")
-    mycmap = cc.cm[np.random.choice(list(cc.cm.keys()))]
-    print(f'    mycmap = {mycmap.name}, min {plotdata.min()}, max {plotdata.max()}')
-    plotdata = plotdata + 1
-    ax2.pcolormesh(xs, ys, plotdata,
-                   norm=colors.LogNorm(vmin=plotdata.min(), vmax=plotdata.max()),
-                   cmap=mycmap)
-    ax2.set_aspect(1)
-    ax2.axis('off')
-    # ax2.set_xlabel("$n$")                                                                                    
-    # ax2.set_ylabel("$n$")
-
-    # ax3 = fig.add_subplot(223)
-    # ax3.imshow(mfcc[1:,:], aspect='auto', origin='lower', interpolation='none')
-    
-    if len(os.path.dirname(filename)) > 0:
-        sep = '/'
-    else:
-        sep = ''
-            
-    fig.set_size_inches((10, 10))
-
-    # for savetype in ['.pdf', '.jpg']:
-    for savetype in ['.jpg']:
-        savefilename = os.path.dirname(filename) + sep + os.path.basename(filename)[:-4] + savetype
-        print(f'saving to {savefilename}')
-        fig.savefig(savefilename, dpi=300, bbox_inches='tight')
-            
-    # plt.show()
-
-    
 def main_scanfiles(args):
     """main_scanfiles
 
@@ -1045,31 +867,50 @@ def main(args):
 if __name__ == "__main__":
     print(f'main {sys.argv[0]}')
     parser = argparse.ArgumentParser()
-    
-    parser.add_argument("-f", "--filenames", action='append', dest='filenames', help="Input file(s) []", nargs = '+', default = [], required=True)
-    parser.add_argument("-a", "--assemble-mode", dest='assemble_mode',
+    subparsers = parser.add_subparsers(
+        help='auto command help', dest='mode')
+
+    # autoedit 
+    subparser_autoedit = subparsers.add_parser('autoedit', help='autoedit help')
+    subparser_autoedit.add_argument("-f", "--filenames", action='append', dest='filenames', help="Input file(s) []", nargs = '+', default = [], required=True)
+    subparser_autoedit.add_argument("-a", "--assemble-mode", dest='assemble_mode',
                         help="Assemble mode [random] (random, sequential)",
                         default='random')
-    parser.add_argument("-ax", "--assemble-crossfade", dest='assemble_crossfade', type=int,
+    subparser_autoedit.add_argument("-ax", "--assemble-crossfade", dest='assemble_crossfade', type=int,
                         help="Crossfade duration in assemble [10]",
                         default=10)
+    subparser_autoedit.add_argument("-d", "--duration", dest='duration', default=180, type=float, help="Desired duration in seconds [180]")
+    subparser_autoedit.add_argument("-ns", "--numsegs", dest='numsegs', default=10, type=int, help="Number of segments for segmentation")
+    subparser_autoedit.add_argument("-src", "--sr-comp", dest='sr_comp', default=22050, help="Sample rate for computations [22050]")
+    subparser_autoedit.add_argument("-smin", "--seglen-min", dest='seglen_min', default=2, help="Segment length minimum in seconds [2]")
+    subparser_autoedit.add_argument("-smax", "--seglen-max", dest='seglen_max', default=60, help="Segment length maximum in seconds [60]")
+    subparser_autoedit.add_argument("-w", "--write", dest='write', action='store_true', default=False, help="Write output [False]")
+
+    # autocover
+    subparser_autocover = subparsers.add_parser('autocover', help='autocover help')
+    subparser_autocover.add_argument("-f", "--filenames", action='append', dest='filenames', help="Input file(s) []", nargs = '+', default = [], required=True)
+    subparser_autocover.add_argument(
+        "-acm", "--autocover-mode", dest='autocover_mode',
+        help="autocover mode [feature_matrix] (feature_matrix, recurrence_matrix)",
+        default='feature_matrix')
+
+    # autoother
+    # subparser_autocover = subparsers.add_parser('autocover', help='autocover help')
+    
+    # main, mode legacy
     parser.add_argument("-m", "--mode", dest='mode',
                         help="Feature mode [beatiness] (beatiness, music_extractor, paa_feature_extractor, autoedit, automix, autobeat, segtree, timing_read_stream, autoedit_stream)",
                         default='beatiness')
-    parser.add_argument("-d", "--duration", dest='duration', default=180, type=float, help="Desired duration in seconds [180]")
-    parser.add_argument("-ns", "--numsegs", dest='numsegs', default=10, type=int, help="Number of segments for segmentation")
-    parser.add_argument("-r", "--rootdir", type=str, default='./', help="Root directory to prepend to all working directories [./]")
-    parser.add_argument("-src", "--sr-comp", dest='sr_comp', default=22050, help="Sample rate for computations [22050]")
+    # parser.add_argument("-f", "--filenames", action='append', dest='filenames', help="Input file(s) []", nargs = '+', default = [], required=True)
     parser.add_argument("-s", "--sorter", dest='sorter', default='features_mt_spectral_spread_mean', help="Sorting feature [features_mt_spectral_spread_mean]")
+    parser.add_argument("-r", "--rootdir", type=str, default='./', help="Root directory to prepend to all working directories [./]")
     parser.add_argument("--seed", dest='seed', type=int, default=123, help="Random seed [123]")
-    parser.add_argument("-smin", "--seglen-min", dest='seglen_min', default=2, help="Segment length minimum in seconds [2]")
-    parser.add_argument("-smax", "--seglen-max", dest='seglen_max', default=60, help="Segment length maximum in seconds [60]")
     parser.add_argument("-v", "--verbose", dest='verbose', action='store_true', default=False, help="Be verbose [False]")
-    parser.add_argument("-w", "--write", dest='write', action='store_true', default=False, help="Write output [False]")
     # params: numsegments, duration, minlength, maxlength, kernel params
     args = parser.parse_args()
 
     if args.verbose:
-        print(f'main mode {args.mode}')
+        # print(f'main mode {args.mode}')
+        print(f'main args {args}')
 
     main(args)

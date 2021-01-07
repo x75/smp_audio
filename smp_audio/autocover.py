@@ -175,14 +175,12 @@ def autocover_feature_matrix(args):
             cls=NumpyEncoder,
         )
 
-        res = json.dumps(
+        res_ = json.dumps(
             feature_matrix_dict,
-            separators=(',', ':'),
-            sort_keys=True,
-            indent=4,
             cls=NumpyEncoder,
         )
-
+        res = json.loads(res_)
+        # print(f"autocover_feature_matrix res {res}")
         
         # json.dump(feature_matrix_dict, open(savefilename, 'w'))
             
@@ -191,7 +189,6 @@ def autocover_feature_matrix(args):
         # inkscape --export-png=11.84.0.-1.0-1.1-1_5072.884286-autoedit-11_master_16bit.png --export-dpi=400 11.84.0.-1.0-1.1-1_5072.884286-autoedit-11_master_16bit.pdf
         
         # plt.show()
-
         return res
 
 def autocover_recurrenceplot(args):

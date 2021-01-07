@@ -11,10 +11,23 @@ import colorcet as cc
 from smp_audio.caching import memory
 from smp_audio.util import args_to_dict, ns2kw, kw2ns
 
-from audio_features_paa import compute_features_paa
+from smp_audio.audio_features_paa import compute_features_paa
 from smp_audio.common_essentia import compute_music_extractor_essentia
 
-autocover_conf_default = {}
+# TODO: create autocover_conf_default
+autocover_conf = {
+    'default': {
+        'filenames': [],
+        'mode': 'autocover',
+        'autocover_mode': 'feature_matrix',
+        'rootdir': './',
+        'seed': 1234,
+        'sorter': 'features_mt_spectral_spread_mean',
+        'sr_comp': 22050,
+        'verbose': False,
+    },
+}
+autocover_conf_default = autocover_conf['default']
 
 class NumpyEncoder(json.JSONEncoder):
     """ Special json encoder for numpy types """
@@ -34,9 +47,9 @@ def main_autocover(args):
     mapping, be able to select from different mappings
     """
     if args.autocover_mode == 'recurrence_matrix':
-        autocover_recurrenceplot(args)
+        return autocover_recurrenceplot(args)
     elif args.autocover_mode == 'feature_matrix':
-        autocover_feature_matrix(args)
+        return autocover_feature_matrix(args)
 
 def autocover_feature_matrix(args):
     import librosa
@@ -161,7 +174,16 @@ def autocover_feature_matrix(args):
             indent=4,
             cls=NumpyEncoder,
         )
-            
+
+        res = json.dumps(
+            feature_matrix_dict,
+            separators=(',', ':'),
+            sort_keys=True,
+            indent=4,
+            cls=NumpyEncoder,
+        )
+
+        
         # json.dump(feature_matrix_dict, open(savefilename, 'w'))
             
         # save as png / jpg straightaway?
@@ -169,6 +191,8 @@ def autocover_feature_matrix(args):
         # inkscape --export-png=11.84.0.-1.0-1.1-1_5072.884286-autoedit-11_master_16bit.png --export-dpi=400 11.84.0.-1.0-1.1-1_5072.884286-autoedit-11_master_16bit.pdf
         
         # plt.show()
+
+        return res
 
 def autocover_recurrenceplot(args):
     import librosa

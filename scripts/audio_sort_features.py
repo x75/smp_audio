@@ -55,7 +55,7 @@ from smp_audio.util import args_to_dict, ns2kw, kw2ns
 from smp_audio.segments import compute_event_merge_combined
 
 # from audio_segments_split import main_audio_segments_split
-from audio_features_paa import compute_features_paa
+from smp_audio.audio_features_paa import compute_features_paa
 
 from smp_audio.autoedit import main_autoedit, autoedit_conf_default
 from smp_audio.autocover import main_autocover, autocover_conf_default
@@ -898,9 +898,9 @@ if __name__ == "__main__":
     # subparser_autocover = subparsers.add_parser('autocover', help='autocover help')
     
     # main, mode legacy
-    parser.add_argument("-m", "--mode", dest='mode',
-                        help="Feature mode [beatiness] (beatiness, music_extractor, paa_feature_extractor, autoedit, automix, autobeat, segtree, timing_read_stream, autoedit_stream)",
-                        default='beatiness')
+    # parser.add_argument("-m", "--mode", dest='mode',
+    #                     help="Feature mode [beatiness] (beatiness, music_extractor, paa_feature_extractor, autoedit, automix, autobeat, segtree, timing_read_stream, autoedit_stream)",
+    #                     default='beatiness')
     # parser.add_argument("-f", "--filenames", action='append', dest='filenames', help="Input file(s) []", nargs = '+', default = [], required=True)
     parser.add_argument("-s", "--sorter", dest='sorter', default='features_mt_spectral_spread_mean', help="Sorting feature [features_mt_spectral_spread_mean]")
     parser.add_argument("-r", "--rootdir", type=str, default='./', help="Root directory to prepend to all working directories [./]")

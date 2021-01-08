@@ -3,6 +3,7 @@
 Utility lib
 """
 import argparse
+import json
 
 # from smp_base util
 def args_to_dict(args):
@@ -24,3 +25,15 @@ def kw2ns(kw):
     for k in kw:
         setattr(ns, k, kw[k])
     return ns
+
+class NumpyEncoder(json.JSONEncoder):
+    """ Special json encoder for numpy types """
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
+

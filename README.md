@@ -1,11 +1,15 @@
 smp\_audio
 ==========
 
-A playground for designing audio tools, *smp\_audio* is part of the smp project, a set of conventions about sensorimotor learning and developmental models used in robotics research. Auditory perception is an important function for robots, but there are clear side-effects. For example, the modules a robot needs to "hear" things, can used to build audio- and music tools for consumers and pros with novel properties. That is the idea, that this project tries to validate.
+The audio tooling playground within the **sensorimotor primitives** (smp) family of packages [1]. They come out of a sensorimotor approach to learning and development on robots.
 
-The smp approach is shaped by rapid-prototyping and functional proofing. Optimization issues are defered entirely to later stages, generally assuming them possible-if-justified. The approach is fundamentally graphical and only informally defined beyond this fact. Algorithms and processing flows are modelled as graphs whose nodes comprise function calls on impinging data. This project consists of a set of library functions in the \`smp\_audio\` directory, and experimental processing flows in the \`scripts\` directory, making use of library calls to build apps and usage examples.
+Auditory perception is an extremely important modality that has not seen the attention it deserves in robotics. There is a large overlap in modeling robot perception and computer music processes. smp\_audio is a collection of batch algorithms for audio processing tasks based on techniques pulled from MIR and machine listening.
 
-Within smp, third party libraries are liberally used to realize the *rapid* aspect, at the cost of stability and ease of installation. The library wraps different MIR functions from several existing implementations, currently essentia, librosa, madmom, aubio, pyAudioAnalysis. These wrappers are complemented with additional glue and integration functions.
+This is research code and was created on a functional proofing mindset bent to radically rapid prototyping. Processing flows are modeled graphically where nodes comprise function calls on impinging data. There exist several versions of the graphical language strewn across different smp projects with different levels of language rigor. Still WIP, but hey.
+
+This means we are using third party libraries without limit in the project, which is easy working from within a well used Python environment [2]. smp\_audio is wrapping around a number of established audio processing libraries: aubio, essentia, librosa, pyAudioAnalysis, madmom, and a few more specialized ones. These are all well maintained and generally easy to install.
+
+The \`smp\_audio\` directory contains the wrapping code and glue to provide the underlying API to the processing flows defined in the files in the \`scripts\` directory.
 
 Install
 -------
@@ -24,7 +28,7 @@ or just using pip
 sudo pip3 install numpy scipy matplotlib pandas sklearn
 ```
 
-Part two is the audio and MIR specific packages, which I install with pip directly
+Part two is the audio and MIR specific packages, which I install using pip directly
 
 ``` example
 sudo pip3 install -r requirements.txt essentia librosa madmom aubio pyAudioAnalysis
@@ -46,7 +50,7 @@ To finish, add the module path to your PYTHONPATH by running
 export PYTHONPATH=/path/to/cloned/smp_audio:$PYTHONPATH
 ```
 
-In case you come back, this can be added to your shell profile.
+In case you come back to using the package, the export line above can be added to your login profile (~/.bashrc or similar).
 
 Quick start
 -----------
@@ -76,47 +80,79 @@ Current assembly modes are primitive at best, autoedit uses random and sequentia
 
 TODO: Consolidation of randomly disparate functionality is work-in-progress.
 
-Modules and workflows
----------------------
+Workflows
+---------
 
-The scripts folder contains prototypes for different music related workflows, e.g. automixing (quantitative measure based playlist sequencing), or autoedit (beat-tracking and segmentation based automatic editing and arrangement to duration of choice from raw audio session that is shorter or longer than output duration).
+The scripts folder contains several workflows. Those that work are the in `audio_sort_features.py` file that you can run and which has a help to tell you how to call it.
 
-| **tag**          |                                            | desc                                                                                  |
-|------------------|--------------------------------------------|---------------------------------------------------------------------------------------|
-| **scripts**      |                                            | smp\_audio scripts                                                                    |
-| **tools**        |                                            | additional tools to support larger scopes and additional processing steps             |
-| silence-splitter |                                            | split a large audio file (&gt; 1h) into smaller parts (e.g. 10') based on silence     |
-|                  |                                            | detection                                                                             |
-|                  | sox                                        | silence plugin command line                                                           |
-|                  |                                            | : sox -V3 audiofile.wav audiofile\_part\_.wav silence -l 0 1 2.0 0.1%                 |
-|                  | aubio quiet                                | aubio quiet - analyze audio and print timestamps w/ onsets of silence and noise parts |
-|                  |                                            | needs to be converted to input for a slicer or aubiocut                               |
-|                  |                                            | : aubio quiet filename.wav                                                            |
-|                  | aubio cut                                  | aubiocut cuts audio at every onset incl. option for beat alignment                    |
-|                  |                                            |                                                                                       |
-| downloaders      |                                            |                                                                                       |
-|                  | soundscrape                                | soundcloud and bandcamp downloader                                                    |
-|                  |                                            | <https://github.com/Miserlou/SoundScrape>                                             |
-|                  |                                            | : sudo pip3 install SoundScrape                                                       |
-|                  | youtube-dl                                 | versatile youtube downloader                                                          |
-|                  |                                            |                                                                                       |
-| OBSOLETE         |                                            |                                                                                       |
-|                  | playground/music\_beats.py                 | stub                                                                                  |
-|                  | playground/music\_features\_print\_list.py |                                                                                       |
-|                  | playground/music\_features.py              | collection of different sound parsing experiments                                     |
-|                  | librosa-onset-detect-1.py                  |                                                                                       |
-|                  | librosa-onset-onset\_detect-1.py           | final version using librosa/madmon/essentia for beat tracking and segmentation        |
-|                  | librosa-onset-onset\_strength-1.py         |                                                                                       |
-|                  | librosa-onset-onset\_strength\_multi-1.py  |                                                                                       |
-|                  |                                            |                                                                                       |
-|                  | moved all files to start with music\_      |                                                                                       |
-|                  | copied all files to smp\_audio/scripts     |                                                                                       |
+**autoedit** (beat-tracking and segmentation based automatic editing and arrangement to duration of choice from raw audio session that is shorter or longer than output duration).
 
-Process prototype
------------------
+**autofeatures**, load file and return a set of features computed for this file.
 
--   read file
--   apply iterative analyses to dynamically build graph of music data
+**autocover**, get autofeatures and map the feature values to an image generation process to create a hi-res square graphics file that can be used as a cover image for music on the internet, or whatever.
+
+**automaster**, is wrapping the grandiose matchering library. matchering transforms your target file according to the mastering signature extracted from the reference file.
+
+WIP **autovoice**
+
+WIP **automix** (quantitative measure based playlist sequencing)
+
+### slicing audio
+
+Depending on your resources, it is often convenient to split very long files into shorter parts of maybe an hour length.
+
+sox command line w/ silence plugin
+
+``` example
+sox -V3 audiofile.wav audiofile_part_.wav silence -l  0 1 2.0 0.1%
+```
+
+aubio quiet
+
+analyze audio and print the onset timestamps of silence and noise parts
+
+``` example
+aubio quiet filename.wav
+```
+
+aubio cut
+
+aubiocut analyzes audio for different onset functions and can optionally cut the file at each onset and save into a separate file each.
+
+### downloading audio
+
+**youtube-dl**, versatile youtube downloader, one of the best and nicest computer programs in the world.
+
+**ffmpeg**, another indispensable and super versatile tool for working with audio, media, streams, and containers. it can do everything.
+
+**soundscrape**, soundcloud and bandcamp downloader, similar to youtube-dl but more narrow in scope and maybe less well maintained recently [3]
+
+``` example
+sudo pip3 install SoundScrape
+```
+
+Notes
+-----
+
+### 2021-01-08 refactor api
+
+refactoring for api integration
+
+python3 *home/src/QK/smp\_audio/scripts/audio\_sort\_features.py automaster --bitdepth 24 --filenames data/GuitarRiff2\_50bpm-autoedit-10.wav --references ..*../../nextcloud/gt/work/automaster/refs/rae-sremmurd-notype.wav
+
+### <span class="todo TODO">TODO</span> thumbnailing
+
+provided by pyAudioAnalysis, running
+
+``` example
+python3 audioAnalysis.py thumbnail --input /path/to/file.wav
+```
+
+produces a thumbnail image and two thumbnail wav snippets in /path/to/file\_thumbnail\*
+
+### <span class="todo TODO">TODO</span> stream processing
+
+switch the entire internal data flow to stream based processing and implement batch versions as a separate option.
 
 ### Caching
 
@@ -141,19 +177,11 @@ import librosa
 
 python3 scripts/aubio\_cut.py --mode scan --quiet --bufsize 2048 --hopsize 256 /home/lib/audio/work/tsx\_recur\_5/sco-base.wav
 
-Notes
------
+footnotes
+=========
 
-### <span class="todo TODO">TODO</span> thumbnailing
+[1] citation needed
 
-provided by pyAudioAnalysis, running
+[2] The price is that it's a pain to install. My strategy is to not install all the requirements but run the script i want to run, and fix out the issues one by one until free.
 
-``` example
-python3 audioAnalysis.py thumbnail --input /path/to/file.wav
-```
-
-produces a thumbnail image and two thumbnail wav snippets in /path/to/file\_thumbnail\*
-
-### <span class="todo TODO">TODO</span> stream processing
-
-switch the entire internal data flow to stream based processing and implement batch versions as a separate option.
+[3] <https://github.com/Miserlou/SoundScrape>

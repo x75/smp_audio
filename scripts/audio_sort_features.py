@@ -59,6 +59,7 @@ from smp_audio.audio_features_paa import compute_features_paa
 
 from smp_audio.autoedit import main_autoedit, autoedit_conf_default
 from smp_audio.autocover import main_autocover, autocover_conf_default
+from smp_audio.automaster import main_automaster, automaster_conf_default
 
 from smp_audio.caching import memory
 
@@ -843,6 +844,8 @@ def main(args):
         _main = main_autoedit_stream
     elif args.mode == 'autocover':
         _main = main_autocover
+    elif args.mode == 'automaster':
+        _main = main_automaster
     elif args.mode == 'autoargs':
         _main = main_autoargs
     else:
@@ -894,14 +897,18 @@ if __name__ == "__main__":
         help="autocover mode [feature_matrix] (feature_matrix, recurrence_matrix)",
         default='feature_matrix')
 
-    # autoother
-    # subparser_autocover = subparsers.add_parser('autocover', help='autocover help')
-    
-    # main, mode legacy
-    # parser.add_argument("-m", "--mode", dest='mode',
-    #                     help="Feature mode [beatiness] (beatiness, music_extractor, paa_feature_extractor, autoedit, automix, autobeat, segtree, timing_read_stream, autoedit_stream)",
-    #                     default='beatiness')
-    # parser.add_argument("-f", "--filenames", action='append', dest='filenames', help="Input file(s) []", nargs = '+', default = [], required=True)
+    # automaster
+    subparser_automaster = subparsers.add_parser('automaster', help='automaster help')
+    subparser_automaster.add_argument("-b", "--bitdepth", dest='bitdepth', default=24, help="Bitdepth for computations [24] (16|24)")
+    subparser_automaster.add_argument(
+        "-f", "--filenames",
+        action='append', dest='filenames', help="Input file(s) []",
+        nargs = '+', default = [], required=True)
+    subparser_automaster.add_argument(
+        "-r", "--references",
+        action='append', dest='references', help="reference file(s) []",
+        nargs = '+', default=[], required=True)
+
     parser.add_argument("-s", "--sorter", dest='sorter', default='features_mt_spectral_spread_mean', help="Sorting feature [features_mt_spectral_spread_mean]")
     parser.add_argument("-r", "--rootdir", type=str, default='./', help="Root directory to prepend to all working directories [./]")
     parser.add_argument("--seed", dest='seed', type=int, default=123, help="Random seed [123]")

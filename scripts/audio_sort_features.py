@@ -34,6 +34,7 @@ import audioread
 
 from librosa import samples_to_frames, time_to_frames, frames_to_time
 
+from smp_audio.common import autofilename
 from smp_audio.common_essentia import data_load_essentia
 from smp_audio.common_essentia import compute_segments_essentia
 from smp_audio.common_essentia import compute_tempo_beats_essentia, compute_music_extractor_essentia
@@ -862,7 +863,9 @@ def main(args):
 
         print(f'ret = {pformat(ret)}')
     else:
-        args.filenames = args.filenames[0]
+        args.filenames = args.filenames[0] # ???
+        args.filename_export = autofilename(args)
+
     
         ret = _main(args)
         # plt.show()

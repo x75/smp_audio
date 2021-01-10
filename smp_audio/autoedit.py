@@ -9,6 +9,7 @@ import joblib
 import numpy as np
 from librosa import samples_to_frames, time_to_frames, frames_to_time
 
+from smp_audio.common import autocount
 from smp_audio.common_essentia import data_load_essentia
 from smp_audio.util import args_to_dict, ns2kw, kw2ns
 from smp_audio.common_librosa import compute_segments_librosa, compute_chroma_librosa, compute_beats_librosa, compute_onsets_librosa
@@ -60,34 +61,6 @@ autoedit_conf_types_float = ['assemble_crossfade', 'duration']
 autoedit_conf_types_int = ['numsegs', 'seed', 'seglen_max', 'seglen_min', 'sr_comp']
 autoedit_conf_default = autoedit_conf['default']
 
-def autoedit_get_count(rootdir='./', verbose=False):
-    """autoedit get count
-
-    load autoedit count from file, if it does not exist, init zero and
-    save to file.
-    """
-    autoedit_count_datadir = os.path.join(rootdir, 'data/autoedit')
-    autoedit_count_filename = os.path.join(autoedit_count_datadir, 'autoedit-count.txt')
-    if os.path.exists(autoedit_count_filename):
-        autoedit_count = int(open(autoedit_count_filename, 'r').read().strip())
-        if verbose:
-            print(f'autoedit_get_count from file {autoedit_count}, {type(autoedit_count)}')
-    else:
-        if verbose:
-            print(f'autoedit_get_count file not found, initializing')
-        autoedit_count = 0
-        makedirs_ok = os.makedirs(autoedit_count_datadir, exist_ok=True)
-        if verbose:
-            print(f'autoedit_get_count autoedit_count = {autoedit_count}')
-            print(f'autoedit_get_count autoedit_datadir = {autoedit_count_datadir}')
-            print(f'autoedit_get_count autoedit_datadir created {makedirs_ok}')
-        
-    autoedit_count_new = autoedit_count + 1
-    f = open(autoedit_count_filename, 'w')
-    f.write(f'{autoedit_count_new}\n')
-    f.flush()
-    return autoedit_count
-
 def autoedit_args_check(args):
     """autoedit_args_check
 
@@ -135,7 +108,7 @@ def main_autoedit(args):
     
     # caching
     # compute_music_extractor_essentia_cached = memory.cache(compute_music_extractor_essentia)
-
+    
     # computation graph g
     g = OrderedDict()
 
@@ -259,19 +232,10 @@ def main_autoedit(args):
 
     # layer 7: compute assembled song from segments and duration
     g['l7_assemble'] = OrderedDict()
-    # compute
+    # compute duration
     g['l6_merge']['duration'] = args.duration
-    filename_short = list(g['l1_files'])[0]
-    autoedit_count = autoedit_get_count(args.rootdir)
-    # filename_export = f'{filename_short[:-4]}-autoedit-{autoedit_count}.wav'
-    # filename_export = f'data/{filename_short[:-4]}-autoedit-{autoedit_count}.wav'
-    dirname = os.path.dirname(filename)
-    filename_export = os.path.join(
-        dirname,
-        'data',
-        f'{filename_short[:-4]}-autoedit-{autoedit_count}.wav'
-    )
-    g['l6_merge']['filename_export'] = filename_export
+    # output filename
+    g['l6_merge']['filename_export'] = args.filename_export
     # crossfade argument
     g['l6_merge']['assemble_crossfade'] = args.assemble_crossfade
 

@@ -4,6 +4,7 @@ Utility lib
 """
 import argparse
 import json
+import numpy as np
 
 # from smp_base util
 def args_to_dict(args):

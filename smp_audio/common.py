@@ -22,7 +22,7 @@ Abstract interface
 
 - beats_to_bpm
 """
-
+import os
 from smp_base.impl import smpi
 # import logging
 logging = smpi('logging')
@@ -80,3 +80,74 @@ def get_module_logger(modulename = 'experiment', loglevel = logging.INFO):
     # suppress double log output 
     logger.propagate = False
     return logger
+
+def autoedit_get_count(rootdir='./', verbose=False):
+    """autoedit get count
+
+    load autoedit count from file, if it does not exist, init zero and
+    save to file.
+    """
+    autoedit_count_datadir = os.path.join(rootdir, 'data/autoedit')
+    autoedit_count_filename = os.path.join(autoedit_count_datadir, 'autoedit-count.txt')
+    if os.path.exists(autoedit_count_filename):
+        autoedit_count = int(open(autoedit_count_filename, 'r').read().strip())
+        if verbose:
+            print(f'autoedit_get_count from file {autoedit_count}, {type(autoedit_count)}')
+    else:
+        if verbose:
+            print(f'autoedit_get_count file not found, initializing')
+        autoedit_count = 0
+        makedirs_ok = os.makedirs(autoedit_count_datadir, exist_ok=True)
+        if verbose:
+            print(f'autoedit_get_count autoedit_count = {autoedit_count}')
+            print(f'autoedit_get_count autoedit_datadir = {autoedit_count_datadir}')
+            print(f'autoedit_get_count autoedit_datadir created {makedirs_ok}')
+        
+    autoedit_count_new = autoedit_count + 1
+    f = open(autoedit_count_filename, 'w')
+    f.write(f'{autoedit_count_new}\n')
+    f.flush()
+    return autoedit_count
+
+def autocount(basedir='./', autoname='autoedit', verbose=False):
+    """autocount
+
+    Get session count
+
+    Load the session count for a given session name from file, if it
+    does not exist, initialize and create the path to the file.
+    """
+    datadir = os.path.join(basedir, 'data', autoname)
+    filename = os.path.join(datadir, 'count.txt')
+    if os.path.exists(filename):
+        count = int(open(filename, 'r').read().strip())
+        if verbose:
+            print(f'autocount = {count}, {type(count)}')
+    else:
+        if verbose:
+            print(f'autocount does not exist, initializing')
+        count = 0
+        makedirs_ok = os.makedirs(datadir, exist_ok=True)
+        if verbose:
+            print(f'autocount count = {count}')
+            print(f'autocount datadir = {datadir}')
+            print(f'autocount datadir created {makedirs_ok}')
+        
+    count += 1
+    f = open(filename, 'w')
+    f.write(f'{count}\n')
+    f.flush()
+    return count
+
+def autofilename(args):
+    print(f"smp_audio.common.autofilename args {args}")
+    dirname = os.path.dirname(args.filenames[0])
+    filename = os.path.basename(args.filenames[0])
+    filename_noext = filename.split('.')[-2]
+    count = autocount(basedir=args.rootdir, autoname=args.mode)
+    filename_export = os.path.join(
+        dirname,
+        'data',
+        f'{filename_noext}-{args.mode}-{count}-{args.seed}.wav'
+    )
+    return filename_export

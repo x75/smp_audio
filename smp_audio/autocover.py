@@ -10,6 +10,7 @@ import colorcet as cc
 
 from smp_audio.caching import memory
 from smp_audio.util import args_to_dict, ns2kw, kw2ns
+from smp_audio.util import NumpyEncoder
 
 from smp_audio.audio_features_paa import compute_features_paa
 from smp_audio.common_essentia import compute_music_extractor_essentia
@@ -169,7 +170,9 @@ def autocover_feature_matrix(args):
             cls=NumpyEncoder,
         )
         res = json.loads(res_)
-        # print(f"autocover_feature_matrix res {res}")
+        
+        print(f"autocover_feature_matrix res {type(res)}")
+        print(f"autocover_feature_matrix res {res.keys()}")
         
         # json.dump(feature_matrix_dict, open(savefilename, 'w'))
             

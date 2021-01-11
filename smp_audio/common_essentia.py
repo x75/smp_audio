@@ -10,7 +10,7 @@ from logging import DEBUG as LOGLEVEL
 from smp_audio.common import get_module_logger
 l = get_module_logger('smp_audio.common_essentia', LOGLEVEL)
 
-def data_load_essentia(filename, duration=None, offset=0.0):
+def data_load_essentia(filename, duration=None, offset=0.0, sr=22050, mono=True, **kwargs):
     """data_load_essentia
 
     Data load with essentia loader

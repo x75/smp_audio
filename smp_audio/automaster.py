@@ -42,7 +42,8 @@ def main_automaster(args):
     
     for target_i, target in enumerate(args.filenames):
         reference = references[target_i]
-        result_filename = f"{target[:-4]}_master{args.bitdepth}.wav"
+        # result_filename = f"{target[:-4]}_master{args.bitdepth}.wav"
+        result_filename = args.filename_export
 
         print(f"main_automaster target {target}, reference {reference}, bitdepth {args.bitdepth}")
 

@@ -11,6 +11,7 @@ from librosa import samples_to_frames, time_to_frames, frames_to_time
 
 from smp_audio.common import autocount
 from smp_audio.common_essentia import data_load_essentia
+from smp_audio.common_librosa import data_load_librosa
 from smp_audio.util import args_to_dict, ns2kw, kw2ns
 from smp_audio.common_librosa import compute_segments_librosa, compute_chroma_librosa, compute_beats_librosa, compute_onsets_librosa
 from smp_audio.common_essentia import compute_segments_essentia
@@ -121,6 +122,7 @@ def main_autoedit(args):
             compute_segments_essentia,
             compute_segments_librosa,
             data_load_essentia,
+            data_load_librosa,
     ]:
         g['func'][func] = memory.cache(func)
 
@@ -143,7 +145,8 @@ def main_autoedit(args):
         # y, sr = data_load_essentia_cached(filename)
         # compute beatiness on data
         g['l1_files'][filename_short] = {}
-        tmp_ = g['func'][data_load_essentia](filename)
+        # tmp_ = g['func'][data_load_essentia](filename, sr=args.sr_comp)
+        tmp_ = g['func'][data_load_librosa](filename, sr=args.sr_comp)
         g['l1_files'][filename_short]['data'] = tmp_[0]
         g['l1_files'][filename_short]['numsamples'] = len(tmp_[0])
         g['l1_files'][filename_short]['numframes'] = samples_to_frames(len(tmp_[0]))

@@ -40,7 +40,7 @@ def data_get_filename(args):
     else:
         return args[0]
 
-def data_load_librosa(filename, duration=None, offset=0.0, **kwargs):
+def data_load_librosa(filename, duration=None, offset=0.0, sr=22050, mono=True, **kwargs):
     """data_load_librosa
 
     Data load with librosa loader
@@ -63,11 +63,11 @@ def data_load_librosa(filename, duration=None, offset=0.0, **kwargs):
     #     # args.duration = 10.0
     #     filename = data_get_filename(args)
     #     duration = args.duration
-
-    myprint('Loading %ss of audio file %s' % (duration, filename))
-    
-    y, sr = librosa.load(filename, offset=offset, duration=duration)
-    myprint('Loaded audio file with %s samples at rate %d' % (y.shape, sr))
+    myprint(f'data_load_librosa: loading {filename}') 
+    y, sr = librosa.load(
+        filename, sr=sr, mono=mono,
+        offset=offset, duration=duration)
+    myprint('data_load_librosa: loaded audio %s samples / %f seconds at rate %d' % (y.shape, y.shape[0]/sr, sr))
     return y, sr
 
 def data_stream_librosa(**kwargs):

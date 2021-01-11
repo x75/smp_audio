@@ -112,12 +112,14 @@ def autoedit_get_count(rootdir='./', verbose=False):
 def autocount(basedir='./', autoname='autoedit', verbose=False):
     """autocount
 
-    Get session count
+    Get a count on how many times a mode has been run in a given
+    context.
 
     Load the session count for a given session name from file, if it
     does not exist, initialize and create the path to the file.
     """
-    datadir = os.path.join(basedir, 'data', autoname)
+    # datadir = os.path.join(basedir, 'data', autoname)
+    datadir = os.path.join(basedir, autoname)
     filename = os.path.join(datadir, 'count.txt')
     if os.path.exists(filename):
         count = int(open(filename, 'r').read().strip())
@@ -140,14 +142,20 @@ def autocount(basedir='./', autoname='autoedit', verbose=False):
     return count
 
 def autofilename(args):
-    print(f"smp_audio.common.autofilename args {args}")
+    """autofilename
+
+    Create an output filename from the first input file, the mode, the
+    count and the seed.
+    """
+    if args.verbose:
+        print(f"smp_audio.common.autofilename args {args}")
     dirname = os.path.dirname(args.filenames[0])
     filename = os.path.basename(args.filenames[0])
     filename_noext = filename.split('.')[-2]
     count = autocount(basedir=args.rootdir, autoname=args.mode)
     filename_export = os.path.join(
         dirname,
-        'data',
+        # 'data',
         f'{filename_noext}-{args.mode}-{count}-{args.seed}.wav'
     )
     return filename_export

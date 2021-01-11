@@ -258,13 +258,12 @@ def compute_event_merge_index_to_file(**kwargs):
 
     # compute basedir for writing segment files to disk
     filename_48_dir = os.path.dirname(filename_48)
-    filename_48_dir_data = os.path.join(filename_48_dir, 'data')
     filename_48_base = os.path.basename(filename_48)
     filename_48_base_list = filename_48_base.split('.')
     filename_48_base_name = ".".join(filename_48_base_list[:-1])
     filename_48_base_type = filename_48_base_list[-1]
     suflen = len(filename_48_base_type)+1
-    filename_48_dir_data_segs = os.path.join(filename_48_dir, 'data/segs')
+    filename_48_dir_data_segs = os.path.join(filename_48_dir, 'segs')
     if not os.path.exists(filename_48_dir_data_segs):
         # os.makedirs(filename_48_dir_data)
         os.makedirs(filename_48_dir_data_segs)
@@ -272,7 +271,6 @@ def compute_event_merge_index_to_file(**kwargs):
     if verbose:
         print('segments.compute_event_merge_index_to_file')
         print(f'    filename_48_dir {filename_48_dir}')
-        print(f'    filename_48_dir_data {filename_48_dir_data}')
         print(f'    filename_48_dir_data {filename_48_dir_data_segs}')
         print(f'    filename_48_base {filename_48_base}')
         print(f'    filename_48_base_list {filename_48_base_list}')

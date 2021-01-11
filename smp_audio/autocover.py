@@ -42,22 +42,23 @@ def main_autocover(args):
         return autocover_feature_matrix(args)
 
 def autocover_feature_matrix(args):
-    import librosa
-    from pyunicorn.timeseries import RecurrencePlot
-    from matplotlib.colors import LogNorm
-    kwargs = args_to_dict(args)
-    # open file compute frame based features
-    
-    print(f'autocover kwargs {pformat(kwargs)}')
-    # w, samplerate = librosa.load(kwargs['filenames'][0])
+    # import librosa
 
+    kwargs = args_to_dict(args)
+
+    if args.verbose:
+        print(f'autocover kwargs {pformat(kwargs)}')
+        
+    # open file compute frame based features
+    # w, samplerate = librosa.load(kwargs['filenames'][0])
     compute_features_paa_cached = memory.cache(compute_features_paa)
-    compute_music_extractor_essentia_cached = memory.cache(compute_music_extractor_essentia)
+    # compute_music_extractor_essentia_cached = memory.cache(compute_music_extractor_essentia)
     
     for filename in kwargs['filenames']:
-        F, F_names, G = compute_features_paa_cached(filename)
-        print(f'autocover F_names {pformat(F_names)}')
-        print(f'autocover F.shape {F.shape}, G.shape {G.shape}')
+        F, F_names, G, F_time, G_time = compute_features_paa_cached(filename, with_timebase=True)
+        if args.verbose:
+            print(f'autocover F_names {pformat(F_names)}')
+            print(f'autocover F.shape {F.shape}, G.shape {G.shape}')
 
         feature_matrix = []
         feature_matrix_dict = {}
@@ -99,12 +100,15 @@ def autocover_feature_matrix(args):
             feature_matrix.append(G[i])
             feature_matrix_dict[feature_key] = G[i]
 
+        feature_matrix_dict['t_seconds'] = G_time
+            
         # # not used?
         # me = compute_music_extractor_essentia_cached(filename)
         # print(f'autocover music extractor {type(me)}')
             
         feature_matrix = np.array(feature_matrix)
-        print(f'autocover feature_matrix {np.min(feature_matrix)} {np.max(feature_matrix)}')
+        if args.verbose:
+            print(f'autocover feature_matrix {np.min(feature_matrix)} {np.max(feature_matrix)}')
 
         if len(os.path.dirname(filename)) > 0:
             sep = '/'
@@ -150,7 +154,9 @@ def autocover_feature_matrix(args):
                 print(f'autocover saving to {savefilename}')
                 fig.savefig(savefilename, dpi=300, bbox_inches='tight')
 
-        savefilename = os.path.dirname(filename) + sep + os.path.basename(filename)[:-4] + '.json'
+        # savefilename = os.path.dirname(filename) + sep + os.path.basename(filename)[:-4] + '.json'
+        savefilename = args.filename_export[:-4] + '.json'
+        
         # dumped = json.dumps(feature_matrix_dict, cls=NumpyEncoder)
         # with open(savefilename, 'w') as f:
         #     json.dump(dumped, f)
@@ -170,22 +176,23 @@ def autocover_feature_matrix(args):
             cls=NumpyEncoder,
         )
         res = json.loads(res_)
-        
-        print(f"autocover_feature_matrix res {type(res)}")
-        print(f"autocover_feature_matrix res {res.keys()}")
+
+        if args.verbose:
+            print(f"autocover_feature_matrix res {type(res)}")
+            print(f"autocover_feature_matrix res {res.keys()}")
         
         # json.dump(feature_matrix_dict, open(savefilename, 'w'))
             
         # save as png / jpg straightaway?
         # use inkscape to post process
         # inkscape --export-png=11.84.0.-1.0-1.1-1_5072.884286-autoedit-11_master_16bit.png --export-dpi=400 11.84.0.-1.0-1.1-1_5072.884286-autoedit-11_master_16bit.pdf
-        
         # plt.show()
         return res
 
 def autocover_recurrenceplot(args):
     import librosa
     from pyunicorn.timeseries import RecurrencePlot
+    from matplotlib.colors import LogNorm
     kwargs = args_to_dict(args)
     # open file compute frame based features
     

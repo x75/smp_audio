@@ -2,24 +2,47 @@ import argparse
 from pyAudioAnalysis import audioBasicIO
 from pyAudioAnalysis import audioFeatureExtraction
 import matplotlib.pyplot as plt
+import numpy as np
 
-def compute_features_paa(filename):
+def compute_features_paa(filename, with_timebase=False):
+    """compute_features_paa
+
+    Compute a bag of standard audio features to be used for some
+    downstream task.
+    """
     print('Loading from {0}'.format(filename))
     [Fs, x_] = audioBasicIO.readAudioFile(filename)
-    print('Loaded from {0} data x_ = {1}'.format(filename, x_.shape))
+    print('compute_features_paa: loaded {1} samples from {0}'.format(filename, x_.shape))
     if len(x_.shape) > 1 and x_.shape[1] > 1:
         x = audioBasicIO.stereo2mono(x_)
     else:
         x = x_
+    x_duration = x.shape[0]/Fs
+    print(f'compute_features_paa: {x_duration} seconds of audio at {Fs}Hz')
 
-    # F, F_names = audioFeatureExtraction.stFeatureExtraction(x, Fs, 0.050*Fs, 0.025*Fs)
-    G, F, F_names = audioFeatureExtraction.mtFeatureExtraction(x, Fs, 1.0*Fs, 0.5*Fs, 0.050*Fs, 0.025*Fs)
-    # F = G[1]
+    mt_win = 1.0*Fs
+    mt_step = 0.5*Fs
+    st_win = 0.050*Fs
+    st_step = 0.025*Fs
+    # F, F_names = audioFeatureExtraction.stFeatureExtraction(x, Fs, st_win, st_step)
+    G, F, F_names = audioFeatureExtraction.mtFeatureExtraction(x, Fs, mt_win, mt_step, st_win, st_step)
 
-    print(('F = {0}'.format(F)))
-    print(('G = {0}, {1}'.format(len(G), G)))
+    if with_timebase:
+        G_time = np.linspace(0, G.shape[1] * 0.5, G.shape[1] + 1)
+        F_time = np.linspace(0, F.shape[1] * 0.025, F.shape[1] + 1)
+    else:
+        G_time = None
+        F_time = None
 
-    return F, F_names, G
+    print(f'compute_features_paa: F = {F.shape} {F}')
+    print(f'compute_features_paa:     {F_time}')
+    print(f'compute_features_paa: G = {G.shape} {G}')
+    print(f'compute_features_paa:     {G_time}')
+
+    if with_timebase:
+        return F, F_names, G, F_time, G_time
+    else:
+        return F, F_names, G
     
 def plot_features_st_paa(F, F_names, filename):
     num_st = 8

@@ -227,6 +227,7 @@ def main_autoedit(args):
             numframes=numframes,
             numsegs=args.numsegs,
             verbose=args.verbose,
+            sr_comp=args.sr_comp
         )
         
         g['l6_merge']['files'].extend(files['files'])

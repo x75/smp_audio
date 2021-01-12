@@ -228,16 +228,21 @@ def compute_event_merge_heuristics(**kwargs):
 def compute_event_merge_index_to_file(**kwargs):
     """compute_event_merge_index_to_file
 
-    Compute event merge mapping from the indices to the file
+    Mapping the edit segments into single file and export
     """
     # collect input into local variables    
     ind_ = kwargs['ind_']
     # ind2_ = kwargs['ind2_']
     filename_48 = kwargs['filename_48']
     verbose = kwargs['verbose']
+
+    # samplerate used for analysis
+    sr_comp = 22050
+    if 'sr_comp' in kwargs:
+        sr_comp = kwargs['sr_comp']
     
     if verbose:
-        print(f'    compute_event_merge_index_to_file filename_48 = {filename_48}')
+        print(f'segments.compute_event_merge_index_to_file filename_48 = {filename_48}')
     
     # ind_cut = librosa.frames_to_samples(ind)
     # ind_cut = librosa.frames_to_samples(ind.tolist() + [numframes-1])
@@ -246,14 +251,17 @@ def compute_event_merge_index_to_file(**kwargs):
     ind_cut = librosa.frames_to_samples(ind_) # FIXME: hardcoded choice ind2 (smaller segments / more events)
 
     # load high-quality data
-    y_48, sr_48 = librosa.load(filename_48, sr=None, mono=False)
-    # print('y_48 {0}, sr_48 {1}'.format(y_48, sr_48))
-    # assert more than one sample in the file and stereo channels (FIXME)
+    # y_48, sr_48 = librosa.load(filename_48, sr=None, mono=False)
+    y_48, sr_48 = soundfile.read(filename_48, always_2d=True)
+    y_48 = y_48.T
+    # print(f'compute_event_merge_index_to_file y_48 {y_48.shape}, sr_48 {sr_48}')
+    
+    # TODO multichannel
     assert len(y_48.shape) > 1 and y_48.shape[0] == 2
     
     # convert sample indices for samplerate
     # FIXME: global parameters analysis-rate 22050, input-file-rate 48000
-    ind_cut_48 = (ind_cut * (48000/22050)).astype(int)
+    ind_cut_48 = (ind_cut * (sr_48/sr_comp)).astype(int)
     ind_cut_48.sort()
 
     # compute basedir for writing segment files to disk
@@ -281,17 +289,12 @@ def compute_event_merge_index_to_file(**kwargs):
     # loop over segments, grab the data and write into a wav file
     ret = []
     for i in range(1, len(ind_cut_48)):
-        # if i < 1:
-        #     i_start = 0
-        # else:
         i_start = ind_cut_48[i-1]
 
         # temporary segment buf
         tmp_ = y_48[:,i_start:ind_cut_48[i]]
 
         # compute filename for segment file
-        # outfilename = 'data/' + filename_48[:-4] + "-seg-%d.wav" % (i)
-        # outfilename =  f"{filename_48_dir}/data/{filename_48_base_name}-seg-{i}.wav"
         outfilename =  f"{filename_48_base_name}-seg-{i}.wav"
         outfilename =  os.path.join(
             filename_48_dir_data_segs,
@@ -314,7 +317,7 @@ def compute_event_merge_combined(**kwargs):
     Compute the event merge combining beats and segment events
     """
     # collect input into local variables    
-    
+
     # number of frames, FIXME winsize, hopsize
     numframes = kwargs['numframes']
     verbose = kwargs['verbose']

@@ -1,6 +1,7 @@
 import urllib3
 import json
-import time
+import time, os
+from pprint import pformat
 
 from smp_audio.cmd import smp_audioArgumentParser
 from smp_audio.util import ns2kw
@@ -75,17 +76,31 @@ def autocover_post(data):
     res = json.loads(r.data.decode('utf-8'))
     return res
 
+def automaster_post(data):
+    call_url = api_url + '/api/smp/automaster'
+    # print(f'autoedit_post headers {headers_json}')
+    encoded_data = json.dumps(data).encode('utf-8')
+    r = http.request(
+        'POST',
+        call_url,
+        body=encoded_data,
+        headers=headers_json
+    )
+    res = json.loads(r.data.decode('utf-8'))
+    return res
+
 def main_api(args):
     """main_api
 
     Run autoedit workflow via API. Upload files, run the process,
     download output.
     """
-    # pop overlisting
-    args.filenames = args.filenames[0]
+    # # pop overlisting - solved
+    # args.filenames = args.filenames[0]
     
     # convert args to dict to json
     data = ns2kw(args)
+    print(f"data = {pformat(data)}")
 
     ############################################################
     # upload the files
@@ -93,9 +108,13 @@ def main_api(args):
     # would prefer this but hey
     # files = [('soundfile', (_, open(_, 'rb').read(), 'audio/wav')) for _ in data['filenames']]
     # print(f'files {files}')
-    
-    for filename in data['filenames']:
-        files = [('soundfile', (filename, open(filename, 'rb').read(), 'audio/wav'))]
+
+    filenames_to_upload = [_ for _ in data['filenames']]
+    if 'references' in data:
+        filenames_to_upload += data['references']
+        
+    for filename in filenames_to_upload:
+        files = [('soundfile', (os.path.basename(filename), open(filename, 'rb').read(), 'audio/wav'))]
         res = files_upload(files)
         print(f'res {res}')
 
@@ -109,6 +128,7 @@ def main_api(args):
     elif args.mode == 'automaster':
         res = automaster_post(data)
     location = res['data']['location']
+    print(f'{args.mode} response {res}')
 
     ############################################################
     # poll for output until 200 / not 404 or timeout
@@ -120,21 +140,10 @@ def main_api(args):
         if res['status'] == 200:
             break
         else:
-            time.sleep(1)
+            time.sleep(5)
         cnt += 1
         
     return res
-
-def main(args):
-    # print(f'autoapi.main args {args}')
-    if args.mode in ['autoedit']:
-        res = main_api(args)
-    elif args.mode in ['autocover']:
-        res = main_autocover_api(args)
-    elif args.mode in ['automaster']:
-        res = main_automaster_api(args)
-
-    print(f'autoapi.main res {res}')
 
 if __name__ == '__main__':
     parser = smp_audioArgumentParser()

@@ -6,15 +6,11 @@ from pprint import pformat
 from smp_audio.cmd import smp_audioArgumentParser
 from smp_audio.util import ns2kw
 
-api_url = 'http://127.0.0.1:5000'
-user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
-headers = {
-    'User-Agent': user_agent,
-    'X-Authentication': 'dt_bf04b14e8e86ad67c54fd4408c92a72181249db96c37939c2f8e9fc635782421',
-}
-headers_json = {
-    'Content-Type': 'application/json'
-}
+from config import api_url, api_key
+
+headers = {'X-Authentication': api_key}
+
+headers_json = {'Content-Type': 'application/json'}
 headers_json.update(headers)
 
 http = urllib3.PoolManager()
@@ -24,7 +20,6 @@ def files_upload(files):
     r = http.request(
         'POST',
         call_url,
-        # body=encoded_data,
         headers=headers,
         fields=files
     )
@@ -33,8 +28,6 @@ def files_upload(files):
 
 def files_download(location):
     call_url = api_url + '/files/' + location
-    # print(f'files_download call_url {call_url}')
-    # print(f'files_download headers {headers}')
     r = http.request(
         'GET',
         call_url,
@@ -50,8 +43,6 @@ def files_download(location):
 
 def autoedit_post(data):
     call_url = api_url + '/api/smp/autoedit'
-    # print(f'call url {call_url}')
-    # print(f'autoedit_post headers {headers_json}')
     encoded_data = json.dumps(data).encode('utf-8')
     r = http.request(
         'POST',
@@ -64,8 +55,6 @@ def autoedit_post(data):
 
 def autocover_post(data):
     call_url = api_url + '/api/smp/autocover'
-    # print(f'call url {call_url}')
-    # print(f'autoedit_post headers {headers_json}')
     encoded_data = json.dumps(data).encode('utf-8')
     r = http.request(
         'POST',
@@ -78,7 +67,6 @@ def autocover_post(data):
 
 def automaster_post(data):
     call_url = api_url + '/api/smp/automaster'
-    # print(f'autoedit_post headers {headers_json}')
     encoded_data = json.dumps(data).encode('utf-8')
     r = http.request(
         'POST',
@@ -95,12 +83,9 @@ def main_api(args):
     Run autoedit workflow via API. Upload files, run the process,
     download output.
     """
-    # # pop overlisting - solved
-    # args.filenames = args.filenames[0]
-    
     # convert args to dict to json
     data = ns2kw(args)
-    print(f"data = {pformat(data)}")
+    # print(f"data = {pformat(data)}")
 
     ############################################################
     # upload the files

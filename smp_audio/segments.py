@@ -235,6 +235,7 @@ def compute_event_merge_index_to_file(**kwargs):
     # ind2_ = kwargs['ind2_']
     filename_48 = kwargs['filename_48']
     verbose = kwargs['verbose']
+    rootdir = kwargs['rootdir']
 
     # samplerate used for analysis
     sr_comp = 22050
@@ -251,10 +252,14 @@ def compute_event_merge_index_to_file(**kwargs):
     ind_cut = librosa.frames_to_samples(ind_) # FIXME: hardcoded choice ind2 (smaller segments / more events)
 
     # load high-quality data
-    # y_48, sr_48 = librosa.load(filename_48, sr=None, mono=False)
-    y_48, sr_48 = soundfile.read(filename_48, always_2d=True)
-    y_48 = y_48.T
-    # print(f'compute_event_merge_index_to_file y_48 {y_48.shape}, sr_48 {sr_48}')
+    if filename_48.endswith('.wav'):
+        y_48, sr_48 = soundfile.read(filename_48, always_2d=True)
+        y_48 = y_48.T
+    else:
+        y_48, sr_48 = librosa.load(filename_48, sr=None, mono=False)
+
+    if verbose:
+        print(f'compute_event_merge_index_to_file loaded hq input y_48 {y_48.shape}, sr_48 {sr_48}')
     
     # TODO multichannel
     assert len(y_48.shape) > 1 and y_48.shape[0] == 2
@@ -271,7 +276,9 @@ def compute_event_merge_index_to_file(**kwargs):
     filename_48_base_name = ".".join(filename_48_base_list[:-1])
     filename_48_base_type = filename_48_base_list[-1]
     suflen = len(filename_48_base_type)+1
-    filename_48_dir_data_segs = os.path.join(filename_48_dir, 'segs')
+    
+    # this is rootdir
+    filename_48_dir_data_segs = os.path.join(rootdir, 'segs')
     if not os.path.exists(filename_48_dir_data_segs):
         # os.makedirs(filename_48_dir_data)
         os.makedirs(filename_48_dir_data_segs)

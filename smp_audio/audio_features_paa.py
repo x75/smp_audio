@@ -10,21 +10,24 @@ from pyAudioAnalysis import MidTermFeatures as mF
 import matplotlib.pyplot as plt
 import numpy as np
 
-def compute_features_paa(filename, with_timebase=False):
+def compute_features_paa(filename, with_timebase=False, verbose=False):
     """compute_features_paa
 
     Compute a bag of standard audio features to be used for some
     downstream task.
     """
-    print('Loading from {0}'.format(filename))
+    if verbose:
+        print('compute_features_paa loading from {0}'.format(filename))
     [Fs, x_] = audioBasicIO.read_audio_file(filename)
-    print('compute_features_paa: loaded {1} samples from {0}'.format(filename, x_.shape))
+    if verbose:
+        print('compute_features_paa: loaded {1} samples from {0}'.format(filename, x_.shape))
     if len(x_.shape) > 1 and x_.shape[1] > 1:
         x = audioBasicIO.stereo_to_mono(x_)
     else:
         x = x_
     x_duration = x.shape[0]/Fs
-    print(f'compute_features_paa: {x_duration} seconds of audio at {Fs}Hz')
+    if verbose:
+        print(f'compute_features_paa: {x_duration} seconds of audio at {Fs}Hz')
 
     mt_win = 1.0*Fs
     mt_step = 0.5*Fs
@@ -41,10 +44,11 @@ def compute_features_paa(filename, with_timebase=False):
         G_time = None
         F_time = None
 
-    print(f'compute_features_paa: F = {F.shape} {F}')
-    print(f'compute_features_paa:     {F_time}')
-    print(f'compute_features_paa: G = {G.shape} {G}')
-    print(f'compute_features_paa:     {G_time}')
+    if verbose:
+        print(f'compute_features_paa: F = {F.shape} {F}')
+        print(f'compute_features_paa:     {F_time}')
+        print(f'compute_features_paa: G = {G.shape} {G}')
+        print(f'compute_features_paa:     {G_time}')
 
     if with_timebase:
         return F, F_names, G, F_time, G_time

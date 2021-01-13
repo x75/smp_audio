@@ -863,9 +863,9 @@ def main(args):
 
         print(f'ret = {pformat(ret)}')
     else:
-        args.filenames = args.filenames[0] # ???
+        # this comes from append / nargs
+        # args.filenames = args.filenames[0] # ???
         args.filename_export = autofilename(args)
-
     
         ret = _main(args)
         # plt.show()

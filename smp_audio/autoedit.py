@@ -53,8 +53,9 @@ autoedit_conf = {
         'sorter': 'features_mt_spectral_spread_mean',
         'sr_comp': 22050,
         'verbose': False,
-        'write': False
-    },
+        'write': False,
+        'outputs': ['wav'],
+   },
 }
 # floats
 autoedit_conf_types_float = ['assemble_crossfade', 'duration']
@@ -145,8 +146,8 @@ def main_autoedit(args):
         # y, sr = data_load_essentia_cached(filename)
         # compute beatiness on data
         g['l1_files'][filename_short] = {}
-        # tmp_ = g['func'][data_load_essentia](filename, sr=args.sr_comp)
-        tmp_ = g['func'][data_load_librosa](filename, sr=args.sr_comp)
+        tmp_ = g['func'][data_load_essentia](filename, sr=args.sr_comp)
+        # tmp_ = g['func'][data_load_librosa](filename, sr=args.sr_comp)
         g['l1_files'][filename_short]['data'] = tmp_[0]
         g['l1_files'][filename_short]['numsamples'] = len(tmp_[0])
         g['l1_files'][filename_short]['numframes'] = samples_to_frames(len(tmp_[0]))
@@ -227,7 +228,8 @@ def main_autoedit(args):
             numframes=numframes,
             numsegs=args.numsegs,
             verbose=args.verbose,
-            sr_comp=args.sr_comp
+            sr_comp=args.sr_comp,
+            rootdir=args.rootdir,
         )
         
         g['l6_merge']['files'].extend(files['files'])
@@ -242,6 +244,9 @@ def main_autoedit(args):
     g['l6_merge']['filename_export'] = args.filename_export
     # crossfade argument
     g['l6_merge']['assemble_crossfade'] = args.assemble_crossfade
+    # rootdir argument
+    g['l6_merge']['rootdir'] = args.rootdir
+    g['l6_merge']['verbose'] = args.verbose
 
     if args.assemble_mode == 'random':
         g['l7_assemble']['outfile'] = g['func'][track_assemble_from_segments](**(g['l6_merge']))
@@ -249,25 +254,32 @@ def main_autoedit(args):
         g['l7_assemble']['outfile'] = g['func'][track_assemble_from_segments_sequential_scale](**(g['l6_merge']))
 
 
-    export_filename = g['l7_assemble']['outfile']['filename_export']
+    filename_export_wav = g['l7_assemble']['outfile']['filename_export_wav']
+    filename_export_txt = g['l7_assemble']['outfile']['filename_export_txt']
     export_duration = g['l7_assemble']['outfile']['final_duration']
     export_segs = g['l7_assemble']['outfile']['seg_s']
     export_numsegs = len(g['l7_assemble']['outfile']['seg_s'])
-        
-    # print((pformat(g)))
-    # joblib.dump(g, './g.pkl')
-    export_filename_graph = f'{export_filename[:-4]}.pkl'
-    print(f'main_autoedit{spacer}exporting graph to {export_filename_graph}')
-    joblib.dump(g, export_filename_graph)
+
+    if 'pkl' in args.outputs:
+        filename_export_graph = os.path.join(
+            args.rootdir,
+            f'{args.filename_export}_graph.pkl')
+        if args.verbose:
+            print(f'main_autoedit{spacer}exporting graph to {filename_export_graph}')
+        joblib.dump(g, filename_export_graph)
     
     # # plot dictionary g as graph
     # autoedit_graph_from_dict(g=g, plot=False)
+    
     ret = {
-        'filename_': export_filename,
+        'filename_export_wav': filename_export_wav,
+        'filename_export_txt': filename_export_txt,
         'length': export_duration,
         'numsegs': export_numsegs,
-        'filename_graph': export_filename_graph
     }
+    if 'pkl' in args.outputs:
+        ret['filename_export_graph'] = filename_export_graph
+
     # # yeah nice, should be obsolete
     # ret.update(g['l7_assemble']['outfile'])
     

@@ -26,6 +26,7 @@ autocover_conf = {
         'sorter': 'features_mt_spectral_spread_mean',
         'sr_comp': 22050,
         'verbose': False,
+        'outputs': ['json'],
     },
 }
 autocover_conf_default = autocover_conf['default']
@@ -37,10 +38,60 @@ def main_autocover(args):
     mapping, be able to select from different mappings
     """
     if args.autocover_mode == 'recurrence_matrix':
+        # TODO: activate recurrence matrix
         return autocover_recurrenceplot(args)
     elif args.autocover_mode == 'feature_matrix':
         return autocover_feature_matrix(args)
 
+
+def export_graphics(feature_matrix, args):
+    fig = plt.figure()
+            
+    # ax2.pcolormesh(xs, ys, plotdata, cmap=plt.get_cmap("Oranges"))
+            
+    nmin = np.min(feature_matrix)
+    nmax = np.max(feature_matrix)
+    ax3 = fig.add_subplot(111)
+    # ax3.imshow(np.log(feature_matrix), aspect='auto', origin='lower',
+    #            interpolation='none',
+    #            # norm=LogNorm(vmin=nmin, vmax=nmax)
+    # )
+
+    length0 = feature_matrix.shape[0]
+    length1 = feature_matrix.shape[1]
+    ys = np.linspace(0, length0, length0)
+    xs = np.linspace(0, length1, length1)
+    # ax3.pcolormesh(xs, ys, np.log(feature_matrix), cmap=plt.get_cmap("Oranges"))
+    # ax3.pcolormesh(xs, ys, np.log(feature_matrix), cmap=cc.cm['colorwheel'])
+    # mycmap = cc.cm['colorwheel']
+    mycmap = cc.cm[np.random.choice(list(cc.cm.keys()))]
+    if args.verbose:
+        print(f'autocover mycmap = {mycmap.name}')
+    ax3.pcolormesh(xs, ys, np.log(feature_matrix), cmap=mycmap)
+    ax3.set_aspect(length1/length0)
+    ax3.axis('off')
+    # ax3.set_title(os.path.basename(filename))
+    # if len(os.path.dirname(filename)) > 0:
+    #     sep = '/'
+    # else:
+    #     sep = ''
+    
+    fig.set_size_inches((10, 10))
+    
+    for savetype in ['pdf', 'jpg']:
+        if not savetype in args.outputs:
+            continue
+        
+        # os.path.basename(filename)[:-4] + savetype
+        savefilename = os.path.join(
+            args.rootdir,
+            os.path.basename(args.filename_export) + "." + savetype)
+
+        if args.verbose:
+            print(f'autocover saving to {savefilename}')
+        fig.savefig(savefilename, dpi=300, bbox_inches='tight')
+        
+    
 def autocover_feature_matrix(args):
     # import librosa
 
@@ -55,7 +106,7 @@ def autocover_feature_matrix(args):
     # compute_music_extractor_essentia_cached = memory.cache(compute_music_extractor_essentia)
     
     for filename in kwargs['filenames']:
-        F, F_names, G, F_time, G_time = compute_features_paa_cached(filename, with_timebase=True)
+        F, F_names, G, F_time, G_time = compute_features_paa_cached(filename, with_timebase=True, verbose=args.verbose)
         if args.verbose:
             print(f'autocover F_names {pformat(F_names)}')
             print(f'autocover F.shape {F.shape}, G.shape {G.shape}')
@@ -115,47 +166,16 @@ def autocover_feature_matrix(args):
         else:
             sep = ''
             
-        write = False
-        if write:
-            fig = plt.figure()
-            
-            # ax2.pcolormesh(xs, ys, plotdata, cmap=plt.get_cmap("Oranges"))
-            
-            nmin = np.min(feature_matrix)
-            nmax = np.max(feature_matrix)
-            ax3 = fig.add_subplot(111)
-            # ax3.imshow(np.log(feature_matrix), aspect='auto', origin='lower',
-            #            interpolation='none',
-            #            # norm=LogNorm(vmin=nmin, vmax=nmax)
-            # )
+        # write = False
 
-            length0 = feature_matrix.shape[0]
-            length1 = feature_matrix.shape[1]
-            ys = np.linspace(0, length0, length0)
-            xs = np.linspace(0, length1, length1)
-            # ax3.pcolormesh(xs, ys, np.log(feature_matrix), cmap=plt.get_cmap("Oranges"))
-            # ax3.pcolormesh(xs, ys, np.log(feature_matrix), cmap=cc.cm['colorwheel'])
-            # mycmap = cc.cm['colorwheel']
-            mycmap = cc.cm[np.random.choice(list(cc.cm.keys()))]
-            print(f'autocover mycmap = {mycmap.name}')
-            ax3.pcolormesh(xs, ys, np.log(feature_matrix), cmap=mycmap)
-            ax3.set_aspect(length1/length0)
-            ax3.axis('off')
-            # ax3.set_title(os.path.basename(filename))
-            # if len(os.path.dirname(filename)) > 0:
-            #     sep = '/'
-            # else:
-            #     sep = ''
-            
-            fig.set_size_inches((10, 10))
-
-            for savetype in ['.pdf', '.jpg']:
-                savefilename = os.path.dirname(filename) + sep + os.path.basename(filename)[:-4] + savetype
-                print(f'autocover saving to {savefilename}')
-                fig.savefig(savefilename, dpi=300, bbox_inches='tight')
-
+        if 'pdf' in args.outputs or 'jpg' in args.outputs:
+            export_graphics(feature_matrix, args)
+        
         # savefilename = os.path.dirname(filename) + sep + os.path.basename(filename)[:-4] + '.json'
-        savefilename = args.filename_export[:-4] + '.json'
+        # savefilename = args.filename_export[:-4] + '.json'
+        savefilename = os.path.join(
+            args.rootdir,
+            os.path.basename(args.filename_export) + ".json")
         
         # dumped = json.dumps(feature_matrix_dict, cls=NumpyEncoder)
         # with open(savefilename, 'w') as f:
@@ -197,6 +217,7 @@ def autocover_recurrenceplot(args):
     # open file compute frame based features
     
     print(f'autocover kwargs {pformat(kwargs)}')
+    # TODO: multiple filenames
     filename = kwargs['filenames'][0]
     w, samplerate = librosa.load(filename)
 

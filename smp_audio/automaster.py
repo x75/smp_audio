@@ -11,6 +11,7 @@ automaster_conf = {
         'seed': 1234,
         'bitdepth': 24,
         'verbose': False,
+        'outputs': ['wav']
     },
 }
 automaster_conf_default = automaster_conf['default']
@@ -29,7 +30,8 @@ def main_automaster(args):
         references = args.references
     else:
         references = [random.choice(args.references) for _ in range(len(args.filenames))]
-    print(f"main_automaster references {references}")
+    if args.verbose:
+        print(f"main_automaster references {references}")
 
     automaster_results = {
         'targets': [],
@@ -43,9 +45,13 @@ def main_automaster(args):
     for target_i, target in enumerate(args.filenames):
         reference = references[target_i]
         # result_filename = f"{target[:-4]}_master{args.bitdepth}.wav"
-        result_filename = args.filename_export
-
-        print(f"main_automaster target {target}, reference {reference}, bitdepth {args.bitdepth}")
+        result_filename = os.path.join(
+            args.rootdir,
+            os.path.basename(args.filename_export) + ".wav")
+        
+        if args.verbose:
+            print(f"main_automaster target {target}, reference {reference}, bitdepth {args.bitdepth}")
+            print(f"main_automaster outputs {result_filename}")
 
         if not os.path.exists(target) or not os.path.exists(reference):
             print(f"main_automaster target {target} or reference {reference} doesnt exist")

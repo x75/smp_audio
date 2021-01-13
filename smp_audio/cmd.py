@@ -10,7 +10,8 @@ def smp_audioArgumentParser():
 
     # autoedit 
     subparser_autoedit = subparsers.add_parser('autoedit', help='autoedit help')
-    subparser_autoedit.add_argument("-f", "--filenames", action='append', dest='filenames', help="Input file(s) []", nargs = '+', default = [], required=True)
+    subparser_autoedit.add_argument("-f", "--filenames", dest='filenames', help="Input file(s) []", nargs = '+', default = [], required=True)
+    subparser_autoedit.add_argument("-o", "--outputs", dest='outputs', help="Output types / file types [wav] (wav, pkl, txt)", nargs = '*', default = ['wav'])
     subparser_autoedit.add_argument("-a", "--assemble-mode", dest='assemble_mode',
                         help="Assemble mode [random] (random, sequential)",
                         default='random')
@@ -26,7 +27,8 @@ def smp_audioArgumentParser():
 
     # autocover
     subparser_autocover = subparsers.add_parser('autocover', help='autocover help')
-    subparser_autocover.add_argument("-f", "--filenames", action='append', dest='filenames', help="Input file(s) []", nargs = '+', default = [], required=True)
+    subparser_autocover.add_argument("-f", "--filenames", dest='filenames', help="Input file(s) []", nargs = '+', default = [], required=True)
+    subparser_autocover.add_argument("-o", "--outputs", dest='outputs', help="Output types / file types [wav] (json, pdf, jpg)", nargs = '*', default = ['json'])
     subparser_autocover.add_argument(
         "-acm", "--autocover-mode", dest='autocover_mode',
         help="autocover mode [feature_matrix] (feature_matrix, recurrence_matrix)",
@@ -37,12 +39,13 @@ def smp_audioArgumentParser():
     subparser_automaster.add_argument("-b", "--bitdepth", dest='bitdepth', default=24, help="Bitdepth for computations [24] (16|24)")
     subparser_automaster.add_argument(
         "-f", "--filenames",
-        action='append', dest='filenames', help="Input file(s) []",
+        dest='filenames', help="Input file(s) []",
         nargs = '+', default = [], required=True)
     subparser_automaster.add_argument(
         "-r", "--references",
-        action='append', dest='references', help="reference file(s) []",
+        dest='references', help="reference file(s) []",
         nargs = '+', default=[], required=True)
+    subparser_automaster.add_argument("-o", "--outputs", dest='outputs', help="Output types / file types [wav] (wav)", nargs = '*', default = ['wav'])
 
     parser.add_argument("-s", "--sorter", dest='sorter', default='features_mt_spectral_spread_mean', help="Sorting feature [features_mt_spectral_spread_mean]")
     parser.add_argument("-r", "--rootdir", type=str, default='./data', help="Root directory to prepend to all working directories [./data]")

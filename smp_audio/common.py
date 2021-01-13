@@ -146,16 +146,23 @@ def autofilename(args):
 
     Create an output filename from the first input file, the mode, the
     count and the seed.
+
+    Return output filename stub without extension.
     """
-    if args.verbose:
-        print(f"smp_audio.common.autofilename args {args}")
     dirname = os.path.dirname(args.filenames[0])
     filename = os.path.basename(args.filenames[0])
-    filename_noext = filename.split('.')[-2]
+    filename_noext = ".".join(filename.split('.')[:-1])
     count = autocount(basedir=args.rootdir, autoname=args.mode)
+    # if args.verbose:
+    #     print(f"smp_audio.common.autofilename filenames {args.filenames}")
+    #     print(f"smp_audio.common.autofilename dirname {dirname}")
+    #     print(f"smp_audio.common.autofilename filename {filename}")
+    #     print(f"smp_audio.common.autofilename filename_noext {filename_noext}")
+    #     print(f"smp_audio.common.autofilename count {count}")
     filename_export = os.path.join(
         dirname,
-        # 'data',
-        f'{filename_noext}-{args.mode}-{count}-{args.seed}.wav'
+        f'{filename_noext}-{args.mode}-{count}'
     )
+    if args.verbose:
+        print(f"smp_audio.common.autofilename = {filename_export}")
     return filename_export

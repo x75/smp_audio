@@ -45,7 +45,7 @@ def smp_audioArgumentParser():
         nargs = '+', default=[], required=True)
 
     parser.add_argument("-s", "--sorter", dest='sorter', default='features_mt_spectral_spread_mean', help="Sorting feature [features_mt_spectral_spread_mean]")
-    parser.add_argument("-r", "--rootdir", type=str, default='./', help="Root directory to prepend to all working directories [./]")
+    parser.add_argument("-r", "--rootdir", type=str, default='./data', help="Root directory to prepend to all working directories [./data]")
     parser.add_argument("--seed", dest='seed', type=int, default=123, help="Random seed [123]")
     parser.add_argument("-v", "--verbose", dest='verbose', action='store_true', default=False, help="Be verbose [False]")
     

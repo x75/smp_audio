@@ -1,6 +1,12 @@
+"""audio_features_paa
+
+audio feature extraction from pyAudioAnalysis (paa) package
+
+- 2021-01-13 updated to paa 0.3.6
+"""
 import argparse
 from pyAudioAnalysis import audioBasicIO
-from pyAudioAnalysis import audioFeatureExtraction
+from pyAudioAnalysis import MidTermFeatures as mF
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -11,10 +17,10 @@ def compute_features_paa(filename, with_timebase=False):
     downstream task.
     """
     print('Loading from {0}'.format(filename))
-    [Fs, x_] = audioBasicIO.readAudioFile(filename)
+    [Fs, x_] = audioBasicIO.read_audio_file(filename)
     print('compute_features_paa: loaded {1} samples from {0}'.format(filename, x_.shape))
     if len(x_.shape) > 1 and x_.shape[1] > 1:
-        x = audioBasicIO.stereo2mono(x_)
+        x = audioBasicIO.stereo_to_mono(x_)
     else:
         x = x_
     x_duration = x.shape[0]/Fs
@@ -25,7 +31,8 @@ def compute_features_paa(filename, with_timebase=False):
     st_win = 0.050*Fs
     st_step = 0.025*Fs
     # F, F_names = audioFeatureExtraction.stFeatureExtraction(x, Fs, st_win, st_step)
-    G, F, F_names = audioFeatureExtraction.mtFeatureExtraction(x, Fs, mt_win, mt_step, st_win, st_step)
+    # G, F, F_names = audioFeatureExtraction.mtFeatureExtraction(x, Fs, mt_win, mt_step, st_win, st_step)
+    G, F, F_names = mF.mid_feature_extraction(x, Fs, mt_win, mt_step, st_win, st_step)
 
     if with_timebase:
         G_time = np.linspace(0, G.shape[1] * 0.5, G.shape[1] + 1)

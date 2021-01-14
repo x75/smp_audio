@@ -26,19 +26,34 @@ def files_upload(files):
     res = json.loads(r.data.decode('utf-8'))
     return res
 
-def files_download(location):
-    call_url = api_url + '/files/' + location
+def files_download(location, with_result=False, location_only=False):
+    if location_only:
+        call_url = location
+    else:
+        call_url = api_url + '/files/' + location
+        
     r = http.request(
         'GET',
         call_url,
         headers=headers,
     )
     if r.status == 200:
-        # res = json.loads(r.data.decode('utf-8'))
-        open(location, 'wb').write(r.data)
+        open(os.path.basename(location), 'wb').write(r.data)
         print(f"downloaded {location}")
 
     res = {'status': r.status}
+    if with_result:
+        res.update(json.loads(r.data.decode('utf-8')))
+    return res
+
+def task_status(location):
+    # call_url = api_url + '/files/' + location
+    r = http.request(
+        'GET',
+        location,
+        headers=headers,
+    )
+    res = json.loads(r.data.decode('utf-8'))
     return res
 
 def autoedit_post(data):
@@ -112,22 +127,37 @@ def main_api(args):
         res = autocover_post(data)
     elif args.mode == 'automaster':
         res = automaster_post(data)
-    location = res['data']['location']
-    print(f'{args.mode} response {res}')
+    location = res['data']['task']['url']
+    print(f'autoapi     mode {args.mode}')
+    print(f'autoapi response {res}')
 
     ############################################################
     # poll for output until 200 / not 404 or timeout
     print(f"waiting for output file to become ready for download ...")
     # download output file
     cnt = 0
-    while True and cnt < 100:
-        res = files_download(location)
-        if res['status'] == 200:
-            break
+    inprogress = True
+    while inprogress and cnt < 100:
+        res = task_status(location)
+        print(f"res {pformat(res)}")
+        if res['data']['status'] == 'done':
+            inprogress = False
         else:
-            time.sleep(5)
+            time.sleep(1)
         cnt += 1
         
+    location = res['data']['url']
+    print(f"autoapi downloading {location}")
+    res = files_download(location, with_result=True, location_only=True)
+
+    print(f"autoapi res {res}")
+
+    if 'data' in res and 'output_files' in res['data']:
+        for output_file in res['data']['output_files']:
+            location = output_file['filename']
+            print(f"autoapi download location {location}")
+            res = files_download(location)
+    
     return res
 
 if __name__ == '__main__':

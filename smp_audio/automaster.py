@@ -77,13 +77,22 @@ def main_automaster(args, **kwargs):
         automaster_results['references'].append(reference)
         automaster_results['results'].append(filename_export)
 
+    results = {
+        'data': {
+            'output_files': [
+                {'format': args.outputs[0],
+                 'filename': os.path.basename(automaster_results['results'][0])}
+            ],
+        }
+    }
+        
     filename_result = os.path.join(
         args.rootdir,
         os.path.basename(args.filename_export) + ".json")
 
     # this saves the array in .json format
     json.dump(
-        automaster_results,
+        results,
         codecs.open(filename_result, 'w', encoding='utf-8'),
         # separators=(',', ':'),
         # sort_keys=True,
@@ -94,4 +103,4 @@ def main_automaster(args, **kwargs):
     if 'task' in kwargs:
         kwargs['task'].set_done(result_location=os.path.basename(args.filename_export) + ".json")
     
-    return automaster_results
+    return results

@@ -31,7 +31,7 @@ autocover_conf = {
 }
 autocover_conf_default = autocover_conf['default']
 
-def main_autocover(args):
+def main_autocover(args, **kwargs):
     """autocover
 
     take an audiofile and create a cover for it using data driven
@@ -39,9 +39,9 @@ def main_autocover(args):
     """
     if args.autocover_mode == 'recurrence_matrix':
         # TODO: activate recurrence matrix
-        return autocover_recurrenceplot(args)
+        return autocover_recurrenceplot(args, **kwargs)
     elif args.autocover_mode == 'feature_matrix':
-        return autocover_feature_matrix(args)
+        return autocover_feature_matrix(args, **kwargs)
 
 
 def export_graphics(feature_matrix, args):
@@ -92,20 +92,20 @@ def export_graphics(feature_matrix, args):
         fig.savefig(savefilename, dpi=300, bbox_inches='tight')
         
     
-def autocover_feature_matrix(args):
+def autocover_feature_matrix(args, **kwargs):
     # import librosa
 
-    kwargs = args_to_dict(args)
+    kwargs_ns = args_to_dict(args)
 
     if args.verbose:
-        print(f'autocover kwargs {pformat(kwargs)}')
+        print(f'autocover kwargs_ns {pformat(kwargs_ns)}')
         
     # open file compute frame based features
-    # w, samplerate = librosa.load(kwargs['filenames'][0])
+    # w, samplerate = librosa.load(kwargs_ns['filenames'][0])
     compute_features_paa_cached = memory.cache(compute_features_paa)
     # compute_music_extractor_essentia_cached = memory.cache(compute_music_extractor_essentia)
     
-    for filename in kwargs['filenames']:
+    for filename in kwargs_ns['filenames']:
         F, F_names, G, F_time, G_time = compute_features_paa_cached(filename, with_timebase=True, verbose=args.verbose)
         if args.verbose:
             print(f'autocover F_names {pformat(F_names)}')
@@ -152,7 +152,7 @@ def autocover_feature_matrix(args):
             feature_matrix_dict[feature_key] = G[i]
 
         feature_matrix_dict['t_seconds'] = G_time
-            
+
         # # not used?
         # me = compute_music_extractor_essentia_cached(filename)
         # print(f'autocover music extractor {type(me)}')
@@ -175,12 +175,8 @@ def autocover_feature_matrix(args):
         # savefilename = args.filename_export[:-4] + '.json'
         savefilename = os.path.join(
             args.rootdir,
-            os.path.basename(args.filename_export) + ".json")
+            os.path.basename(args.filename_export) + "-feature-matrix.json")
         
-        # dumped = json.dumps(feature_matrix_dict, cls=NumpyEncoder)
-        # with open(savefilename, 'w') as f:
-        #     json.dump(dumped, f)
-
         # this saves the array in .json format
         json.dump(
             feature_matrix_dict,
@@ -191,15 +187,15 @@ def autocover_feature_matrix(args):
             cls=NumpyEncoder,
         )
 
-        res_ = json.dumps(
-            feature_matrix_dict,
-            cls=NumpyEncoder,
-        )
-        res = json.loads(res_)
+        # res_ = json.dumps(
+        #     feature_matrix_dict,
+        #     cls=NumpyEncoder,
+        # )
+        # res = json.loads(res_)
 
-        if args.verbose:
-            print(f"autocover_feature_matrix res {type(res)}")
-            print(f"autocover_feature_matrix res {res.keys()}")
+        # if args.verbose:
+        #     print(f"autocover_feature_matrix res {type(res)}")
+        #     print(f"autocover_feature_matrix res {res.keys()}")
         
         # json.dump(feature_matrix_dict, open(savefilename, 'w'))
             
@@ -207,18 +203,45 @@ def autocover_feature_matrix(args):
         # use inkscape to post process
         # inkscape --export-png=11.84.0.-1.0-1.1-1_5072.884286-autoedit-11_master_16bit.png --export-dpi=400 11.84.0.-1.0-1.1-1_5072.884286-autoedit-11_master_16bit.pdf
         # plt.show()
-        return res
+        
+    res = {
+        'data': {
+            'output_files': [
+                {'format': 'json', 'filename': os.path.basename(savefilename)}
+            ],
+        }
+    }
+        
+    filename_result = os.path.join(
+        args.rootdir,
+        os.path.basename(args.filename_export) + ".json")
 
-def autocover_recurrenceplot(args):
+    # this saves the array in .json format
+    json.dump(
+        res,
+        codecs.open(filename_result, 'w', encoding='utf-8'),
+        # separators=(',', ':'),
+        # sort_keys=True,
+        # indent=4,
+        # cls=NumpyEncoder,
+    )
+           
+    if 'task' in kwargs:
+        kwargs['task'].set_done(result_location=os.path.basename(args.filename_export) + ".json")
+    
+    return res
+
+def autocover_recurrenceplot(args, **kwargs):
     import librosa
     from pyunicorn.timeseries import RecurrencePlot
     from matplotlib.colors import LogNorm
-    kwargs = args_to_dict(args)
+    
+    kwargs_ns = args_to_dict(args)
     # open file compute frame based features
     
-    print(f'autocover kwargs {pformat(kwargs)}')
+    print(f'autocover kwargs_ns {pformat(kwargs_ns)}')
     # TODO: multiple filenames
-    filename = kwargs['filenames'][0]
+    filename = kwargs_ns['filenames'][0]
     w, samplerate = librosa.load(filename)
 
     RecurrencePlot_cached = memory.cache(RecurrencePlot)

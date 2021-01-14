@@ -4,6 +4,7 @@ autoedit function
 """
 import os
 from collections import OrderedDict
+import json, codecs
 
 import joblib
 import numpy as np
@@ -74,7 +75,7 @@ def autoedit_args_check(args):
         setattr(args, t, int(getattr(args, t)))
     return args
         
-def main_autoedit(args):
+def main_autoedit(args, **kwargs):
     """main_autoedit
 
     Complete autoedit flow
@@ -272,15 +273,39 @@ def main_autoedit(args):
     # autoedit_graph_from_dict(g=g, plot=False)
     
     ret = {
-        'filename_export_wav': filename_export_wav,
-        'filename_export_txt': filename_export_txt,
-        'length': export_duration,
-        'numsegs': export_numsegs,
+        'data': {
+            'output_files': [
+                {'format': 'wav', 'filename': os.path.basename(filename_export_wav)},
+                {'format': 'txt', 'filename': os.path.basename(filename_export_txt)},
+            ],
+            'output_length': export_duration,
+            'output_numsegs': export_numsegs,
+        }
     }
+    
     if 'pkl' in args.outputs:
-        ret['filename_export_graph'] = filename_export_graph
+        ret['data']['output_files'].append(
+            {'format': 'pkl', 'filename': filename_export_graph}
+        )
 
     # # yeah nice, should be obsolete
     # ret.update(g['l7_assemble']['outfile'])
+
+    filename_result = os.path.join(
+        args.rootdir,
+        os.path.basename(args.filename_export) + ".json")
+
+    # this saves the array in .json format
+    json.dump(
+        ret,
+        codecs.open(filename_result, 'w', encoding='utf-8'),
+        # separators=(',', ':'),
+        # sort_keys=True,
+        # indent=4,
+        # cls=NumpyEncoder,
+    )
+
+    if 'task' in kwargs:
+        kwargs['task'].set_done(result_location=os.path.basename(args.filename_export) + ".json")
     
     return ret

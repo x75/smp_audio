@@ -22,7 +22,7 @@ Abstract interface
 
 - beats_to_bpm
 """
-import os
+import argparse, os
 import json
 import numpy as np
 

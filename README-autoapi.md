@@ -1,11 +1,21 @@
 # smp\_audio
 ## smp\_audio.autopapi
+### quick start 
 
-quick start from scratch
+`autoapi.py` is a command line wrapper and reference code for using
+the smp_audio API. these are the quick start instructions to get you
+bootstrapped. any feedback on mail or issues please, so we can improve
+it for you and others.
+
+get the code
 
 `git clone https://github.com/x75/smp_audio`
 
-change into smp_audio directory
+don't worry about the repository. for the moment we need that bag of
+files, no further installation should be required. Some standard
+Python packages excepted, referring to standard PyPI instructions.
+
+Change into the `smp_audio` directory
 
 `cd smp_audio`
 
@@ -13,7 +23,8 @@ initialize and setup your config
 
 `cp config.py.dist config.py`
 
-then open `config.py` with your favorite editor and paste your api_key (TODO: test key)
+then open `config.py` with your favorite editor and paste your api_key
+at the top replacing the dummy entry. (TODO: Test key would be cool).
 
 get test files in place, we providing one that you can get on the command line with wget
 

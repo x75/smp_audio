@@ -209,6 +209,16 @@ def autocover_feature_matrix(args, **kwargs):
         }
     }
 
+    # export graphics
+    if 'pdf' in args.outputs or 'jpg' in args.outputs:
+        export_graphics(feature_matrix, args)
+
+    # record all output files
+    for output_type in args.outputs:
+        res['data']['output_files'].append(
+            {'format': output_type, 'filename': os.path.basename(args.filename_export) + "." + output_type}
+        )
+        
     filename_result = os.path.join(
         args.rootdir,
         os.path.basename(args.filename_export) + ".json")
@@ -223,16 +233,6 @@ def autocover_feature_matrix(args, **kwargs):
         # cls=NumpyEncoder,
     )
            
-    # export graphics
-    if 'pdf' in args.outputs or 'jpg' in args.outputs:
-        export_graphics(feature_matrix, args)
-
-    # record all output files
-    for output_type in args.outputs:
-        res['data']['output_files'].append(
-            {'format': output_type, 'filename': os.path.basename(args.filename_export) + "." + output_type}
-        )
-        
     if 'task' in kwargs:
         kwargs['task'].set_done(result_location=os.path.basename(args.filename_export) + ".json")
     

@@ -63,7 +63,7 @@ smp\_audio.segments module
 smp\_audio.util module
 ----------------------
 
-.. automodule:: smp_audio.util
+.. automodule:: config
     :members:
     :undoc-members:
     :show-inheritance:

@@ -3,8 +3,8 @@ import json
 import time, os
 from pprint import pformat
 
-from smp_audio.cmd import smp_audioArgumentParser
-from smp_audio.util import ns2kw
+from config import smp_audioArgumentParser
+from config import ns2kw
 
 from config import api_url, api_key
 
@@ -28,7 +28,11 @@ def files_upload(files):
 
 def files_download(location, with_result=False, location_only=False):
     if location_only:
-        call_url = location
+        if location.startswith('http'):
+            call_url = location
+        else:
+            call_url = api_url + location
+            
     else:
         call_url = api_url + '/files/' + location
         
@@ -47,12 +51,17 @@ def files_download(location, with_result=False, location_only=False):
     return res
 
 def task_status(location):
-    # call_url = api_url + '/files/' + location
+    if location.startswith('http'):
+        call_url = location
+    else:
+        call_url = api_url + location
+        
     r = http.request(
         'GET',
-        location,
+        call_url,
         headers=headers,
     )
+    print(r.data)
     res = json.loads(r.data.decode('utf-8'))
     return res
 
@@ -138,6 +147,7 @@ def main_api(args):
     cnt = 0
     inprogress = True
     while inprogress and cnt < 100:
+        print(f"req {location}")
         res = task_status(location)
         print(f"res {pformat(res)}")
         if res['data']['status'] == 'done':

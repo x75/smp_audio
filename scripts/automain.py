@@ -52,7 +52,7 @@ from smp_audio.common_aubio import data_stream_aubio, data_stream_get_aubio
 from smp_audio.assemble_pydub import track_assemble_from_segments, track_assemble_from_segments_sequential, track_assemble_from_segments_sequential_scale
 from smp_audio.graphs import graph_walk_collection_flat, graph_walk_collection
 from smp_audio.graphs import cb_graph_walk_build_graph
-from smp_audio.util import args_to_dict, ns2kw, kw2ns
+from config import args_to_dict, ns2kw, kw2ns
 from smp_audio.segments import compute_event_merge_combined
 
 # from audio_segments_split import main_audio_segments_split
@@ -872,7 +872,7 @@ def main(args):
 
 if __name__ == "__main__":
     print(f'main {sys.argv[0]}')
-    from smp_audio.cmd import smp_audioArgumentParser
+    from config import smp_audioArgumentParser
     parser = smp_audioArgumentParser()
     
     # params: numsegments, duration, minlength, maxlength, kernel params

@@ -34,7 +34,7 @@ from smp_audio.common_librosa import compute_chroma_librosa, compute_tempogram_l
 from smp_audio.common_librosa import compute_onsets_librosa, compute_beats_librosa
 from smp_audio.common_librosa import compute_segments_librosa
 # from smp_audio.common_madmom import compute_beats_madmon
-from smp_audio.util import args_to_dict
+from config import args_to_dict
 
 from smp_audio.common_librosa import myplot_specshow_librosa
 from smp_audio.common_librosa import myplot_onsets, myplot_beats, myplot_tempo, myplot_chroma, myplot_segments, myplot_segments_hist

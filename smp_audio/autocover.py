@@ -9,8 +9,8 @@ import matplotlib.colors as colors
 import colorcet as cc
 
 from smp_audio.caching import memory
-from smp_audio.util import args_to_dict, ns2kw, kw2ns
-from smp_audio.util import NumpyEncoder
+from config import args_to_dict, ns2kw, kw2ns
+from config import NumpyEncoder
 
 from smp_audio.audio_features_paa import compute_features_paa
 from smp_audio.common_essentia import compute_music_extractor_essentia
@@ -168,19 +168,16 @@ def autocover_feature_matrix(args, **kwargs):
             
         # write = False
 
-        if 'pdf' in args.outputs or 'jpg' in args.outputs:
-            export_graphics(feature_matrix, args)
-        
         # savefilename = os.path.dirname(filename) + sep + os.path.basename(filename)[:-4] + '.json'
         # savefilename = args.filename_export[:-4] + '.json'
         savefilename = os.path.join(
             args.rootdir,
-            os.path.basename(args.filename_export) + "-feature-matrix.json")
+            os.path.basename(args.filename_export) + "-feature-matrix")
         
         # this saves the array in .json format
         json.dump(
             feature_matrix_dict,
-            codecs.open(savefilename, 'w', encoding='utf-8'),
+            codecs.open(savefilename + ".json", 'w', encoding='utf-8'),
             separators=(',', ':'),
             sort_keys=True,
             indent=4,
@@ -207,10 +204,20 @@ def autocover_feature_matrix(args, **kwargs):
     res = {
         'data': {
             'output_files': [
-                {'format': 'json', 'filename': os.path.basename(savefilename)}
+                # {'format': 'json', 'filename': os.path.basename(savefilename)}
             ],
         }
     }
+
+    # export graphics
+    if 'pdf' in args.outputs or 'jpg' in args.outputs:
+        export_graphics(feature_matrix, args)
+
+    # record all output files
+    for output_type in args.outputs:
+        res['data']['output_files'].append(
+            {'format': output_type, 'filename': os.path.basename(savefilename) + "." + output_type}
+        )
         
     filename_result = os.path.join(
         args.rootdir,

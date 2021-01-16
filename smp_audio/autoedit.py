@@ -13,7 +13,7 @@ from librosa import samples_to_frames, time_to_frames, frames_to_time
 from smp_audio.common import autocount
 from smp_audio.common_essentia import data_load_essentia
 from smp_audio.common_librosa import data_load_librosa
-from smp_audio.util import args_to_dict, ns2kw, kw2ns
+from config import args_to_dict, ns2kw, kw2ns
 from smp_audio.common_librosa import compute_segments_librosa, compute_chroma_librosa, compute_beats_librosa, compute_onsets_librosa
 from smp_audio.common_essentia import compute_segments_essentia
 from smp_audio.segments import compute_event_merge_combined

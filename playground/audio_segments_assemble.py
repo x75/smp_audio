@@ -1,6 +1,6 @@
 import argparse
 
-from smp_audio.util import args_to_dict
+from config import args_to_dict
 from smp_audio.assemble_pydub import track_assemble_from_segments
 
 if __name__ == '__main__':

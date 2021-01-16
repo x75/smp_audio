@@ -35,9 +35,9 @@ get test files in place, we providing one that you can get on the command line w
 
 or curl
 
-`curl https://github.com/x75/smp_data/blob/master/data/smp_audio/tests/TESTFILE.mp3?raw=true --output TESTFILE.mp3`
+`curl -L https://github.com/x75/smp_data/blob/master/data/smp_audio/tests/TESTFILE.mp3?raw=true --output TESTFILE.mp3`
 
-`curl https://github.com/x75/smp_data/blob/master/data/smp_audio/tests/TESTFILE_ref.mp3?raw=true --output TESTFILE_ref.mp3`
+`curl -L https://github.com/x75/smp_data/blob/master/data/smp_audio/tests/TESTFILE_ref.mp3?raw=true --output TESTFILE_ref.mp3`
 
 with that file in place you can run the tool suite
 

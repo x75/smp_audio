@@ -3,10 +3,8 @@ import json
 import time, os
 from pprint import pformat
 
-from config import smp_audioArgumentParser
-from config import ns2kw
-
 from config import api_url, api_key
+from config import smp_audioArgumentParser
 
 headers = {'X-Authentication': api_key}
 
@@ -14,6 +12,10 @@ headers_json = {'Content-Type': 'application/json'}
 headers_json.update(headers)
 
 http = urllib3.PoolManager()
+
+def ns2kw(ns):
+    kw = dict([(_, getattr(ns, _)) for _ in dir(ns) if not _.startswith('_')])
+    return kw
 
 def files_upload(files):
     call_url = api_url + '/files'

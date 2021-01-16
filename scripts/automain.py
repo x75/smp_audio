@@ -35,6 +35,7 @@ import audioread
 from librosa import samples_to_frames, time_to_frames, frames_to_time
 
 from smp_audio.common import autofilename
+from smp_audio.common import args_to_dict, ns2kw, kw2ns
 from smp_audio.common_essentia import data_load_essentia
 from smp_audio.common_essentia import compute_segments_essentia
 from smp_audio.common_essentia import compute_tempo_beats_essentia, compute_music_extractor_essentia
@@ -52,7 +53,6 @@ from smp_audio.common_aubio import data_stream_aubio, data_stream_get_aubio
 from smp_audio.assemble_pydub import track_assemble_from_segments, track_assemble_from_segments_sequential, track_assemble_from_segments_sequential_scale
 from smp_audio.graphs import graph_walk_collection_flat, graph_walk_collection
 from smp_audio.graphs import cb_graph_walk_build_graph
-from config import args_to_dict, ns2kw, kw2ns
 from smp_audio.segments import compute_event_merge_combined
 
 # from audio_segments_split import main_audio_segments_split

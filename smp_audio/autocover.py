@@ -9,11 +9,11 @@ import matplotlib.colors as colors
 import colorcet as cc
 
 from smp_audio.caching import memory
-from config import args_to_dict, ns2kw, kw2ns
-from config import NumpyEncoder
-
+from smp_audio.common import args_to_dict, ns2kw, kw2ns
 from smp_audio.audio_features_paa import compute_features_paa
 from smp_audio.common_essentia import compute_music_extractor_essentia
+
+from config import NumpyEncoder
 
 # TODO: create autocover_conf_default
 autocover_conf = {

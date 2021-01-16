@@ -23,11 +23,27 @@ Abstract interface
 - beats_to_bpm
 """
 import os
+import json
+import numpy as np
+
 from smp_base.impl import smpi
 # import logging
 logging = smpi('logging')
 
 DEBUG=True
+
+
+# numpy encoder json ndarray/list
+class NumpyEncoder(json.JSONEncoder):
+    """ Special json encoder for numpy types """
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
 
 # convert args namespace to kwargs dict
 def args_to_dict(args):

@@ -11,9 +11,10 @@ get the code
 
 `git clone https://github.com/x75/smp_audio`
 
-don't worry about the repository. for the moment we need that bag of
-files, no further installation should be required. Some standard
-Python packages excepted, referring to standard PyPI instructions.
+don't worry about the directory and all the files in it. for the
+moment we need that bag of files, no further installation should be
+required though. Some standard Python packages excepted, referring to
+standard PyPI instructions.
 
 Change into the `smp_audio` directory
 
@@ -28,11 +29,15 @@ at the top replacing the dummy entry. (TODO: Test key would be cool).
 
 get test files in place, we providing one that you can get on the command line with wget
 
-`wget https://github.com/x75/smp_data/blob/master/data/smp_audio/tests/TESTFILE.mp3?raw=true`
+`wget https://github.com/x75/smp_data/blob/master/data/smp_audio/tests/TESTFILE.mp3?raw=true --output-document TESTFILE.mp3`
+
+`wget https://github.com/x75/smp_data/blob/master/data/smp_audio/tests/TESTFILE_ref.mp3?raw=true --output-document TESTFILE_ref.mp3`
 
 or curl
 
 `curl https://github.com/x75/smp_data/blob/master/data/smp_audio/tests/TESTFILE.mp3?raw=true --output TESTFILE.mp3`
+
+`curl https://github.com/x75/smp_data/blob/master/data/smp_audio/tests/TESTFILE_ref.mp3?raw=true --output TESTFILE_ref.mp3`
 
 with that file in place you can run the tool suite
 

@@ -45,7 +45,7 @@ def files_download(location, with_result=False, location_only=False):
     )
     if r.status == 200:
         open(os.path.basename(location), 'wb').write(r.data)
-        print(f"downloaded {location}")
+        print("downloaded {0}".format(location))
 
     res = {'status': r.status}
     if with_result:
@@ -111,14 +111,14 @@ def main_api(args):
     """
     # convert args to dict to json
     data = ns2kw(args)
-    # print(f"data = {pformat(data)}")
+    # print("data = {0}".format(pformat(data)))
 
     ############################################################
     # upload the files
-    print(f"uploading filenames {data['filenames']}")
+    print("uploading filenames {0}".format(data['filenames']))
     # would prefer this but hey
     # files = [('soundfile', (_, open(_, 'rb').read(), 'audio/wav')) for _ in data['filenames']]
-    # print(f'files {files}')
+    # print("files {0}".format(files))
 
     filenames_to_upload = [_ for _ in data['filenames']]
     if 'references' in data:
@@ -127,11 +127,11 @@ def main_api(args):
     for filename in filenames_to_upload:
         files = [('soundfile', (os.path.basename(filename), open(filename, 'rb').read(), 'audio/wav'))]
         res = files_upload(files)
-        print(f'res {res}')
+        print("res {0}".format(res))
 
     ############################################################
     # start the job
-    print(f'starting job {args.mode} with conf {data}')
+    print("starting job {0} with conf {1}".format(args.mode, data))
     if args.mode == 'autoedit':
         res = autoedit_post(data)
     elif args.mode == 'autocover':
@@ -139,19 +139,19 @@ def main_api(args):
     elif args.mode == 'automaster':
         res = automaster_post(data)
     location = res['data']['task']['url']
-    print(f'autoapi     mode {args.mode}')
-    print(f'autoapi response {res}')
+    print("autoapi     mode {0}".format(args.mode))
+    print("autoapi response {0}".format(res))
 
     ############################################################
     # poll for output until 200 / not 404 or timeout
-    print(f"waiting for output file to become ready for download ...")
+    print("waiting for output file to become ready for download on {0}".format(location))
     # download output file
     cnt = 0
     inprogress = True
     while inprogress and cnt < 100:
-        print(f"req {location}")
+        print("req {0}".format(location))
         res = task_status(location)
-        print(f"res {pformat(res)}")
+        print("res {0}".format(pformat(res)))
         if res['data']['status'] == 'done':
             inprogress = False
         else:
@@ -159,15 +159,15 @@ def main_api(args):
         cnt += 1
         
     location = res['data']['url']
-    print(f"autoapi downloading {location}")
+    print("autoapi downloading {0}".format(location))
     res = files_download(location, with_result=True, location_only=True)
 
-    print(f"autoapi res {res}")
+    print("autoapi res {0}".format(res))
 
     if 'data' in res and 'output_files' in res['data']:
         for output_file in res['data']['output_files']:
             location = output_file['filename']
-            print(f"autoapi download location {location}")
+            print("autoapi download location {0}".format(location))
             res = files_download(location)
     
     return res

@@ -68,19 +68,23 @@ def task_status(location):
     return res
 
 def autoedit_post(data):
-    call_url = api_url + '/api/smp/autoedit'
+    call_url = api_url + '/api/autoedit'
     encoded_data = json.dumps(data).encode('utf-8')
+    print("call_url {0}".format(call_url))
+    print("data {0}".format(data))
     r = http.request(
         'POST',
         call_url,
         body=encoded_data,
         headers=headers_json
     )
+    print("r.status {0}".format(r.status))
+    print("r.data {0}".format(r.data))
     res = json.loads(r.data.decode('utf-8'))
     return res
 
 def autocover_post(data):
-    call_url = api_url + '/api/smp/autocover'
+    call_url = api_url + '/api/autocover'
     encoded_data = json.dumps(data).encode('utf-8')
     r = http.request(
         'POST',
@@ -92,14 +96,18 @@ def autocover_post(data):
     return res
 
 def automaster_post(data):
-    call_url = api_url + '/api/smp/automaster'
+    call_url = api_url + '/api/automaster'
     encoded_data = json.dumps(data).encode('utf-8')
+    print("call_url {0}".format(call_url))
+    print("data {0}".format(data))
     r = http.request(
         'POST',
         call_url,
         body=encoded_data,
         headers=headers_json
     )
+    print("r.status {0}".format(r.status))
+    print("r.data {0}".format(r.data))
     res = json.loads(r.data.decode('utf-8'))
     return res
 
@@ -138,7 +146,11 @@ def main_api(args):
         res = autocover_post(data)
     elif args.mode == 'automaster':
         res = automaster_post(data)
-    location = res['data']['task']['url']
+    # HACK
+    if 'task' in res['data']:
+        location = res['data']['task']['url']
+    else:
+        location = res['data']['url']
     print("autoapi     mode {0}".format(args.mode))
     print("autoapi response {0}".format(res))
 

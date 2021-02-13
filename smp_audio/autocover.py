@@ -26,7 +26,7 @@ autocover_conf = {
         'sorter': 'features_mt_spectral_spread_mean',
         'sr_comp': 22050,
         'verbose': False,
-        'outputs': ['json'],
+        'outputs': ['json', 'jpg'],
     },
 }
 autocover_conf_default = autocover_conf['default']

@@ -15,15 +15,17 @@ over the original track in sync with the beat.
 - incremental graph expansion (general, smp_audio)
 - bayesian ensembles for event constraints and integration (general, smp_audio)
 """
-import argparse, random
+import argparse, random, sys
 import librosa
 import numpy as np
 import librosa.display
 import matplotlib.pyplot as plt
-import madmom
+# import madmom
 
 from scipy.stats import mode
-from smp_base.plot import make_fig
+import soundfile
+# from smp_base.plot import make_fig
+print("post import")
 
 DEBUG=True
 HEADLESS=False
@@ -164,12 +166,12 @@ def autovoice_align(beats, **kwargs):
     a = AudioSegment.from_wav(kwargs['filename'])
 
     # number of main and side voices
-    j_voice_main = 5
-    j_voice_side = 10
+    voice_main_numlayer = 5
+    voice_side_numlayer = 10
     if 'numlayer' in voice_snips['raw']:
-        voice_main_density = voice_snips['raw']['numlayer']
+        voice_main_numlayer = voice_snips['raw']['numlayer']
     if 'numlayer' in voice_snips['proc']:
-        voice_side_density = voice_snips['proc']['numlayer']
+        voice_side_numlayer = voice_snips['proc']['numlayer']
     
     # voice density
     voice_main_density = 0.33
@@ -199,7 +201,7 @@ def autovoice_align(beats, **kwargs):
     # voice_main_density = 0.9
     # voice_side_density = 0.6
 
-    j_voice = j_voice_main + j_voice_side
+    j_voice = voice_main_numlayer + voice_side_numlayer
     for j in range(j_voice):
         gain = 0
         # gain = random.randint(-3, 2)
@@ -215,7 +217,7 @@ def autovoice_align(beats, **kwargs):
             # gain_max = -9
             # gain_min = -12
             
-            if j < j_voice_main:
+            if j < voice_main_numlayer:
                 # main / raw gain limits
                 gain_max_raw = voice_snips['raw']['gain_max'] # param
                 gain_min_raw = voice_snips['raw']['gain_min'] # param
@@ -440,7 +442,8 @@ def main(args):
         tmp_ = y[i_start:bound_samples[i]]
         outfilename = filename[:-4] + "-%d.wav" % (i)
         myprint('writing seg %d to outfile %s' % (i, outfilename))
-        librosa.output.write_wav(outfilename, tmp_, sr)
+        # librosa.output.write_wav(outfilename, tmp_, sr)
+        soundfile.write(outfilename, tmp_.T, sr, 'PCM_16', format='WAV')
     
     # bound_times
     # array([  0.   ,   1.672,   2.322,   2.624,   3.251,   3.506,
@@ -530,7 +533,7 @@ def main(args):
     plt.show()
         
 if __name__ == '__main__':
-
+    print(sys.argv)
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--conf', help='Config key to load from autovoice configuration module [sco_2]', default='sco_2', type=str)
     parser.add_argument('-d', '--duration', help='Input duration (secs) to select from input file [10.0]',
@@ -539,6 +542,6 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--seed', help='Random seed [0]', default=0, type=int)
 
     args = parser.parse_args()
-
+    print(args)
     main(args)
     

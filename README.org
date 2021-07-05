@@ -75,12 +75,17 @@ session-based production styles. It takes a stereo recording of a
 session on the input, computes a beat aligned segmentation into
 different parts, and assembles these parts into an edit. It is run as
 
-: cd scripts
-: python3 audio_sort_features.py --mode autoedit --filenames /path/to/single/file.wav
+: python3 scripts/automain.py autoedit --filenames /path/to/single/file.wav
+
+Automaster is run with
+
+: python3 scripts/automain.py automaster --bitdepth 16 \
+: --filenames /file/that/should/be/mastered.wav \
+: --references /file/to/use/as/reference.wav
 
 Calling the script with `--help` argument prints the parameters with docstring and default values
 
-: python3 audio_sort_features.py --help
+: python3 scripts/automain --help
 
 The most important parameter is the approximate number of segments
 given by `--numsegs N`. More segments in total make individual

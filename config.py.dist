@@ -30,7 +30,6 @@ def smp_audioArgumentParser():
     subparser_autoedit.add_argument("-src", "--sr-comp", dest='sr_comp', default=22050, help="Sample rate for computations [22050]")
     subparser_autoedit.add_argument("-smin", "--seglen-min", dest='seglen_min', default=2, help="Segment length minimum in seconds [2]")
     subparser_autoedit.add_argument("-smax", "--seglen-max", dest='seglen_max', default=60, help="Segment length maximum in seconds [60]")
-    subparser_autoedit.add_argument("-w", "--write", dest='write', action='store_true', default=False, help="Write output [False]")
 
     # autocover
     subparser_autocover = subparsers.add_parser('autocover', help='autocover help')
@@ -54,9 +53,14 @@ def smp_audioArgumentParser():
         nargs = '+', default=[], required=True)
     subparser_automaster.add_argument("-o", "--outputs", dest='outputs', help="Output types / file types [wav] (wav)", nargs = '*', default = ['wav'])
 
+    # automix
+    subparser_automix = subparsers.add_parser('automix', help='automix help')
+    subparser_automix.add_argument("-f", "--filenames", dest='filenames', help="Input file(s) []", nargs = '+', default = [], required=True)
+
     parser.add_argument("-s", "--sorter", dest='sorter', default='features_mt_spectral_spread_mean', help="Sorting feature [features_mt_spectral_spread_mean]")
     parser.add_argument("-r", "--rootdir", type=str, default='./data', help="Root directory to prepend to all working directories [./data]")
     parser.add_argument("--seed", dest='seed', type=int, default=123, help="Random seed [123]")
     parser.add_argument("-v", "--verbose", dest='verbose', action='store_true', default=False, help="Be verbose [False]")
+    parser.add_argument("-w", "--write", dest='write', action='store_true', default=False, help="Write output [False]")
     
     return parser

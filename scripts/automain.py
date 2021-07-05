@@ -496,11 +496,11 @@ def main_automix(args):
     sort_key = kwargs['sorter']
     
     print('Sorting l1_files by {0}'.format(l1_files_df.sort_values(sort_key, ascending=False).path.to_string()))
-    l1_files_df.sort_values(sort_key, ascending=False).path.to_csv('sendspaace-assembled-{0}-{1}.{2}'.format(3, sort_key, 'csv'))
+    l1_files_df.sort_values(sort_key, ascending=False).path.to_csv('automix-assembled-{0}-{1}.{2}'.format(3, sort_key, 'csv'))
 
     if args.write:
         track_assemble_from_segments_sequential(files=list(l1_files_df.sort_values(sort_key, ascending=False).path),
-                                                output_filename='sendspaace-assembled-{0}-{1}.{2}'.format(3, sort_key, 'wav'),
+                                                output_filename='automix-assembled-{0}-{1}.{2}'.format(3, sort_key, 'wav'),
                                                 duration=None)
     
 def autoedit_graph_from_dict(**kwargs):

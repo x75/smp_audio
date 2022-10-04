@@ -1,0 +1,2 @@
+try with 3.8
+export PYTHONPATH=`pwd`:$PYTHONPATH

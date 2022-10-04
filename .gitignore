@@ -8,3 +8,6 @@
 capture/*
 
 doc/build/*
+
+.python3.8_local/
+.python3.10_local/

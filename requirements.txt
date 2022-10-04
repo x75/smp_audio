@@ -1,16 +1,19 @@
 matchering==2.0.2
 colorcet==2.0.1
-librosa==0.7.1
+librosa==0.9.2
 pydub==0.24.1
 SoundFile==0.10.3.post1
 audioread==2.1.6
-networkx==2.2
+networkx==2.5
 matplotlib==3.1.2
-scipy==1.4.1
+scipy==1.9.1
 urllib3==1.22
-pandas==1.0.1
+pandas==1.5.0
 aubio==0.4.7
-numpy==1.13.3
-pyunicorn==0.6.0
-essentia==2.1b6.dev374
+numpy==1.23.3
+Cython==0.29.32
+pyunicorn==0.6.1 # needs cython
+git+https://github.com/MTG/essentia@v2.1_beta5
 pyAudioAnalysis==0.3.6
+numba
+git+https://github.com/x75/smp_base

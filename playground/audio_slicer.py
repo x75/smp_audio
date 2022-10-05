@@ -1,3 +1,9 @@
+"""audio slicer
+
+Oswald Berthold, 2021
+
+create fixed number of slices from audio input file starting at random offsets
+"""
 import argparse, random, sys, os
 # import librosa
 import numpy as np

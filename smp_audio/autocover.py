@@ -78,7 +78,7 @@ def export_graphics(feature_matrix, args):
     
     fig.set_size_inches((10, 10))
     
-    for savetype in ['pdf', 'jpg']:
+    for savetype in ['pdf', 'jpg', 'png']:
         if not savetype in args.outputs:
             continue
         
@@ -210,7 +210,7 @@ def autocover_feature_matrix(args, **kwargs):
     }
 
     # export graphics
-    if 'pdf' in args.outputs or 'jpg' in args.outputs:
+    if 'pdf' in args.outputs or 'jpg' in args.outputs or 'png' in args.outputs:
         export_graphics(feature_matrix, args)
 
     # record all output files
